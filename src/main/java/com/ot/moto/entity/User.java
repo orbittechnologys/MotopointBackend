@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -25,6 +27,10 @@ public class User {
     private String phone;
 
     private String password;
+
+    private String profilePic;
+
+    private LocalDate joiningDate;
 
     private String role;
 
