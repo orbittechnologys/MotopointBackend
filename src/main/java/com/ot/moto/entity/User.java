@@ -14,6 +14,10 @@ import java.time.LocalDate;
 @Inheritance(strategy = InheritanceType.JOINED)
 public class User {
 
+    public enum ROLE {
+        ROLE_ADMIN, ROLE_STAFF, ROLE_DRIVER
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
