@@ -7,6 +7,7 @@ import com.ot.moto.dto.request.CreateAdminReq;
 import com.ot.moto.entity.Admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,9 @@ import org.slf4j.LoggerFactory;
 public class AdminService {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminService.class);
+
+    @Autowired
+    private PasswordEncoder encoder;
 
     @Autowired
     private AdminDao adminDao;
@@ -44,11 +48,12 @@ public class AdminService {
         Admin admin = new Admin();
         admin.setEmail(request.getEmail());
         admin.setPhone(request.getPhone());
-        admin.setPassword(request.getPassword());
+        admin.setPassword(encoder.encode(request.getPassword()));
         admin.setFirstName(request.getFirstName());
         admin.setLastName(request.getLastName());
         admin.setUsername((request.getFirstName() + " " + request.getLastName()).toUpperCase());
         admin.setProfilePic(request.getProfilePic());
+        admin.setJoiningDate(request.getJoiningDate());
         return admin;
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Repository
 public class UserDao {
@@ -13,19 +14,26 @@ public class UserDao {
     @Autowired
     private UserRepository userRepository;
 
-    public boolean checkUserExists (String email, String phone){
-        User user = userRepository.findByEmail(email);
-        if(Objects.nonNull(user)){
+    /*public boolean checkUserExists(String email, String phone) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (Objects.nonNull(user)) {
             return true;
         }
         user = userRepository.findByPhone(phone);
-        if(Objects.nonNull(user)){
+        if (Objects.nonNull(user)) {
             return true;
         }
         return false;
+    }*/
+
+    public boolean checkUserExists(String email, String phone) {
+        Optional<User> userByEmail = userRepository.findByEmail(email);
+        if (userByEmail.isPresent()) {
+            return true;
+        }
+
+        Optional<User> userByPhone = userRepository.findByPhone(phone);
+        return userByPhone.isPresent();
     }
 
-    public User createUser(User user){
-        return userRepository.save(user);
-    }
 }
