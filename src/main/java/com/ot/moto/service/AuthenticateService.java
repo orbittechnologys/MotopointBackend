@@ -4,6 +4,8 @@ import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.JwtRequest;
 import com.ot.moto.dto.response.JwtResponse;
 import com.ot.moto.util.JwtTokenUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
 public class AuthenticateService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticateService.class);
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -31,6 +35,7 @@ public class AuthenticateService {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(jwtRequest.getUserEmail(), jwtRequest.getPassword()));
         } catch (BadCredentialsException e) {
+            logger.error(e.getMessage());
             throw new Exception("Invalid Email or Password", e);
         }
         final CustomUserDetails details = (CustomUserDetails) detailsService

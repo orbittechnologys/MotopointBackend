@@ -36,4 +36,24 @@ public class UserDao {
         return userByPhone.isPresent();
     }
 
+    public Optional<User> getUser(String email,String phone){
+        Optional<User> userByEmail = userRepository.findByEmail(email);
+        if (userByEmail.isPresent()) {
+            return userByEmail;
+        }
+
+        Optional<User> userByPhone = userRepository.findByPhone(phone);
+        return userByPhone;
+    }
+
+    public Optional<User> getUserByPhone(String phone){
+        Optional<User> userByPhone = userRepository.findByPhone(phone);
+        return userByPhone;
+    }
+
+    public Optional<User> getUserByEmail(String email){
+        Optional<User> userByPhone = userRepository.findByEmail(email);
+        return userByPhone;
+    }
+
 }

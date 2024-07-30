@@ -42,7 +42,10 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/webjars/**",
             "/authenticate",
-            "/admin/create"
+            "/admin/create",
+            "/admin/getById/**",
+            "/admin/getAll",
+            "/admin/update"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create"};
