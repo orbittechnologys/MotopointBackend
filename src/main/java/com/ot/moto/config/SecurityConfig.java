@@ -45,10 +45,11 @@ public class SecurityConfig {
             "/admin/create",
             "/admin/getById/**",
             "/admin/getAll",
-            "/admin/update"
+            "/admin/update",
+            "/staff/getById/**"
     };
 
-    private static final String[] ADMIN_WHITELIST = {"/staff/create"};
+    private static final String[] ADMIN_WHITELIST = {"/staff/create","/staff/update"};
 
     private static final String[] DRIVER_WHITELIST = {};
 

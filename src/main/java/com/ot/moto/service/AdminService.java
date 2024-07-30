@@ -136,7 +136,7 @@ public class AdminService {
             Admin admin = fetchAdmin(request.getId());
             if (Objects.isNull(admin)) {
                 logger.warn("No admin found with id:" + request.getId());
-                return ResponseStructure.errorResponse(null, 404, "Email/ Phone already exists");
+                return ResponseStructure.errorResponse(null, 404, "Admin not found with id:"+request.getId());
             }
             Optional<User> userEmail =userDao.getUserByEmail(request.getEmail());
 
