@@ -53,5 +53,4 @@ public class AdminController {
     public ResponseEntity<ResponseStructure<Object>> updateAdmin(@RequestBody UpdateAdminReq req) {
         return adminService.updateAdmin(req);
     }
-
 }

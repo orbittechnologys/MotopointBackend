@@ -56,7 +56,7 @@ public class SecurityConfig {
 
     private static final String[] STAFF_WHITELIST = {};
 
-    private static final String[] ADMIN_STAFF_WHITELIST= {"/driver/create","/driver/update"};
+    private static final String[] ADMIN_STAFF_WHITELIST= {"/driver/create","/driver/update","/fleet/create","/fleet/getById/{id}","/fleet/getAll","/fleet/update"};
 
     @Bean
     public PasswordEncoder passwordEncoder() {

@@ -41,6 +41,4 @@ public class ResponseStructure<T> {
         respStructure.setMessage(message);
         return new ResponseEntity<>(respStructure,getStatus(status));
     }
-
-
 }

@@ -18,6 +18,9 @@ public class Fleet {
 
     private String vehicleName;
 
+    @Column(unique = true,nullable = false)
+    private String vehicleNumber;
+
     private String vehicleType;
 
     private LocalDate insuranceExpiryDate;
@@ -28,5 +31,4 @@ public class Fleet {
     @JoinColumn
     @JsonManagedReference("fleet")
     private Driver driver;
-
 }
