@@ -60,7 +60,8 @@ public class StaffService {
         staff.setUsername((request.getFirstName() + " " + request.getLastName()).toUpperCase());
         staff.setProfilePic(request.getProfilePic());
         staff.setJoiningDate(request.getJoiningDate());
-        staff.setDepartment(request.getDepartment());
+        staff.setDesignation(request.getDesignation());
+        staff.setEmployeeId(request.getEmployeeId());
         return staff;
     }
 
@@ -114,11 +115,15 @@ public class StaffService {
             staff.setProfilePic(request.getProfilePic());
         }
         if(!StringUtil.isEmpty(request.getDepartment())){
-            staff.setDepartment(request.getDepartment());
+            staff.setDesignation(request.getDepartment());
         }
         if(request.getJoiningDate() != null){
             staff.setJoiningDate(request.getJoiningDate());
         }
+        if(request.getEmployeeId() != null){
+            staff.setEmployeeId(request.getEmployeeId());
+        }
+
         return staff;
     }
 

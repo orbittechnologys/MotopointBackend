@@ -9,6 +9,7 @@ import com.ot.moto.entity.Admin;
 import com.ot.moto.entity.User;
 import com.ot.moto.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -108,14 +109,15 @@ public class AdminService {
         }
     }
 
-    public ResponseEntity<ResponseStructure<Object>> getAllAdmin() {
+    public ResponseEntity<ResponseStructure<Object>> getAllAdmin(int page, int size, String field) {
         try {
             List<Admin> admin = adminDao.getAllAdmin();
-            if (admin.size() == 0) {
+            Page<Admin> adminPage = adminDao.findAll(page,size,field);
+            if (adminPage.isEmpty()) {
                 logger.warn("No Admin found.");
                 return ResponseStructure.errorResponse(null, 404, "No Admin found");
             }
-            return ResponseStructure.successResponse(admin, "Admin found");
+            return ResponseStructure.successResponse(adminPage, "Admin found");
         } catch (Exception e) {
             logger.error("Error fetching admin", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());

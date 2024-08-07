@@ -1,34 +1,32 @@
-package com.ot.moto.entity;
+package com.ot.moto.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.List;
 
-@Entity
 @Data
-public class Driver extends  User{
-    {
-        super.setRole("ROLE_DRIVER");
-    }
+public class UpdateDriverReq {
 
-    private double amountPending;
-
-    private double amountReceived;
-
-    private int totalOrders;
-
-    private int currentOrders;
+    private Long id;
 
     private String jahezId;
 
-    private LocalDate visaExpiryDate;
+    private String email;
 
-    private double salaryAmount;
+    private String phone;
+
+    private String password;
+
+    private String firstName;
+
+    private String lastName;
+
+    private String profilePic;
+
+    private LocalDate joiningDate;
+
+
+    private LocalDate visaExpiryDate;
 
     private String address;
 
@@ -76,12 +74,4 @@ public class Driver extends  User{
     private String bankMobilePayNumber;
 
     private String passbookImageUrl;
-
-    @OneToOne(mappedBy = "driver")
-    @JsonBackReference("fleet")
-    private Fleet fleet;
-
-    @OneToMany(mappedBy = "driver")
-    @JsonBackReference("driver")
-    private List<Orders> orders;
 }

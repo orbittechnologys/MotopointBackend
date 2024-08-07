@@ -43,10 +43,11 @@ public class SecurityConfig {
             "/webjars/**",
             "/authenticate",
             "/admin/create",
-            "/admin/getById/**",
+            "/admin/getById/{id}",
             "/admin/getAll",
             "/admin/update",
-            "/staff/getById/**"
+            "/staff/getById/{id}",
+            "/driver/getById/{id}"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create","/staff/update"};
@@ -54,6 +55,8 @@ public class SecurityConfig {
     private static final String[] DRIVER_WHITELIST = {};
 
     private static final String[] STAFF_WHITELIST = {};
+
+    private static final String[] ADMIN_STAFF_WHITELIST= {"/driver/create","/driver/update"};
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -91,6 +94,7 @@ public class SecurityConfig {
                         .requestMatchers(ADMIN_WHITELIST).hasRole("ADMIN")
                         .requestMatchers(STAFF_WHITELIST).hasRole("STAFF")
                         .requestMatchers(DRIVER_WHITELIST).hasRole("DRIVER")
+                        .requestMatchers(ADMIN_STAFF_WHITELIST).hasAnyRole("ADMIN","STAFF")
                         .anyRequest().authenticated()
                 );
 

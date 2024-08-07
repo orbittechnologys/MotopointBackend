@@ -39,8 +39,10 @@ public class AdminController {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Admin Found"),
             @ApiResponse(responseCode = "404", description = "Admin Not Found")})
     @GetMapping("/getAll")
-    public ResponseEntity<ResponseStructure<Object>> getAllAdmin() {
-        return adminService.getAllAdmin();
+    public ResponseEntity<ResponseStructure<Object>> getAllAdmin(@RequestParam(defaultValue = "0") int page,
+                                                                 @RequestParam(defaultValue = "10") int size,
+                                                                 @RequestParam(defaultValue = "id") String field) {
+        return adminService.getAllAdmin(page,size,field);
     }
 
     @Operation(summary = "Update Admin", description = "Input is UpdateAdminReq, returns Admin Obj")

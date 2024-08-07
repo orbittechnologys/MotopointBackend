@@ -17,7 +17,9 @@ public class CreateStaffReq {
 
     private String lastName;
 
-    private String department;
+    private String employeeId;
+
+    private String designation;
 
     private String profilePic;
 

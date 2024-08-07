@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-public class Admin  extends User{
+public class
+Admin  extends User{
     {
         super.setRole("ROLE_ADMIN");
     }

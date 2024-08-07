@@ -14,6 +14,8 @@ public class Staff extends  User {
 
     private String lastName;
 
-    private String department;
+    private String designation;
+
+    private String employeeId;
 
 }

@@ -24,4 +24,6 @@ public class UpdateStaffReq {
     private LocalDate joiningDate;
 
     private String department;
+
+    private String employeeId;
 }
