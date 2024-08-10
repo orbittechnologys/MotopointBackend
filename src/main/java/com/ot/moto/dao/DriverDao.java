@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @Repository
@@ -28,5 +29,10 @@ public class DriverDao {
 
     public Page<Driver> findAll(int offset, int pageSize, String field) {
         return driverRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
+    }
+
+    public Driver findByNameIgnoreCase(String driverName){
+        Optional<Driver> driverOptional = driverRepository.findByNameIgnoreCase(driverName);
+        return driverOptional.orElse(null);
     }
 }

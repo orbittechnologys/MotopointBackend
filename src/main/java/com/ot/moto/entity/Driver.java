@@ -20,9 +20,9 @@ public class Driver extends  User{
 
     private double amountReceived;
 
-    private int totalOrders;
+    private Long totalOrders;
 
-    private int currentOrders;
+    private Long currentOrders;
 
     private String jahezId;
 

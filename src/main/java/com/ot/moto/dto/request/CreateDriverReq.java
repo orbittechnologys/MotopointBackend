@@ -26,7 +26,7 @@ public class CreateDriverReq {
 
     private double amountReceived;
 
-    private int totalOrders;
+    private Long totalOrders;
 
     private LocalDate visaExpiryDate;
 

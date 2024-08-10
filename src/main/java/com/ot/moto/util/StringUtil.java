@@ -8,4 +8,9 @@ public class StringUtil {
         }
         return str.isEmpty();
     }
+
+    public static Long getLong(String str){
+        Double doubleVal = Double.parseDouble(str);
+        return doubleVal.longValue();
+    }
 }
