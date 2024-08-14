@@ -3,6 +3,7 @@ package com.ot.moto.controller;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateDriverReq;
 import com.ot.moto.dto.request.UpdateDriverReq;
+import com.ot.moto.dto.response.DriverDetails;
 import com.ot.moto.service.DriverService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -48,10 +49,22 @@ public class DriverController {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
             @ApiResponse(responseCode = "404", description = "Driver Not Found")})
     @GetMapping("/getAll")
-    public ResponseEntity<ResponseStructure<Object>> getAllAdmin(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<ResponseStructure<Object>> getAllDriver(@RequestParam(defaultValue = "0") int page,
                                                                  @RequestParam(defaultValue = "10") int size,
                                                                  @RequestParam(defaultValue = "id") String field) {
         return driverService.getAllDriver(page,size,field);
+    }
+
+
+    @Operation(summary = "Get Driver Details", description = "Returns detailed statistics about drivers including counts for flexi visas, other visa types, riders, and drivers.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Driver details retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/details")
+    public ResponseEntity<DriverDetails> getDriverDetails() {
+        DriverDetails driverDetails = driverService.getDriverDetails();
+        return ResponseEntity.ok(driverDetails);
     }
 
 }

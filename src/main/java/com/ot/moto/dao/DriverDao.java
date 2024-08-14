@@ -35,4 +35,24 @@ public class DriverDao {
         Optional<Driver> driverOptional = driverRepository.findByNameIgnoreCase(driverName);
         return driverOptional.orElse(null);
     }
+
+    public long countFlexiVisa() {
+        return driverRepository.countFlexiVisa();
+    }
+
+    public long countOtherVisaTypes() {
+        return driverRepository.countOtherVisaTypes();
+    }
+
+    public long countTwoWheelerRiders() {
+        return driverRepository.countTwoWheelerRiders();
+    }
+
+    public long countFourWheelerDrivers() {
+        return driverRepository.countFourWheelerDrivers();
+    }
+
+    public long countTotalDrivers() {
+        return driverRepository.countTotalDrivers();
+    }
 }

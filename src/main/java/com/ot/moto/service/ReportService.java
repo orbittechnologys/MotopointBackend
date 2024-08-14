@@ -13,6 +13,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -57,18 +58,18 @@ public class ReportService {
                 String cellDebit = row.getCell(10).toString();
 
 
-                LocalDate cellLocalDate = LocalDate.parse(cellDate,formatter);
-                Orders orders = orderDao.checkOrderValid(cellDriverName,cellLocalDate);
-                if(Objects.nonNull(orders)){
-                    logger.info("Entry not valid for :"+cellDriverName+","+cellDate);
+                LocalDate cellLocalDate = LocalDate.parse(cellDate, formatter);
+                Orders orders = orderDao.checkOrderValid(cellDriverName, cellLocalDate);
+                if (Objects.nonNull(orders)) {
+                    logger.info("Entry not valid for :" + cellDriverName + "," + cellDate);
                     continue;
                 }
-                orders = buildOrdersFromCellData(cellLocalDate,cellDriverName, StringUtil.getLong(cellNoOfS1),
-                        StringUtil.getLong(cellNoOfS2),StringUtil.getLong(cellNoOfS3),StringUtil.getLong(cellNoOfS4),
-                        StringUtil.getLong(cellNoOfS5),StringUtil.getLong(cellDeliveries),Double.parseDouble(cellCodAmount),
-                        Double.parseDouble(cellCredit),Double.parseDouble(cellDebit));
-                if(Objects.nonNull(orders)){
-                    logger.info("Saving order  :"+orders.getDriverName()+","+orders.getDate().toString());
+                orders = buildOrdersFromCellData(cellLocalDate, cellDriverName, StringUtil.getLong(cellNoOfS1),
+                        StringUtil.getLong(cellNoOfS2), StringUtil.getLong(cellNoOfS3), StringUtil.getLong(cellNoOfS4),
+                        StringUtil.getLong(cellNoOfS5), StringUtil.getLong(cellDeliveries), Double.parseDouble(cellCodAmount),
+                        Double.parseDouble(cellCredit), Double.parseDouble(cellDebit));
+                if (Objects.nonNull(orders)) {
+                    logger.info("Saving order  :" + orders.getDriverName() + "," + orders.getDate().toString());
                     ordersList.add(orders);
                 }
             }
@@ -83,10 +84,10 @@ public class ReportService {
         }
     }
 
-    private Orders buildOrdersFromCellData(LocalDate date, String driverName, Long noOfS1, Long noOfS2, Long noOfS3, Long noOfS4, Long noOfS5, Long deliveries, Double codAmount, Double credit, Double debit){
+    private Orders buildOrdersFromCellData(LocalDate date, String driverName, Long noOfS1, Long noOfS2, Long noOfS3, Long noOfS4, Long noOfS5, Long deliveries, Double codAmount, Double credit, Double debit) {
 
         Driver driver = driverDao.findByNameIgnoreCase(driverName);
-        if (Objects.isNull(driver)){
+        if (Objects.isNull(driver)) {
             return null;
         }
 
@@ -104,15 +105,31 @@ public class ReportService {
         orders.setCredit(credit);
         orders.setDriver(driver);
 
-        addDriverDeliveries(codAmount,deliveries,driver);
+        addDriverDeliveries(codAmount, deliveries, driver);
 
         return orders;
     }
 
-    public Driver addDriverDeliveries(Double codAmount, Long deliveries,Driver driver){
-        driver.setAmountPending(driver.getAmountPending() +codAmount);
+    public Driver addDriverDeliveries(Double codAmount, Long deliveries, Driver driver) {
+        driver.setAmountPending(driver.getAmountPending() + codAmount);
         driver.setTotalOrders(driver.getTotalOrders() + deliveries);
         driver.setCurrentOrders(deliveries);
         return driverDao.createDriver(driver);
+    }
+
+
+    public ResponseEntity<ResponseStructure<Object>> getAllReport(int page, int size, String field) {
+        try {
+
+            Page<Orders> ordersPage = orderDao.findAll(page, size, field);
+            if (ordersPage.isEmpty()) {
+                logger.warn("No Staff found.");
+                return ResponseStructure.errorResponse(null, 404, "No Driver found");
+            }
+            return ResponseStructure.successResponse(ordersPage, "Driver found");
+        } catch (Exception e) {
+            logger.error("Error fetching Staff", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
     }
 }
