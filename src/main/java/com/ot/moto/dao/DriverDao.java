@@ -35,4 +35,8 @@ public class DriverDao {
         Optional<Driver> driverOptional = driverRepository.findByNameIgnoreCase(driverName);
         return driverOptional.orElse(null);
     }
+
+    public Driver findByPhoneNumber(String phoneNumber) {
+        return driverRepository.findByPhone(phoneNumber);
+    }
 }

@@ -48,7 +48,8 @@ public class SecurityConfig {
             "/admin/update",
             "/staff/getById/{id}",
             "/driver/getById/{id}",
-            "/report/upload/jahez"
+            "/report/upload/jahez",
+            "/bankstatement/upload"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create","/staff/update"};
