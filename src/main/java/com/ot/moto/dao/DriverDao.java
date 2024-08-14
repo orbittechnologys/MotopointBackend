@@ -55,4 +55,8 @@ public class DriverDao {
     public long countTotalDrivers() {
         return driverRepository.countTotalDrivers();
     }
+
+    public Driver findByPhoneNumber(String phoneNumber) {
+        return driverRepository.findByPhone(phoneNumber);
+    }
 }

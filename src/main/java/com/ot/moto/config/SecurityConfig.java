@@ -52,7 +52,8 @@ public class SecurityConfig {
             "/driver/details",
             "/order/getOrderCount",
             "/order/getOrderCountByMonth",
-            "/order/findAll"
+            "/order/findAll",
+            "/bankstatement/upload"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create","/staff/update"};

@@ -28,4 +28,6 @@ public interface DriverRepository extends JpaRepository<Driver,Long> {
     @Query("SELECT COUNT(d) FROM Driver d")
     long countTotalDrivers();
 
+    public Driver findByPhone(String phone);
+
 }

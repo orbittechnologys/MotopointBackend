@@ -1,9 +1,6 @@
 package com.ot.moto.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -25,4 +22,8 @@ public class Payment {
     private String type;
 
     private LocalDate date;
+
+    @ManyToOne
+    @JoinColumn(name = "driver_id", nullable = false)
+    private Driver driver;
 }
