@@ -9,6 +9,9 @@ public interface FleetRepository extends JpaRepository<Fleet,Long> {
 
     public Fleet findByVehicleNumber(String vehicleNumber);
 
+    @Query("SELECT COUNT(f) FROM Fleet f WHERE f.ownType = :ownType")
+    public long countByOwnType(@Param("ownType") Fleet.OWN_TYPE ownType);
+
     @Query("SELECT COUNT(f) FROM Fleet f WHERE f.vehicleType = :vehicleType")
     public long countByVehicleType(@Param("vehicleType") Fleet.VEHICLE_TYPE vehicleType);
 }

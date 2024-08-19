@@ -16,8 +16,10 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -40,9 +42,158 @@ public class ReportService {
     @Autowired
     private PaymentRepository paymentRepository;
 
-
     private static final Logger logger = LoggerFactory.getLogger(ReportService.class);
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
+
+
+
+
+
+    public ResponseEntity<ResponseStructure<Object>> getSumForCurrentMonth() {
+        LocalDate now = LocalDate.now();
+        LocalDate startDate = now.withDayOfMonth(1);
+        LocalDate endDate = now.withDayOfMonth(now.lengthOfMonth());
+
+        logger.info("Fetching total sum for current month from {} to {}", startDate, endDate);
+
+        try {
+            Double sum = paymentDao.getSumOfCurrentMonth(startDate, endDate);
+            logger.info("Total sum for current month from {} to {}: {}", startDate, endDate, sum);
+            return ResponseStructure.successResponse(sum, "Total sum for current month retrieved successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching sum for current month from {} to {}", startDate, endDate, e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching sum for current month: " + e.getMessage());
+        }
+    }
+
+
+    public ResponseEntity<ResponseStructure<Object>> getArrearsForToday() {
+        LocalDate today = LocalDate.now();
+
+        logger.info("Fetching total arrears for today ({})", today);
+
+        try {
+            Double arrearsSum = orderDao.getArrearsForToday();
+            logger.info("Total arrears for today ({}): {}", today, arrearsSum);
+            return ResponseStructure.successResponse(arrearsSum, "Total arrears for today retrieved successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching arrears for today ({})", today, e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching arrears for today: " + e.getMessage());
+        }
+    }
+
+
+    public ResponseEntity<ResponseStructure<Object>> getSumAmountForYesterday() {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+
+        logger.info("Fetching total amount for yesterday ({})", yesterday);
+
+        try {
+            Double amountSum = paymentDao.getSumAmountForYesterday();
+            logger.info("Total amount for yesterday ({}): {}", yesterday, amountSum);
+            return ResponseStructure.successResponse(amountSum, "Total amount for yesterday retrieved successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching amount for yesterday ({})", yesterday, e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching amount for yesterday: " + e.getMessage());
+        }}
+
+
+        public ResponseEntity<ResponseStructure<Object>> uploadJahezReport(Sheet sheet) {
+        try {
+            int rowStart = 1;
+            int rowEnd = sheet.getLastRowNum();
+            List<Orders> ordersList = new ArrayList<>();
+            for (int i = rowStart; i <= rowEnd; i++) {
+                Row row = sheet.getRow(i);
+
+                String cellDate = row.getCell(0).toString();
+                System.out.println(cellDate);
+                String cellDriverName = row.getCell(1).toString();
+                String cellNoOfS1 = row.getCell(2).toString();
+                String cellNoOfS2 = row.getCell(3).toString();
+                String cellNoOfS3 = row.getCell(4).toString();
+                String cellNoOfS4 = row.getCell(5).toString();
+                String cellNoOfS5 = row.getCell(6).toString();
+                String cellDeliveries = row.getCell(7).toString();
+                String cellCodAmount = row.getCell(8).toString();
+                String cellCredit = row.getCell(9).toString();
+                String cellDebit = row.getCell(10).toString();
+
+
+                LocalDate cellLocalDate = LocalDate.parse(cellDate, formatter);
+                Orders orders = orderDao.checkOrderValid(cellDriverName, cellLocalDate);
+                if (Objects.nonNull(orders)) {
+                    logger.info("Entry not valid for :" + cellDriverName + "," + cellDate);
+                    continue;
+                }
+                orders = buildOrdersFromCellData(cellLocalDate, cellDriverName, StringUtil.getLong(cellNoOfS1),
+                        StringUtil.getLong(cellNoOfS2), StringUtil.getLong(cellNoOfS3), StringUtil.getLong(cellNoOfS4),
+                        StringUtil.getLong(cellNoOfS5), StringUtil.getLong(cellDeliveries), Double.parseDouble(cellCodAmount),
+                        Double.parseDouble(cellCredit), Double.parseDouble(cellDebit));
+                if (Objects.nonNull(orders)) {
+                    logger.info("Saving order  :" + orders.getDriverName() + "," + orders.getDate().toString());
+                    ordersList.add(orders);
+                }
+            }
+
+            orderDao.createOrders(ordersList);
+
+            return ResponseStructure.successResponse(null, "Successfully Parsed");
+
+        } catch (Exception e) {
+            logger.error("Error parsing Excel jahez", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+    private Orders buildOrdersFromCellData(LocalDate date, String driverName, Long noOfS1, Long noOfS2, Long noOfS3, Long noOfS4, Long noOfS5, Long deliveries, Double codAmount, Double credit, Double debit) {
+
+        Driver driver = driverDao.findByNameIgnoreCase(driverName);
+        if (Objects.isNull(driver)) {
+            return null;
+        }
+
+        Orders orders = new Orders();
+        orders.setDate(date);
+        orders.setDriverName(driverName);
+        orders.setNoOfS1(noOfS1);
+        orders.setNoOfS2(noOfS2);
+        orders.setNoOfS3(noOfS3);
+        orders.setNoOfS4(noOfS4);
+        orders.setNoOfS5(noOfS5);
+        orders.setTotalOrders(deliveries);
+        orders.setCodAmount(codAmount);
+        orders.setDebit(debit);
+        orders.setCredit(credit);
+        orders.setDriver(driver);
+
+        addDriverDeliveries(codAmount, deliveries, driver);
+
+        return orders;
+    }
+
+    public Driver addDriverDeliveries(Double codAmount, Long deliveries, Driver driver) {
+        driver.setAmountPending(driver.getAmountPending() + codAmount);
+        driver.setTotalOrders(driver.getTotalOrders() + deliveries);
+        driver.setCurrentOrders(deliveries);
+        return driverDao.createDriver(driver);
+    }
+
+
+    public ResponseEntity<ResponseStructure<Object>> getAllReport(int page, int size, String field) {
+        try {
+
+            Page<Orders> ordersPage = orderDao.findAll(page, size, field);
+            if (ordersPage.isEmpty()) {
+                logger.warn("No Staff found.");
+                return ResponseStructure.errorResponse(null, 404, "No Driver found");
+            }
+            return ResponseStructure.successResponse(ordersPage, "Driver found");
+        } catch (Exception e) {
+            logger.error("Error fetching Staff", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
 
 
     public ResponseEntity<ResponseStructure<Object>> uploadBankStatement(Sheet sheet) {
@@ -133,89 +284,6 @@ public class ReportService {
         logger.info("Saved payment record for driver: " + driver.getPhone() + ". Amount: " + amount);
     }
 
-
-    public ResponseEntity<ResponseStructure<Object>> uploadJahezReport(Sheet sheet) {
-        try {
-            int rowStart = 1;
-            int rowEnd = sheet.getLastRowNum();
-            List<Orders> ordersList = new ArrayList<>();
-            for (int i = rowStart; i <= rowEnd; i++) {
-                Row row = sheet.getRow(i);
-
-                String cellDate = row.getCell(0).toString();
-                System.out.println(cellDate);
-                String cellDriverName = row.getCell(1).toString();
-                String cellNoOfS1 = row.getCell(2).toString();
-                String cellNoOfS2 = row.getCell(3).toString();
-                String cellNoOfS3 = row.getCell(4).toString();
-                String cellNoOfS4 = row.getCell(5).toString();
-                String cellNoOfS5 = row.getCell(6).toString();
-                String cellDeliveries = row.getCell(7).toString();
-                String cellCodAmount = row.getCell(8).toString();
-                String cellCredit = row.getCell(9).toString();
-                String cellDebit = row.getCell(10).toString();
-
-
-                LocalDate cellLocalDate = LocalDate.parse(cellDate, formatter);
-                Orders orders = orderDao.checkOrderValid(cellDriverName, cellLocalDate);
-                if (Objects.nonNull(orders)) {
-                    logger.info("Entry not valid for :" + cellDriverName + "," + cellDate);
-                    continue;
-                }
-                orders = buildOrdersFromCellData(cellLocalDate, cellDriverName, StringUtil.getLong(cellNoOfS1),
-                        StringUtil.getLong(cellNoOfS2), StringUtil.getLong(cellNoOfS3), StringUtil.getLong(cellNoOfS4),
-                        StringUtil.getLong(cellNoOfS5), StringUtil.getLong(cellDeliveries), Double.parseDouble(cellCodAmount),
-                        Double.parseDouble(cellCredit), Double.parseDouble(cellDebit));
-                if (Objects.nonNull(orders)) {
-                    logger.info("Saving order  :" + orders.getDriverName() + "," + orders.getDate().toString());
-                    ordersList.add(orders);
-                }
-            }
-
-            orderDao.createOrders(ordersList);
-
-            return ResponseStructure.successResponse(null, "Successfully Parsed");
-
-        } catch (Exception e) {
-            logger.error("Error parsing Excel jahez", e);
-            return ResponseStructure.errorResponse(null, 500, e.getMessage());
-        }
-    }
-
-    private Orders buildOrdersFromCellData(LocalDate date, String driverName, Long noOfS1, Long noOfS2, Long noOfS3, Long noOfS4, Long noOfS5, Long deliveries, Double codAmount, Double credit, Double debit) {
-
-        Driver driver = driverDao.findByNameIgnoreCase(driverName);
-        if (Objects.isNull(driver)) {
-            return null;
-        }
-
-        Orders orders = new Orders();
-        orders.setDate(date);
-        orders.setDriverName(driverName);
-        orders.setNoOfS1(noOfS1);
-        orders.setNoOfS2(noOfS2);
-        orders.setNoOfS3(noOfS3);
-        orders.setNoOfS4(noOfS4);
-        orders.setNoOfS5(noOfS5);
-        orders.setTotalOrders(deliveries);
-        orders.setCodAmount(codAmount);
-        orders.setDebit(debit);
-        orders.setCredit(credit);
-        orders.setDriver(driver);
-
-        addDriverDeliveries(codAmount, deliveries, driver);
-
-        return orders;
-    }
-
-    public Driver addDriverDeliveries(Double codAmount, Long deliveries, Driver driver) {
-        driver.setAmountPending(driver.getAmountPending() + codAmount);
-        driver.setTotalOrders(driver.getTotalOrders() + deliveries);
-        driver.setCurrentOrders(deliveries);
-        return driverDao.createDriver(driver);
-    }
-
-
     public Map<String, Double> getTotalAmountByPaymentType() {
 
         Map<String, Double> totalAmounts = new HashMap<>();
@@ -227,6 +295,12 @@ public class ReportService {
         for (Object[] result : results) {
             String type = (String) result[0];
             Double total = (Double) result[1];
+
+            try {
+                Payment.PAYMENT_TYPE.valueOf(type);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid payment type: " + type);
+            }
             totalAmounts.put(type, total);
         }
         return totalAmounts;

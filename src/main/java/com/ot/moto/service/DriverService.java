@@ -1,12 +1,16 @@
 package com.ot.moto.service;
 
 import com.ot.moto.dao.DriverDao;
+import com.ot.moto.dao.OrderDao;
 import com.ot.moto.dao.UserDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateDriverReq;
 import com.ot.moto.dto.request.UpdateDriverReq;
+import com.ot.moto.dto.response.DriverDetails;
+import com.ot.moto.dto.response.TopDrivers;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.User;
+import com.ot.moto.repository.OrdersRepository;
 import com.ot.moto.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -32,6 +37,9 @@ public class DriverService {
 
     @Autowired
     private DriverDao driverDao;
+
+    @Autowired
+    private OrdersRepository ordersRepository;
 
     public ResponseEntity<ResponseStructure<Object>> createDriver(CreateDriverReq request) {
         try {
@@ -263,6 +271,30 @@ public class DriverService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
+    public DriverDetails getDriverDetails() {
+
+        long totalDrivers = driverDao.countTotalDrivers();
+
+        long flexiCount = driverDao.countFlexiVisa();
+
+        long otherVisaTypesCount = driverDao.countOtherVisaTypes();
+
+        long ridersCount = driverDao.countTwoWheelerRiders();
+
+        long driversCount = driverDao.countFourWheelerDrivers();
+
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        logger.info("Fetching attendance count for {}", yesterday);
+        long attendanceCount = ordersRepository.countDriversWithOrdersOnDate(yesterday);
+
+        long visaTypeCount = flexiCount + otherVisaTypesCount;
+
+        logger.info("Returning DriverDetails with totalDrivers: {}, attendance: {}, riders: {}, drivers: {}, visaType: {}, flexi: {}",
+                totalDrivers, attendanceCount, ridersCount, driversCount, visaTypeCount, flexiCount);
+
+        return new DriverDetails(totalDrivers, attendanceCount, ridersCount, driversCount, visaTypeCount, flexiCount);
+    }
+
 
     public ResponseEntity<ResponseStructure<Object>> deleteDriver(Long driverId) {
         try {
@@ -278,6 +310,20 @@ public class DriverService {
             return ResponseStructure.successResponse(null, "Driver deleted successfully");
         } catch (Exception e) {
             logger.error("Error deleting Driver", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> fetchTopDriver(){
+        try{
+            Driver topDriverTotalOrders = driverDao.findTopDriverByTotalOrders();
+            Driver topDriverCurrentOrders = driverDao.findTopDriversByCurrentOrders();
+
+            TopDrivers topDrivers = new TopDrivers(topDriverTotalOrders,topDriverCurrentOrders);
+
+            return ResponseStructure.successResponse(topDrivers,"Fetched top drivers");
+        }catch (Exception e){
+            logger.error("Error fetching top Driver", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }

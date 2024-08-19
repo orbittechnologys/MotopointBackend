@@ -5,12 +5,14 @@ import com.ot.moto.dao.UserDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateStaffReq;
 import com.ot.moto.dto.request.UpdateStaffReq;
+import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Staff;
 import com.ot.moto.entity.User;
 import com.ot.moto.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,7 +51,6 @@ public class StaffService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
-
 
     private Staff buildStaffFromRequest(CreateStaffReq request) {
         Staff staff = new Staff();
@@ -161,6 +162,21 @@ public class StaffService {
         }
     }
 
+    public ResponseEntity<ResponseStructure<Object>> getAllStaff(int page, int size, String field) {
+        try {
+
+            Page<Staff> staffPage = staffDao.findAll(page,size,field);
+            if (staffPage.isEmpty()) {
+                logger.warn("No Staff found.");
+                return ResponseStructure.errorResponse(null, 404, "No Driver found");
+            }
+            return ResponseStructure.successResponse(staffPage, "Driver found");
+        } catch (Exception e) {
+            logger.error("Error fetching Staff", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
 
     public ResponseEntity<ResponseStructure<Object>> deleteStaff(Long staffId) {
         try {
@@ -180,4 +196,5 @@ public class StaffService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
+
 }

@@ -36,11 +36,41 @@ public class DriverDao {
         return driverOptional.orElse(null);
     }
 
+    public long countFlexiVisa() {
+        return driverRepository.countFlexiVisa();
+    }
+
+    public long countOtherVisaTypes() {
+        return driverRepository.countOtherVisaTypes();
+    }
+
+    public long countTwoWheelerRiders() {
+        return driverRepository.countTwoWheelerRiders();
+    }
+
+    public long countFourWheelerDrivers() {
+        return driverRepository.countFourWheelerDrivers();
+    }
+
+    public long countTotalDrivers() {
+        return driverRepository.countTotalDrivers();
+    }
+
     public Driver findByPhoneNumber(String phoneNumber) {
         return driverRepository.findByPhone(phoneNumber);
     }
 
     public void deleteDriver(Driver driver){
         driverRepository.delete(driver);
+    }
+
+    public Driver findTopDriverByTotalOrders(){
+        Optional<Driver> optionalDriver = driverRepository.findTopDriverByTotalOrders();
+        return optionalDriver.orElse(null);
+    }
+
+    public Driver findTopDriversByCurrentOrders(){
+        Optional<Driver> optionalDriver = driverRepository.findTopDriverByCurrentOrders();
+        return optionalDriver.orElse(null);
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/fleet")
+@CrossOrigin(origins = "*")
 public class FleetController {
 
     @Autowired
@@ -92,6 +93,19 @@ public class FleetController {
         } catch (Exception e) {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
+    }
+
+
+
+    @Operation(summary = "Update Fleet", description = "Input is Update Fleet Request, returns Fleet Object")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Fleet Updated"),
+            @ApiResponse(responseCode = "404", description = "Fleet Not Found"),
+            @ApiResponse(responseCode = "409", description = "Conflict with existing data")
+    })
+    @GetMapping("/ownTypeCount")
+    public ResponseEntity<ResponseStructure<Object>> getFleetCounts() {
+        return fleetService.getFleetCounts();
     }
 }
 

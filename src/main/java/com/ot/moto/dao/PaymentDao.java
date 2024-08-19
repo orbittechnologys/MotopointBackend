@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -34,4 +35,16 @@ public class PaymentDao {
     public boolean existsByDriverIdAndDate(Long driverId, LocalDate date) {
         return paymentRepository.existsByDriverIdAndDate(driverId,date);
     }
+
+    public Double getSumAmountForYesterday() {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        Double sum = paymentRepository.sumAmountOnDate(yesterday);
+        return Objects.isNull(sum)? 0 : sum;
+    }
+
+    public Double getSumOfCurrentMonth(LocalDate startDate, LocalDate endDate) {
+        Double sumCurrentMonth = paymentRepository.sumAmountForCurrentMonth(startDate, endDate);
+        return Objects.isNull(sumCurrentMonth) ? 0 : sumCurrentMonth;
+    }
+
 }

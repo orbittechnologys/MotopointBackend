@@ -35,6 +35,6 @@ public class StaffDao {
     }
 
     public void deleteStaff(Staff staff){
-         staffRepository.delete(staff);
+        staffRepository.delete(staff);
     }
 }

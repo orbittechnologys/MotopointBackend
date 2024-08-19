@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -28,6 +30,25 @@ public class FleetService {
     private DriverDao driverDao;
 
     private static final Logger logger = LoggerFactory.getLogger(FleetService.class);
+
+
+    public ResponseEntity<ResponseStructure<Object>> getFleetCounts() {
+        try {
+            long selfOwnedCount = fleetDao.getSelfOwnedFleetCount(Fleet.OWN_TYPE.SELF_OWNED);
+            long motoPointCount = fleetDao.getMotoPointFleetCount(Fleet.OWN_TYPE.MOTO_POINT);
+
+            logger.info("Fetched fleet counts - SELF_OWNED: {}, MOTO_POINT: {}", selfOwnedCount, motoPointCount);
+
+            Map<String, Long> counts = new HashMap<>();
+            counts.put("SELF_OWNED", selfOwnedCount);
+            counts.put("MOTO_POINT", motoPointCount);
+
+            return ResponseStructure.successResponse(counts, "Fleet counts retrieved successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching fleet counts", e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching fleet counts: " + e.getMessage());
+        }
+    }
 
     public ResponseEntity<ResponseStructure<Object>> createFleet(CreateFleetReq request) {
         try {
@@ -68,7 +89,6 @@ public class FleetService {
         return fleet;
     }
 
-
     private Fleet updateFleetFromRequest(UpdateFleetReq request, Fleet fleet) {
         if (!StringUtil.isEmpty(request.getVehicleName())) {
             fleet.setVehicleName(request.getVehicleName());
@@ -92,7 +112,6 @@ public class FleetService {
         }
         return fleet;
     }
-
 
     public ResponseEntity<ResponseStructure<Object>> getFleet(Long id) {
         try {
