@@ -17,4 +17,6 @@ public class CreateFleetReq {
     private String insuranceDocument;
 
     public long driverId;
+
+    private  String  image;
 }
