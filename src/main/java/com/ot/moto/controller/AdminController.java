@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin")
 @CrossOrigin(origins = "*")
 public class AdminController {
+
     @Autowired
     private AdminService adminService;
+
 
     @Operation(summary = "Save Admin", description = "Input is Create Admin Request, returns Admin Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"),
@@ -27,6 +29,7 @@ public class AdminController {
         return adminService.createAdmin(req);
     }
 
+
     @Operation(summary = "Get Admin", description = "Input is Create Admin Id, returns Admin Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Admin Found"),
             @ApiResponse(responseCode = "404", description = "Admin Not Found")})
@@ -35,6 +38,7 @@ public class AdminController {
         return adminService.getAdmin(id);
     }
 
+
     @Operation(summary = "Get Admins", description = "returns List of Admin Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Admin Found"),
             @ApiResponse(responseCode = "404", description = "Admin Not Found")})
@@ -42,8 +46,9 @@ public class AdminController {
     public ResponseEntity<ResponseStructure<Object>> getAllAdmin(@RequestParam(defaultValue = "0") int page,
                                                                  @RequestParam(defaultValue = "10") int size,
                                                                  @RequestParam(defaultValue = "id") String field) {
-        return adminService.getAllAdmin(page,size,field);
+        return adminService.getAllAdmin(page, size, field);
     }
+
 
     @Operation(summary = "Update Admin", description = "Input is UpdateAdminReq, returns Admin Obj")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Admin Updated"),
@@ -52,5 +57,14 @@ public class AdminController {
     @PostMapping("/update")
     public ResponseEntity<ResponseStructure<Object>> updateAdmin(@RequestBody UpdateAdminReq req) {
         return adminService.updateAdmin(req);
+    }
+
+    @Operation(summary = "delete Admin", description = "Input is adminId, returns deleted Admin Obj")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Admin Updated"),
+            @ApiResponse(responseCode = "404", description = "Admin Not Found"),
+            @ApiResponse(responseCode = "409", description = "Phone/Email already exists")})
+    @DeleteMapping("/delete")
+    public ResponseEntity<ResponseStructure<Object>> deleteAdmin(@RequestParam Long adminId) {
+        return adminService.deleteAdmin(adminId);
     }
 }

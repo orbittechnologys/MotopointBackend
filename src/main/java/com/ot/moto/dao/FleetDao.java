@@ -38,4 +38,8 @@ public class FleetDao {
     public Page<Fleet> findAll(int offset, int pageSize, String field) {
         return fleetRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
+
+    public long countByVehicleType(Fleet.VEHICLE_TYPE vehicleType) {
+        return fleetRepository.countByVehicleType(vehicleType);
+    }
 }

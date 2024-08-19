@@ -264,4 +264,21 @@ public class DriverService {
         }
     }
 
+    public ResponseEntity<ResponseStructure<Object>> deleteDriver(Long driverId) {
+        try {
+
+            Driver driver = driverDao.getById(driverId);
+            if (Objects.isNull(driver)) {
+                logger.warn("Driver not found with ID: {}", driverId);
+                return ResponseStructure.errorResponse(null, 404, "Driver not found");
+            }
+
+            driverDao.deleteDriver(driver);
+            logger.info("Driver deleted successfully: {}", driverId);
+            return ResponseStructure.successResponse(null, "Driver deleted successfully");
+        } catch (Exception e) {
+            logger.error("Error deleting Driver", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
 }

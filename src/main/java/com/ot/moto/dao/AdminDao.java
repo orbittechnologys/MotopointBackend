@@ -34,4 +34,8 @@ public class AdminDao {
     public Page<Admin> findAll(int offset, int pageSize, String field) {
         return adminRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
+
+    public void deleteAdmin(Admin admin){
+        adminRepository.delete(admin);
+    }
 }

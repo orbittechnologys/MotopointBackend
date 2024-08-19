@@ -50,6 +50,7 @@ public class StaffService {
         }
     }
 
+
     private Staff buildStaffFromRequest(CreateStaffReq request) {
         Staff staff = new Staff();
         staff.setEmail(request.getEmail());
@@ -114,13 +115,13 @@ public class StaffService {
         if (!StringUtil.isEmpty(request.getProfilePic())) {
             staff.setProfilePic(request.getProfilePic());
         }
-        if(!StringUtil.isEmpty(request.getDepartment())){
+        if (!StringUtil.isEmpty(request.getDepartment())) {
             staff.setDesignation(request.getDepartment());
         }
-        if(request.getJoiningDate() != null){
+        if (request.getJoiningDate() != null) {
             staff.setJoiningDate(request.getJoiningDate());
         }
-        if(request.getEmployeeId() != null){
+        if (request.getEmployeeId() != null) {
             staff.setEmployeeId(request.getEmployeeId());
         }
 
@@ -147,7 +148,7 @@ public class StaffService {
                 logger.warn("Phone already exists: {}, {}", request.getEmail(), request.getPhone());
                 return ResponseStructure.errorResponse(null, 409, "Phone already exists");
             }
-            staff = updateStaffFromRequest(request,staff);
+            staff = updateStaffFromRequest(request, staff);
             staffDao.createStaff(staff);
 
             logger.info("Staff updated successfully: {}", staff.getId());
@@ -160,4 +161,23 @@ public class StaffService {
         }
     }
 
+
+    public ResponseEntity<ResponseStructure<Object>> deleteStaff(Long staffId) {
+        try {
+
+            Staff staff = staffDao.getStaffById(staffId);
+            if (Objects.isNull(staff)) {
+                logger.warn("Staff not found with ID: {}", staffId);
+                return ResponseStructure.errorResponse(null, 404, "Staff not found");
+            }
+
+            staffDao.deleteStaff(staff);
+            logger.info("Staff deleted successfully: {}", staffId);
+            return ResponseStructure.successResponse(null, "Staff deleted successfully");
+
+        } catch (Exception e) {
+            logger.error("Error deleting staff", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
 }

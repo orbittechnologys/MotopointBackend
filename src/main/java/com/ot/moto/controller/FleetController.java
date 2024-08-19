@@ -63,5 +63,35 @@ public class FleetController {
     public ResponseEntity<ResponseStructure<Object>> updateFleet(@RequestBody UpdateFleetReq req) {
         return fleetService.updateFleet(req);
     }
+
+    @Operation(summary = "Count Two-Wheelers", description = "Returns the count of two-wheeler vehicles in the fleet")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Count retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/count/two-wheelers")
+    public ResponseEntity<ResponseStructure<Object>> countTwoWheelers() {
+        try {
+            long count = fleetService.countTwoWheelers();
+            return ResponseStructure.successResponse(count, "Count of two wheelers retrieved successfully");
+        } catch (Exception e) {
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Count Four-Wheelers", description = "Returns the count of four-wheeler vehicles in the fleet")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Count retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/count/four-wheelers")
+    public ResponseEntity<ResponseStructure<Object>> countFourWheelers() {
+        try {
+            long count = fleetService.countFourWheelers();
+            return ResponseStructure.successResponse(count, "Count of four wheelers retrieved successfully");
+        } catch (Exception e) {
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
 }
 

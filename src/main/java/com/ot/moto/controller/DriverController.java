@@ -51,7 +51,15 @@ public class DriverController {
     public ResponseEntity<ResponseStructure<Object>> getAllAdmin(@RequestParam(defaultValue = "0") int page,
                                                                  @RequestParam(defaultValue = "10") int size,
                                                                  @RequestParam(defaultValue = "id") String field) {
-        return driverService.getAllDriver(page,size,field);
+        return driverService.getAllDriver(page, size, field);
     }
 
+
+    @Operation(summary = "delete Driver", description = "returns deleted Driver Object")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
+            @ApiResponse(responseCode = "404", description = "Driver Not Found")})
+    @DeleteMapping("/delete")
+    public ResponseEntity<ResponseStructure<Object>> deleteDriver(@RequestParam Long driverId) {
+        return driverService.deleteDriver(driverId);
+    }
 }

@@ -112,7 +112,7 @@ public class AdminService {
     public ResponseEntity<ResponseStructure<Object>> getAllAdmin(int page, int size, String field) {
         try {
             List<Admin> admin = adminDao.getAllAdmin();
-            Page<Admin> adminPage = adminDao.findAll(page,size,field);
+            Page<Admin> adminPage = adminDao.findAll(page, size, field);
             if (adminPage.isEmpty()) {
                 logger.warn("No Admin found.");
                 return ResponseStructure.errorResponse(null, 404, "No Admin found");
@@ -138,16 +138,16 @@ public class AdminService {
             Admin admin = fetchAdmin(request.getId());
             if (Objects.isNull(admin)) {
                 logger.warn("No admin found with id:" + request.getId());
-                return ResponseStructure.errorResponse(null, 404, "Admin not found with id:"+request.getId());
+                return ResponseStructure.errorResponse(null, 404, "Admin not found with id:" + request.getId());
             }
-            Optional<User> userEmail =userDao.getUserByEmail(request.getEmail());
+            Optional<User> userEmail = userDao.getUserByEmail(request.getEmail());
 
             if (userEmail.isPresent() && !userEmail.get().getId().equals(request.getId())) {
                 logger.warn("Email already exists: {}, {}", request.getEmail(), request.getPhone());
                 return ResponseStructure.errorResponse(null, 409, "Email already exists");
             }
 
-            Optional<User> userPhone =userDao.getUserByPhone(request.getPhone());
+            Optional<User> userPhone = userDao.getUserByPhone(request.getPhone());
 
             if (userPhone.isPresent() && !userPhone.get().getId().equals(request.getId())) {
                 logger.warn("Phone already exists: {}, {}", request.getEmail(), request.getPhone());
@@ -165,4 +165,23 @@ public class AdminService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
+
+    public ResponseEntity<ResponseStructure<Object>> deleteAdmin(Long adminId) {
+        try {
+            Admin admin = adminDao.getAdminById(adminId);
+            if (Objects.isNull(admin)) {
+                logger.warn("Admin not found with ID: {}", adminId);
+                return ResponseStructure.errorResponse(null, 404, "Admin not found");
+            }
+
+            adminDao.deleteAdmin(admin);
+            logger.info("Admin deleted successfully: {}", adminId);
+            return ResponseStructure.successResponse(null, "Admin deleted successfully");
+
+        } catch (Exception e) {
+            logger.error("Error deleting admin", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
 }

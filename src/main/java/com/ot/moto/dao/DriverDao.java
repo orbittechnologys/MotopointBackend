@@ -39,4 +39,8 @@ public class DriverDao {
     public Driver findByPhoneNumber(String phoneNumber) {
         return driverRepository.findByPhone(phoneNumber);
     }
+
+    public void deleteDriver(Driver driver){
+        driverRepository.delete(driver);
+    }
 }

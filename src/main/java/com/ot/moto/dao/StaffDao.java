@@ -33,4 +33,8 @@ public class StaffDao {
     public Page<Staff> findAll(int offset, int pageSize, String field) {
         return staffRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
+
+    public void deleteStaff(Staff staff){
+         staffRepository.delete(staff);
+    }
 }
