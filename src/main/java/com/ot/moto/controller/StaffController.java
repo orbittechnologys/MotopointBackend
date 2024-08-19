@@ -45,4 +45,23 @@ public class StaffController {
         return staffService.updateStaff(req);
     }
 
+
+    @Operation(summary = "Get Staffs", description = "returns List of staff Object")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "staff Found"),
+            @ApiResponse(responseCode = "404", description = "staff Not Found")})
+    @GetMapping("/getAll")
+    public ResponseEntity<ResponseStructure<Object>> getAllStaff(@RequestParam(defaultValue = "0") int page,
+                                                                 @RequestParam(defaultValue = "10") int size,
+                                                                 @RequestParam(defaultValue = "id") String field) {
+        return staffService.getAllStaff(page,size,field);
+    }
+
+    @Operation(summary = "delete Staff", description = "Input is staff id,returns deleted Staff Object")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Updated"),
+            @ApiResponse(responseCode = "404", description = "Staff Doesn't Exist"),
+            @ApiResponse(responseCode = "409", description = "Phone/Email already exists")})
+    @DeleteMapping("/delete")
+    public ResponseEntity<ResponseStructure<Object>> deleteStaff(@RequestParam Long id) {
+        return staffService.deleteStaff(id);
+    }
 }

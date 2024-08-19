@@ -12,6 +12,14 @@ import java.time.LocalDate;
 @Data
 public class Fleet {
 
+    public enum OWN_TYPE{
+        SELF_OWNED,MOTO_POINT
+    }
+
+    public enum VEHICLE_TYPE{
+        TWO_WHEELER,FOUR_WHEELER
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,11 +29,16 @@ public class Fleet {
     @Column(unique = true,nullable = false)
     private String vehicleNumber;
 
-    private String vehicleType;
+    @Enumerated(EnumType.STRING)
+    private VEHICLE_TYPE vehicleType;
+
+    @Enumerated(EnumType.STRING)
+    private OWN_TYPE ownType;
 
     private LocalDate insuranceExpiryDate;
 
     private String insuranceDocument;
+
 
     @OneToOne
     @JoinColumn

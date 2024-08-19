@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -29,13 +31,40 @@ public class FleetService {
 
     private static final Logger logger = LoggerFactory.getLogger(FleetService.class);
 
+
+    public ResponseEntity<ResponseStructure<Object>> getFleetCounts() {
+        try {
+            long selfOwnedCount = fleetDao.getSelfOwnedFleetCount(Fleet.OWN_TYPE.SELF_OWNED);
+            long motoPointCount = fleetDao.getMotoPointFleetCount(Fleet.OWN_TYPE.MOTO_POINT);
+
+            logger.info("Fetched fleet counts - SELF_OWNED: {}, MOTO_POINT: {}", selfOwnedCount, motoPointCount);
+
+            Map<String, Long> counts = new HashMap<>();
+            counts.put("SELF_OWNED", selfOwnedCount);
+            counts.put("MOTO_POINT", motoPointCount);
+
+            return ResponseStructure.successResponse(counts, "Fleet counts retrieved successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching fleet counts", e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching fleet counts: " + e.getMessage());
+        }
+    }
+
     public ResponseEntity<ResponseStructure<Object>> createFleet(CreateFleetReq request) {
         try {
             if (fleetDao.getVehicleNumber(request.getVehicleNumber()) != null) {
-                logger.warn("Vehicle Number already exists: {}", request.getVehicleName());
+                logger.warn("Vehicle Number already exists: {}", request.getVehicleNumber());
                 return ResponseStructure.errorResponse(null, 409, "Vehicle Number already exists");
             }
-            Fleet fleet = buildFleetFromRequest(request);
+
+            Fleet.VEHICLE_TYPE vehicleType;
+            try {
+                vehicleType = Fleet.VEHICLE_TYPE.valueOf(request.getVehicleType().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return ResponseStructure.errorResponse(null, 400, "Invalid vehicle type. Allowed values: TWO_WHEELER, FOUR_WHEELER");
+            }
+
+            Fleet fleet = buildFleetFromRequest(request, vehicleType);
             fleetDao.createFleet(fleet);
             logger.info("Fleet created successfully: {}", fleet.getId());
 
@@ -47,29 +76,30 @@ public class FleetService {
         }
     }
 
-    private Fleet buildFleetFromRequest(CreateFleetReq request) {
+    private Fleet buildFleetFromRequest(CreateFleetReq request, Fleet.VEHICLE_TYPE vehicleType) {
         Fleet fleet = new Fleet();
         fleet.setVehicleName(request.getVehicleName());
         fleet.setVehicleNumber(request.getVehicleNumber());
-        fleet.setVehicleType(request.getVehicleType());
         fleet.setInsuranceExpiryDate(request.getInsuranceExpiryDate());
         fleet.setInsuranceDocument(request.getInsuranceDocument());
-
+        fleet.setVehicleType(vehicleType);
         Driver driver = driverDao.getById(request.getDriverId());
         fleet.setDriver(driver);
 
         return fleet;
     }
 
+
     private Fleet updateFleetFromRequest(UpdateFleetReq request, Fleet fleet) {
         if (!StringUtil.isEmpty(request.getVehicleName())) {
             fleet.setVehicleName(request.getVehicleName());
         }
         if (!StringUtil.isEmpty(request.getVehicleNumber())) {
-            fleet.setVehicleType(request.getVehicleNumber());
+            fleet.setVehicleNumber(request.getVehicleNumber());
         }
         if (!StringUtil.isEmpty(request.getVehicleType())) {
-            fleet.setVehicleType(request.getVehicleType());
+
+            fleet.setVehicleType(Fleet.VEHICLE_TYPE.valueOf(request.getVehicleType().toUpperCase()));
         }
         if (request.getInsuranceExpiryDate() != null) {
             fleet.setInsuranceExpiryDate(request.getInsuranceExpiryDate());
@@ -83,6 +113,7 @@ public class FleetService {
         }
         return fleet;
     }
+
 
     public ResponseEntity<ResponseStructure<Object>> getFleet(Long id) {
         try {
@@ -139,5 +170,13 @@ public class FleetService {
             logger.error("Error updating fleet", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
+    }
+
+    public long countTwoWheelers() {
+        return fleetDao.countByVehicleType(Fleet.VEHICLE_TYPE.TWO_WHEELER);
+    }
+
+    public long countFourWheelers() {
+        return fleetDao.countByVehicleType(Fleet.VEHICLE_TYPE.FOUR_WHEELER);
     }
 }

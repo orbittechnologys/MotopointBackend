@@ -165,4 +165,22 @@ public class AdminService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
+
+    public ResponseEntity<ResponseStructure<Object>> deleteAdmin(Long adminId) {
+        try {
+            Admin admin = adminDao.getAdminById(adminId);
+            if (Objects.isNull(admin)) {
+                logger.warn("Admin not found with ID: {}", adminId);
+                return ResponseStructure.errorResponse(null, 404, "Admin not found");
+            }
+
+            adminDao.deleteAdmin(admin);
+            logger.info("Admin deleted successfully: {}", adminId);
+            return ResponseStructure.successResponse(null, "Admin deleted successfully");
+
+        } catch (Exception e) {
+            logger.error("Error deleting admin", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
 }

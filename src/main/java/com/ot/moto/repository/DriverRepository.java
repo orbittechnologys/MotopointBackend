@@ -12,6 +12,28 @@ public interface DriverRepository extends JpaRepository<Driver,Long> {
     @Query("SELECT d FROM Driver d WHERE LOWER(d.username) = LOWER(:username)")
     Optional<Driver> findByNameIgnoreCase(@Param("username") String username);
 
+
+    @Query("SELECT COUNT(d) FROM Driver d WHERE d.visaType = 'FLEXI'")
+    long countFlexiVisa();
+
+    @Query("SELECT COUNT(d) FROM Driver d WHERE d.visaType <> 'FLEXI'")
+    long countOtherVisaTypes();
+
+    @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType = '2WHEELER'")
+    long countTwoWheelerRiders();
+
+    @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType = '4WHEELER'")
+    long countFourWheelerDrivers();
+
+    @Query("SELECT COUNT(d) FROM Driver d")
+    long countTotalDrivers();
+
+    @Query("SELECT d FROM Driver d ORDER BY d.totalOrders DESC LIMIT 1")
+    Optional<Driver> findTopDriverByTotalOrders();
+
+    @Query("SELECT d FROM Driver d ORDER BY d.currentOrders DESC LIMIT 1")
+    Optional<Driver> findTopDriverByCurrentOrders();
+
     public Driver findByPhone(String phone);
 
 }

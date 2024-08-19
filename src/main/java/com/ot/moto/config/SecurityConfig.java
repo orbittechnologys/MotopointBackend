@@ -49,7 +49,26 @@ public class SecurityConfig {
             "/staff/getById/{id}",
             "/driver/getById/{id}",
             "/report/upload/jahez",
-            "/bankstatement/upload"
+            "/driver/details",
+            "/order/getOrderCount",
+            "/order/getOrderCountByMonth",
+            "/order/findAll",
+            "/report/upload/bankStatement",
+            "/report/upload/jahez",
+            "/driver/delete",
+            "/admin/delete",
+            "/staff/delete",
+            "/report/getCodAmountForYesterday",
+            "/report/getArrearsForToday",
+            "/fleet/ownTypeCount",
+            "/report/total-by-type",
+            "/fleet/count/four-wheelers",
+            "/fleet/count/two-wheelers",
+            "/fleet/create",
+            "/report/current-month",
+            "/order/top-driver",
+            "/driver/topDriver"
+
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create","/staff/update"};
@@ -58,7 +77,7 @@ public class SecurityConfig {
 
     private static final String[] STAFF_WHITELIST = {};
 
-    private static final String[] ADMIN_STAFF_WHITELIST= {"/driver/create","/driver/update","/fleet/create","/fleet/getById/{id}","/fleet/getAll","/fleet/update"};
+    private static final String[] ADMIN_STAFF_WHITELIST= {"/driver/create","/driver/update","/fleet/create","/fleet/getById/{id}","/fleet/getAll","/fleet/update","/driver/details"};
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -106,4 +125,5 @@ public class SecurityConfig {
 
         return httpSecurity.build();
     }
+
 }

@@ -1,6 +1,8 @@
 package com.ot.moto.filter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import com.ot.moto.util.JwtTokenUtil;
 import jakarta.servlet.FilterChain;
@@ -25,33 +27,75 @@ public class JwtFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsService detailsService;
 
+    private static final List<String> AUTH_WHITELIST = Arrays.asList(
+            "/v3/api-docs/**",
+            "/swagger-resources/**",
+            "/swagger-ui/**",
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**",
+            "/authenticate",
+            "/admin/create",
+            "/admin/getById/{id}",
+            "/admin/getAll",
+            "/admin/update",
+            "/staff/getById/{id}",
+            "/driver/getById/{id}",
+            "/report/upload/jahez",
+            "/driver/details",
+            "/order/getOrderCount",
+            "/order/getOrderCountByMonth",
+            "/order/findAll",
+            "/report/upload/bankStatement",
+            "/report/upload/jahez",
+            "/driver/delete",
+            "/admin/delete",
+            "/staff/delete",
+            "/report/getCodAmountForYesterday",
+            "/report/getArrearsForToday",
+            "/fleet/ownTypeCount",
+            "/report/total-by-type",
+            "/fleet/count/four-wheelers",
+            "/fleet/count/two-wheelers",
+            "/fleet/create",
+            "/report/current-month",
+            "/order/top-driver",
+            "/driver/topDriver"
+    );
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return AUTH_WHITELIST.stream().anyMatch(path::startsWith);
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        System.out.println(1);
         String authorization = request.getHeader("Authorization");
         String token = null;
         String userName = null;
 
         if (authorization != null && authorization.startsWith("Bearer ")) {
-            token = authorization.substring(7);// jwt
-            userName = jwtTokenUtil.getUsernameFromToken(token);// user
-            System.out.println(2);
+            token = authorization.substring(7); // Extract JWT token
+            userName = jwtTokenUtil.getUsernameFromToken(token); // Extract username from token
         }
+
         if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails details = detailsService.loadUserByUsername(userName);
-            System.out.println(3);
-            if (jwtTokenUtil.validateToken(token, details)) {
 
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+            if (jwtTokenUtil.validateToken(token, details)) {
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userName, null, details.getAuthorities());
-                usernamePasswordAuthenticationToken
-                        .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-                System.out.println(4);
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
+
         filterChain.doFilter(request, response);
-        System.out.println(5);
     }
 }

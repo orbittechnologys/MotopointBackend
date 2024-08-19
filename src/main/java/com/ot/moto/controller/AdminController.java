@@ -53,4 +53,13 @@ public class AdminController {
     public ResponseEntity<ResponseStructure<Object>> updateAdmin(@RequestBody UpdateAdminReq req) {
         return adminService.updateAdmin(req);
     }
+
+    @Operation(summary = "delete Admin", description = "Input is adminId, returns deleted Admin Obj")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Admin Updated"),
+            @ApiResponse(responseCode = "404", description = "Admin Not Found"),
+            @ApiResponse(responseCode = "409", description = "Phone/Email already exists")})
+    @DeleteMapping("/delete")
+    public ResponseEntity<ResponseStructure<Object>> deleteAdmin(@RequestParam Long adminId) {
+        return adminService.deleteAdmin(adminId);
+    }
 }

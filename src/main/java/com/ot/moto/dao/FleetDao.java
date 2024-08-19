@@ -38,4 +38,17 @@ public class FleetDao {
     public Page<Fleet> findAll(int offset, int pageSize, String field) {
         return fleetRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
+
+    public long getSelfOwnedFleetCount(Fleet.OWN_TYPE selfOwned) {
+        return fleetRepository.countByOwnType(Fleet.OWN_TYPE.SELF_OWNED);
+    }
+
+    public long getMotoPointFleetCount(Fleet.OWN_TYPE motoPoint) {
+        return fleetRepository.countByOwnType(Fleet.OWN_TYPE.MOTO_POINT);
+    }
+
+    public long countByVehicleType(Fleet.VEHICLE_TYPE vehicleType){
+        return fleetRepository.countByVehicleType(vehicleType);
+    }
+
 }
