@@ -74,9 +74,6 @@ public class AdminService {
         if (!StringUtil.isEmpty(request.getPhone())) {
             admin.setPhone(request.getPhone());
         }
-        if (!StringUtil.isEmpty(request.getPassword())) {
-            admin.setPassword(encoder.encode(request.getPassword()));
-        }
         if (!StringUtil.isEmpty(request.getFirstName())) {
             admin.setFirstName(request.getFirstName());
             firstName = request.getFirstName();

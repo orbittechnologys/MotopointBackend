@@ -68,17 +68,17 @@ public class SecurityConfig {
             "/fleet/ownTypeCount",
             "/report/current-month",
             "/order/top-driver",
-            "/driver/topDriver",
-            "/user/{userId}/status"
+            "/driver/topDriver"
     };
 
-    private static final String[] ADMIN_WHITELIST = {"/staff/create","/staff/update"};
+    private static final String[] ADMIN_WHITELIST = {"/staff/create", "/staff/update",
+            "/user/{userId}/status"};
 
     private static final String[] DRIVER_WHITELIST = {};
 
     private static final String[] STAFF_WHITELIST = {};
 
-    private static final String[] ADMIN_STAFF_WHITELIST= {"/driver/create","/driver/update","/fleet/create","/fleet/getById/{id}","/fleet/getAll","/fleet/update","/driver/details"};
+    private static final String[] ADMIN_STAFF_WHITELIST = {"/driver/create", "/driver/update", "/fleet/create", "/fleet/getById/{id}", "/fleet/getAll", "/fleet/update", "/driver/details"};
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -116,7 +116,7 @@ public class SecurityConfig {
                         .requestMatchers(ADMIN_WHITELIST).hasRole("ADMIN")
                         .requestMatchers(STAFF_WHITELIST).hasRole("STAFF")
                         .requestMatchers(DRIVER_WHITELIST).hasRole("DRIVER")
-                        .requestMatchers(ADMIN_STAFF_WHITELIST).hasAnyRole("ADMIN","STAFF")
+                        .requestMatchers(ADMIN_STAFF_WHITELIST).hasAnyRole("ADMIN", "STAFF")
                         .anyRequest().authenticated()
                 );
 
