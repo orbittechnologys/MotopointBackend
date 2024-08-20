@@ -19,6 +19,5 @@ public class OrgReportsDao {
 
     public List<OrgReports> saveAll(List<OrgReports> orgReportsList) {
         return orgReportsRepository.saveAll(orgReportsList);
-
     }
 }

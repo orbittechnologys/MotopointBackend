@@ -1,7 +1,7 @@
 package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
-import com.ot.moto.service.OrgReportsService;
+import com.ot.moto.service.TamService;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -13,14 +13,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 
 @RestController
-@RequestMapping("/orgReports")
-public class OrgReportsController {
+@RequestMapping("/tam")
+public class TamController {
 
     @Autowired
-    private OrgReportsService orgReportsService;
+    private TamService tamService;
 
-    @PostMapping(value = "/upload/orgReports", consumes = {"multipart/form-data"})
-    public ResponseEntity<ResponseStructure<Object>> uploadOrgReports(@RequestParam("file") MultipartFile file) {
+    @PostMapping(value = "/upload/tamSheet", consumes = {"multipart/form-data"})
+    public ResponseEntity<ResponseStructure<Object>> uploadTamSheet(@RequestParam("file") MultipartFile file) {
         try (InputStream inputStream = file.getInputStream();
              Workbook workbook = new XSSFWorkbook(inputStream)) {
 
@@ -30,10 +30,11 @@ public class OrgReportsController {
                 return ResponseStructure.errorResponse(null, 400, "ERROR: No data found in the file.");
             }
 
-            return orgReportsService.uploadOrgReports(sheet);
+            return tamService.uploadTamSheet(sheet);
 
         } catch (Exception e) {
             return ResponseStructure.errorResponse(null, 500, "ERROR: " + e.getMessage());
         }
     }
 }
+

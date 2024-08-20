@@ -2,17 +2,15 @@ package com.ot.moto.service;
 
 import com.ot.moto.dao.DriverDao;
 import com.ot.moto.dao.OrderDao;
+import com.ot.moto.dao.OrgReportsDao;
 import com.ot.moto.dao.PaymentDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateStaffReq;
-import com.ot.moto.entity.Driver;
-import com.ot.moto.entity.Orders;
-import com.ot.moto.entity.Payment;
-import com.ot.moto.entity.Staff;
+import com.ot.moto.entity.*;
+import com.ot.moto.repository.OrgReportsRepository;
 import com.ot.moto.repository.PaymentRepository;
 import com.ot.moto.util.StringUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -42,7 +41,9 @@ public class ReportService {
     @Autowired
     private PaymentRepository paymentRepository;
 
+
     private static final Logger logger = LoggerFactory.getLogger(ReportService.class);
+
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
 
 
@@ -92,10 +93,11 @@ public class ReportService {
         } catch (Exception e) {
             logger.error("Error fetching amount for yesterday ({})", yesterday, e);
             return ResponseStructure.errorResponse(null, 500, "Error fetching amount for yesterday: " + e.getMessage());
-        }}
+        }
+    }
 
 
-        public ResponseEntity<ResponseStructure<Object>> uploadJahezReport(Sheet sheet) {
+    public ResponseEntity<ResponseStructure<Object>> uploadJahezReport(Sheet sheet) {
         try {
             int rowStart = 1;
             int rowEnd = sheet.getLastRowNum();

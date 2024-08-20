@@ -3,10 +3,12 @@ package com.ot.moto.controller;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateFleetReq;
 import com.ot.moto.entity.Orders;
+import com.ot.moto.service.OrgReportService;
 import com.ot.moto.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -33,27 +35,8 @@ public class ReportController {
     @Autowired
     private ReportService reportService;
 
-    @Operation(summary = "Total amount of particular date", description = "Input is date, returns Success/Failure Object")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "SUCCESS"),
-            @ApiResponse(responseCode = "500", description = "Failure occured")
-    })
-    @GetMapping("/getArrearsForToday")
-    public ResponseEntity<ResponseStructure<Object>> getArrearsForToday() {
-        return reportService.getArrearsForToday();
-    }
-
-
-
-    @Operation(summary = "Total Amount of yesterday", description = "No Input , returns Success/Failure Object")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "SUCCESS"),
-            @ApiResponse(responseCode = "500", description = "Failure occured")
-    })
-    @GetMapping("/getCodAmountForYesterday")
-    public ResponseEntity<ResponseStructure<Object>> getCodAmountForYesterday() {
-        return reportService.getSumAmountForYesterday();
-    }
+    @Autowired
+    private OrgReportService orgReportService;
 
 
     @Operation(summary = "Jahez Report", description = "Input is Jahez Report file, returns Success/Failure Object")
@@ -76,14 +59,27 @@ public class ReportController {
         }
     }
 
-    @Operation(summary = "Jahez Report", description = "Input is Jahez Report file, returns Success/Failure Object")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Reports Found"),
-            @ApiResponse(responseCode = "404", description = "Reports Not Found")})
-    @GetMapping("/getAll")
-    public ResponseEntity<ResponseStructure<Object>> getAllReport(@RequestParam(defaultValue = "0") int page,
-                                                                  @RequestParam(defaultValue = "10") int size,
-                                                                  @RequestParam(defaultValue = "id") String field) {
-        return reportService.getAllReport(page, size, field);
+    @Operation(summary = "Org Report", description = "Input is Org Report file, returns Success/Failure Object")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SUCCESS"),
+            @ApiResponse(responseCode = "500", description = "Failure occured")
+    })
+    @PostMapping(value = "/upload/orgReports", consumes = {"multipart/form-data"})
+    public ResponseEntity<ResponseStructure<Object>> uploadOrgReports(@RequestParam("file") MultipartFile file) {
+        try (InputStream inputStream = file.getInputStream();
+             Workbook workbook = new XSSFWorkbook(inputStream)) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+
+            if (sheet.getPhysicalNumberOfRows() <= 1) {
+                return ResponseStructure.errorResponse(null, 400, "ERROR: No data found in the file.");
+            }
+
+            return orgReportService.uploadOrgReports(sheet);
+
+        } catch (Exception e) {
+            return ResponseStructure.errorResponse(null, 500, "ERROR: " + e.getMessage());
+        }
     }
 
 
@@ -134,4 +130,36 @@ public class ReportController {
         return reportService.getSumForCurrentMonth();
     }
 
+
+    @Operation(summary = "Jahez Report", description = "Input is Jahez Report file, returns Success/Failure Object")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Reports Found"),
+            @ApiResponse(responseCode = "404", description = "Reports Not Found")})
+    @GetMapping("/getAll")
+    public ResponseEntity<ResponseStructure<Object>> getAllReport(@RequestParam(defaultValue = "0") int page,
+                                                                  @RequestParam(defaultValue = "10") int size,
+                                                                  @RequestParam(defaultValue = "id") String field) {
+        return reportService.getAllReport(page, size, field);
+    }
+
+    @Operation(summary = "Total amount of particular date", description = "Input is date, returns Success/Failure Object")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SUCCESS"),
+            @ApiResponse(responseCode = "500", description = "Failure occured")
+    })
+    @GetMapping("/getArrearsForToday")
+    public ResponseEntity<ResponseStructure<Object>> getArrearsForToday() {
+        return reportService.getArrearsForToday();
+    }
+
+
+
+    @Operation(summary = "Total Amount of yesterday", description = "No Input , returns Success/Failure Object")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SUCCESS"),
+            @ApiResponse(responseCode = "500", description = "Failure occured")
+    })
+    @GetMapping("/getCodAmountForYesterday")
+    public ResponseEntity<ResponseStructure<Object>> getCodAmountForYesterday() {
+        return reportService.getSumAmountForYesterday();
+    }
 }

@@ -63,6 +63,7 @@ public class SecurityConfig {
             "/order/getOrderCountByMonth",
             "/order/findAll",
             "/report/upload/jahez",
+            "/report/upload/orgReports",
             "/report/getCodAmountForYesterday",
             "/report/getArrearsForToday",
             "/fleet/ownTypeCount",
@@ -70,7 +71,9 @@ public class SecurityConfig {
             "/order/top-driver",
             "/driver/topDriver",
             "/driver/create",
-            "/driver/findByUsernameContaining/{name}"
+            "/driver/findByUsernameContaining/{name}",
+            "/tam/upload/tamSheet"
+
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create", "/staff/update",
