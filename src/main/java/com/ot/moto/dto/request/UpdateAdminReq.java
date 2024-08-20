@@ -11,8 +11,6 @@ public class UpdateAdminReq {
 
     private String phone;
 
-    private String password;
-
     private String firstName;
 
     private String lastName;

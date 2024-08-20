@@ -83,6 +83,7 @@ public class FleetService {
         fleet.setInsuranceExpiryDate(request.getInsuranceExpiryDate());
         fleet.setInsuranceDocument(request.getInsuranceDocument());
         fleet.setVehicleType(vehicleType);
+        fleet.setImage(request.getImage());
         Driver driver = driverDao.getById(request.getDriverId());
         fleet.setDriver(driver);
 
@@ -102,6 +103,9 @@ public class FleetService {
         }
         if (request.getInsuranceExpiryDate() != null) {
             fleet.setInsuranceExpiryDate(request.getInsuranceExpiryDate());
+        }
+        if (request.getImage() != null) {
+            fleet.setImage(request.getImage());
         }
         if (!StringUtil.isEmpty(request.getInsuranceDocument())) {
             fleet.setInsuranceDocument(request.getInsuranceDocument());

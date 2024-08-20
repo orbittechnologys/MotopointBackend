@@ -39,6 +39,8 @@ public class Fleet {
 
     private String insuranceDocument;
 
+    private String image;
+
     @OneToOne
     @JoinColumn
     @JsonManagedReference("fleet")

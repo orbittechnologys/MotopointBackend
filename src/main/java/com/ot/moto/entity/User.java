@@ -35,5 +35,8 @@ public class User {
 
     private LocalDate joiningDate;
 
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
+    private boolean status = true;
+
     private String role;
 }

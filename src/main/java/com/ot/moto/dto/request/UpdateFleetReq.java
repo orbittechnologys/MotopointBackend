@@ -19,4 +19,6 @@ public class UpdateFleetReq {
     private String insuranceDocument;
 
     public Long driverId;
+
+    private String  image;
 }

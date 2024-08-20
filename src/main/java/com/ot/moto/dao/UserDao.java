@@ -56,4 +56,16 @@ public class UserDao {
         Optional<User> userByPhone = userRepository.findByEmail(email);
         return userByPhone;
     }
+
+    public User updateUserStatus(Long userId, boolean status) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setStatus(status);
+            return userRepository.save(user);
+        } else {
+            throw new RuntimeException("User not found");
+        }
+    }
+
 }
