@@ -4,6 +4,8 @@ import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateDriverReq;
 import com.ot.moto.dto.request.UpdateDriverReq;
 import com.ot.moto.dto.response.DriverDetails;
+import com.ot.moto.entity.Driver;
+import com.ot.moto.entity.User;
 import com.ot.moto.service.DriverService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/driver")
 @CrossOrigin(origins = "*")
@@ -19,6 +23,7 @@ public class DriverController {
 
     @Autowired
     private DriverService driverService;
+
 
     @Operation(summary = "Save Driver", description = "Input is Create driver Request, returns Driver Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"),
@@ -81,6 +86,15 @@ public class DriverController {
     @GetMapping("/topDriver")
     public ResponseEntity<ResponseStructure<Object>> fetchTopDriver() {
         return driverService.fetchTopDriver();
+    }
+
+
+    @Operation(summary = "Fetch Driver By Name ", description = "returns Driver Object By Name")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
+            @ApiResponse(responseCode = "404", description = "Driver Not Found")})
+    @GetMapping(value = "/findByUsernameContaining/{name}")
+    public ResponseEntity<ResponseStructure<List<Driver>>> findByUsernameContaining(@PathVariable String name) {
+        return driverService.findByUsernameContaining(name);
     }
 }
 

@@ -68,7 +68,9 @@ public class SecurityConfig {
             "/fleet/ownTypeCount",
             "/report/current-month",
             "/order/top-driver",
-            "/driver/topDriver"
+            "/driver/topDriver",
+            "/driver/create",
+            "/driver/findByUsernameContaining/{name}"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create","/staff/update"};

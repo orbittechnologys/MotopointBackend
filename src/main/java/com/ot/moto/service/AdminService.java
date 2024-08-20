@@ -6,6 +6,7 @@ import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateAdminReq;
 import com.ot.moto.dto.request.UpdateAdminReq;
 import com.ot.moto.entity.Admin;
+import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.User;
 import com.ot.moto.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -183,5 +184,4 @@ public class AdminService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
-
 }

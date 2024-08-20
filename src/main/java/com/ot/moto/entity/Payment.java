@@ -19,6 +19,8 @@ public class Payment {
 
     private double amount;
 
+    private String description;
+
     private String type;
 
     private LocalDate date;

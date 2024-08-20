@@ -4,6 +4,8 @@ import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateAdminReq;
 import com.ot.moto.dto.request.CreateStaffReq;
 import com.ot.moto.dto.request.UpdateStaffReq;
+import com.ot.moto.entity.Driver;
+import com.ot.moto.entity.Staff;
 import com.ot.moto.service.StaffService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -11,6 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/staff")
@@ -63,5 +67,14 @@ public class StaffController {
     @DeleteMapping("/delete")
     public ResponseEntity<ResponseStructure<Object>> deleteStaff(@RequestParam Long id) {
         return staffService.deleteStaff(id);
+    }
+
+
+    @Operation(summary = "Fetch Staff By Name ", description = "returns Staff Object By Name")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
+            @ApiResponse(responseCode = "404", description = "Staff Not Found")})
+    @GetMapping(value = "/findByUsernameContaining/{name}")
+    public ResponseEntity<ResponseStructure<List<Staff>>> findByUsernameContaining(@PathVariable String name) {
+        return staffService.findByUsernameContaining(name);
     }
 }

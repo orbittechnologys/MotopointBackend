@@ -46,9 +46,6 @@ public class ReportService {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
 
 
-
-
-
     public ResponseEntity<ResponseStructure<Object>> getSumForCurrentMonth() {
         LocalDate now = LocalDate.now();
         LocalDate startDate = now.withDayOfMonth(1);
@@ -227,12 +224,13 @@ public class ReportService {
                         continue;
                     }
 
-                    updateDriverPendingAmount(driver, amount, paymentType, date);
+                    updateDriverPendingAmount(driver, amount, paymentType, date, description);
 
                 } else {
                     logger.info("No driver found with phone number: " + phoneNumber);
                 }
             }
+
 
         } catch (Exception e) {
             logger.error("Error parsing bank statement", e);
@@ -263,26 +261,29 @@ public class ReportService {
     }
 
 
-    private void updateDriverPendingAmount(Driver driver, double amount, String paymentType, LocalDate date) {
+    private void updateDriverPendingAmount(Driver driver, double amount, String paymentType, LocalDate date, String description) {
         double newAmountPending = driver.getAmountPending() - amount;
         driver.setAmountPending(newAmountPending);
         driverDao.createDriver(driver);
 
         logger.info("Updated pending amount for driver: " + driver.getPhone() + ". New amount pending: " + newAmountPending);
 
-        savePaymentRecord(driver, amount, paymentType, date);
+        savePaymentRecord(driver, amount, paymentType, date, description);
     }
 
-    private void savePaymentRecord(Driver driver, double amount, String paymentType, LocalDate date) {
+
+    private void savePaymentRecord(Driver driver, double amount, String paymentType, LocalDate date, String description) {
         Payment payment = new Payment();
         payment.setAmount(amount);
         payment.setType(paymentType);
         payment.setDate(date);
         payment.setDriver(driver);
+        payment.setDescription(description);
 
         paymentDao.save(payment);
-        logger.info("Saved payment record for driver: " + driver.getPhone() + ". Amount: " + amount);
+        logger.info("Saved payment record for driver: " + driver.getPhone() + ". Amount: " + amount + ", Description: " + description);
     }
+
 
     public Map<String, Double> getTotalAmountByPaymentType() {
 

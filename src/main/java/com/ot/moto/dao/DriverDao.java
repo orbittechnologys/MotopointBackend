@@ -1,6 +1,5 @@
 package com.ot.moto.dao;
 
-import com.ot.moto.entity.Admin;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.repository.DriverRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
-import javax.swing.text.html.Option;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -73,4 +72,8 @@ public class DriverDao {
         Optional<Driver> optionalDriver = driverRepository.findTopDriverByCurrentOrders();
         return optionalDriver.orElse(null);
     }
-}
+
+    public List<Driver> findByUsernameContaining(String name){
+        return driverRepository.findByUsernameContaining(name);
+    }
+ }

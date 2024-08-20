@@ -36,5 +36,4 @@ public class User {
     private LocalDate joiningDate;
 
     private String role;
-
 }

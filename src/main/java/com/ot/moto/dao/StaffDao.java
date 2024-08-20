@@ -1,5 +1,6 @@
 package com.ot.moto.dao;
 
+import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Staff;
 import com.ot.moto.repository.StaffRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,5 +37,9 @@ public class StaffDao {
 
     public void deleteStaff(Staff staff){
         staffRepository.delete(staff);
+    }
+
+    public List<Staff> findByUsernameContaining(String name){
+        return staffRepository.findByUsernameContaining(name);
     }
 }

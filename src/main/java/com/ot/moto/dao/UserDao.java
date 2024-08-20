@@ -5,6 +5,7 @@ import com.ot.moto.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -55,5 +56,4 @@ public class UserDao {
         Optional<User> userByPhone = userRepository.findByEmail(email);
         return userByPhone;
     }
-
 }
