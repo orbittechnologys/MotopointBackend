@@ -75,7 +75,7 @@ public class TamController {
     }
 
 
-    @GetMapping("/download/tamReport")
+    @GetMapping("/download")
     public ResponseEntity<InputStreamResource> downloadTamReport() {
         try {
             ResponseEntity<InputStreamResource> responseEntity = tamService.generateExcelForAll();
