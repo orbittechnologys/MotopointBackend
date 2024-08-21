@@ -15,4 +15,6 @@ public interface TamRepository extends JpaRepository<Tam, Long> {
 
     public List<Tam> findByJahezRiderId(Long jahezRiderId);
 
+    public List<Tam> findByDriverName(String name );
+
 }

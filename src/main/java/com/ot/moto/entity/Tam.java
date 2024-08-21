@@ -57,6 +57,4 @@ public class Tam {
     private String driverCompanyJahezId;
     private Long mobileNumber;
     private String driverName;
-
-
 }

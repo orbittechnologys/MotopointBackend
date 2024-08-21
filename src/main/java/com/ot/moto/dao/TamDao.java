@@ -1,6 +1,5 @@
 package com.ot.moto.dao;
 
-import com.ot.moto.entity.Payment;
 import com.ot.moto.entity.Tam;
 import com.ot.moto.repository.TamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public class TamDao {
@@ -17,5 +18,9 @@ public class TamDao {
 
     public Page<Tam> findAll(int offset, int pageSize, String field) {
         return tamRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
+    }
+
+    public List<Tam> findByDriverName(String name){
+        return tamRepository.findByDriverName(name);
     }
 }

@@ -3,15 +3,18 @@ package com.ot.moto.service;
 import com.ot.moto.dao.OrgReportsDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.entity.OrgReports;
+import com.ot.moto.entity.Tam;
 import com.ot.moto.repository.OrgReportsRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -226,6 +229,54 @@ public class OrgReportService {
         } catch (Exception e) {
             logger.error("Error fetching OrgReports for Driver ID: " + driverId, e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<List<OrgReports>>> findByDriverName(String name){
+        ResponseStructure<List<OrgReports>> responseStructure = new ResponseStructure<>();
+
+        List<OrgReports> driverList = orgReportsDao.findByDriverName(name);
+        if(driverList.isEmpty()) {
+            responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
+            responseStructure.setMessage("Driver Not Found in OrgReports ");
+            responseStructure.setData(null);
+            return new ResponseEntity<>(responseStructure,HttpStatus.NOT_FOUND);
+        }
+        else {
+            responseStructure.setStatus(HttpStatus.OK.value());
+            responseStructure.setMessage("Driver Found in OrgReports ");
+            responseStructure.setData(driverList);
+            return new ResponseEntity<>(responseStructure,HttpStatus.OK);
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> getSumForCurrentMonth() {
+        LocalDate now = LocalDate.now();
+        LocalDate startDate = now.withDayOfMonth(1);
+        LocalDate endDate = now.withDayOfMonth(now.lengthOfMonth());
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+
+        try {
+            Double sum = orgReportsDao.getSumOfCurrentMonth(startDateTime, endDateTime);
+            return ResponseStructure.successResponse(sum, "Total sum for current month retrieved successfully");
+        } catch (Exception e) {
+            return ResponseStructure.errorResponse(null, 500, "Error fetching sum for current month: " + e.getMessage());
+        }
+    }
+
+
+    public ResponseEntity<ResponseStructure<Object>> getSumForYesterday() {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        LocalDateTime startOfDay = yesterday.atStartOfDay();
+        LocalDateTime endOfDay = yesterday.atTime(23, 59, 59);
+
+        try {
+            Double sum = orgReportsDao.getSumAmountOnDate(startOfDay, endOfDay);
+            return ResponseStructure.successResponse(sum, "Total sum for yesterday retrieved successfully");
+        } catch (Exception e) {
+            return ResponseStructure.errorResponse(null, 500, "Error fetching sum for yesterday: " + e.getMessage());
         }
     }
 }

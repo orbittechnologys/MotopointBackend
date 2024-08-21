@@ -2,6 +2,7 @@ package com.ot.moto.dao;
 
 
 import com.ot.moto.entity.OrgReports;
+import com.ot.moto.entity.Tam;
 import com.ot.moto.repository.OrgReportsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,5 +31,18 @@ public class OrgReportsDao {
 
     public List<OrgReports> findByDriverId(String driverId) {
         return orgReportsRepository.findByDriverId(driverId);
+    }
+
+    public List<OrgReports> findByDriverName(String name){
+        return orgReportsRepository.findByDriverName(name);
+    }
+
+    public Double getSumOfCurrentMonth(LocalDateTime startDate, LocalDateTime endDate) {
+        return orgReportsRepository.sumAmountForCurrentMonth(startDate, endDate);
+    }
+
+
+    public Double getSumAmountOnDate(LocalDateTime startDate, LocalDateTime endDate) {
+        return orgReportsRepository.sumAmountOnDate(startDate, endDate);
     }
 }

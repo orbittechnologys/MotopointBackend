@@ -1,7 +1,10 @@
 package com.ot.moto.repository;
 
 import com.ot.moto.entity.OrgReports;
+import com.ot.moto.entity.Tam;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,4 +14,12 @@ public interface OrgReportsRepository extends JpaRepository<OrgReports,Long> {
     public OrgReports findByDidAndDispatchTime(Long did, LocalDateTime dispatchTime);
 
     public List<OrgReports> findByDriverId(String driverId);
+
+    public List<OrgReports> findByDriverName(String name );
+
+    @Query("SELECT SUM(o.amount) FROM OrgReports o WHERE o.dispatchTime >= :startDate AND o.dispatchTime <= :endDate")
+    Double sumAmountForCurrentMonth(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT SUM(o.amount) FROM OrgReports o WHERE o.dispatchTime BETWEEN :startDate AND :endDate")
+    Double sumAmountOnDate(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 }

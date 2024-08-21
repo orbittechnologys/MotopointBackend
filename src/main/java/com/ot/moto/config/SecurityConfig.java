@@ -75,12 +75,16 @@ public class SecurityConfig {
             "/tam/upload/tamSheet",
             "/tam/findAll",
             "/tam/getByJahezRiderId",
+            "/tam/findByDriverName",
+            "/report/findByDriverName",
             "/staff/delete",
             "/staff/create",
             "/report/getAll",
             "/report/getTotalAmountByPaymentType",
             "report/getAllOrg",
-            "report/getOrgReportsByDriverId"
+            "report/getOrgReportsByDriverId",
+            "/report/currentMonthOrgReport",
+            "/report/getCodAmountForYesterdayOrgReport"
 
     };
 

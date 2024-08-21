@@ -1,5 +1,6 @@
 package com.ot.moto.repository;
 
+import com.ot.moto.entity.OrgReports;
 import com.ot.moto.entity.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,5 +22,7 @@ public interface PaymentRepository extends JpaRepository<Payment,Long> {
 
     @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.date >= :startDate AND p.date <= :endDate")
     Double sumAmountForCurrentMonth(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+
 
 }

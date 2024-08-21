@@ -3,6 +3,8 @@ package com.ot.moto.controller;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateFleetReq;
 import com.ot.moto.entity.Orders;
+import com.ot.moto.entity.OrgReports;
+import com.ot.moto.entity.Tam;
 import com.ot.moto.service.OrgReportService;
 import com.ot.moto.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -181,5 +184,36 @@ public class ReportController {
     @GetMapping("/getOrgReportsByDriverId")
     public ResponseEntity<ResponseStructure<Object>> getOrgReportsByDriverId(@RequestParam String driverId) {
         return orgReportService.getOrgByDriverID(driverId);
+    }
+
+
+    @Operation(summary = "Fetch driver By Name in OrgsReport ", description = "returns driver Object By Name in OrgsReport")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
+            @ApiResponse(responseCode = "404", description = "Driver Not Found")})
+    @GetMapping(value = "/findByDriverName")
+    public ResponseEntity<ResponseStructure<List<OrgReports>>> findByDriverName(@RequestParam String name) {
+        return orgReportService.findByDriverName(name);
+    }
+
+
+    @Operation(summary = "Get Total Amount by Payment ", description = "Returns the total amount for each payment type")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SUCCESS"),
+            @ApiResponse(responseCode = "500", description = "Failure occurred")
+    })
+    @GetMapping("/currentMonthOrgReport")
+    public ResponseEntity<ResponseStructure<Object>> getSumForCurrentMonthOrgReport() {
+        return orgReportService.getSumForCurrentMonth();
+    }
+
+
+    @Operation(summary = "Total Amount of yesterday", description = "No Input , returns Success/Failure Object")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SUCCESS"),
+            @ApiResponse(responseCode = "500", description = "Failure occured")
+    })
+    @GetMapping("/getCodAmountForYesterdayOrgReport")
+    public ResponseEntity<ResponseStructure<Object>> getCodAmountForYesterdayOrgReport() {
+        return orgReportService.getSumForYesterday();
     }
 }

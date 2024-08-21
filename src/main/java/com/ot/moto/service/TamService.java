@@ -3,7 +3,6 @@ package com.ot.moto.service;
 import com.ot.moto.dao.TamDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.entity.Driver;
-import com.ot.moto.entity.Orders;
 import com.ot.moto.entity.Tam;
 import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.TamRepository;
@@ -14,19 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 public class TamService {
@@ -309,4 +304,21 @@ public class TamService {
         }
     }
 
+    public ResponseEntity<ResponseStructure<List<Tam>>> findByDriverName(String name){
+        ResponseStructure<List<Tam>> responseStructure = new ResponseStructure<>();
+
+        List<Tam> driverList = tamDao.findByDriverName(name);
+        if(driverList.isEmpty()) {
+            responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
+            responseStructure.setMessage("Driver Not Found in TAM  ");
+            responseStructure.setData(null);
+            return new ResponseEntity<>(responseStructure,HttpStatus.NOT_FOUND);
+        }
+        else {
+            responseStructure.setStatus(HttpStatus.OK.value());
+            responseStructure.setMessage("Driver Found in TAM ");
+            responseStructure.setData(driverList);
+            return new ResponseEntity<>(responseStructure,HttpStatus.OK);
+        }
+    }
 }

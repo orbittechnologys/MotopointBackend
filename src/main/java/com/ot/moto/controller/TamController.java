@@ -1,6 +1,8 @@
 package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
+import com.ot.moto.entity.Staff;
+import com.ot.moto.entity.Tam;
 import com.ot.moto.service.TamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -53,9 +55,17 @@ public class TamController {
         return tamService.findAll(page, size, field);
     }
 
+
     @GetMapping("/getByJahezRiderId")
     public ResponseEntity<ResponseStructure<Object>> getByJahezRiderId(@RequestParam Long jahezRiderId){
         return tamService.getByJahezRiderId(jahezRiderId);
     }
-}
 
+    @Operation(summary = "Fetch driver By Name in tam ", description = "returns driver Object By Name in tam")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
+            @ApiResponse(responseCode = "404", description = "Driver Not Found")})
+    @GetMapping(value = "/findByDriverName")
+    public ResponseEntity<ResponseStructure<List<Tam>>> findByDriverName(@RequestParam String name) {
+        return tamService.findByDriverName(name);
+    }
+}
