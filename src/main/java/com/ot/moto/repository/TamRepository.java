@@ -21,11 +21,12 @@ public interface TamRepository extends JpaRepository<Tam, Long> {
 
     public List<Tam> findByDriverName(String name );
 
-    @Query("SELECT SUM(t.amountToPay) FROM Tam t WHERE t.dateTime >= :startOfDay AND t.dateTime <= :endOfDay")
-    public Double sumAmountOnDate(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
+    @Query("SELECT SUM(t.payInAmount) FROM Tam t WHERE t.dateTime >= :startDate AND t.dateTime <= :endDate")
+    Double sumPayInAmountOnDate(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
-    @Query("SELECT SUM(t.amountToPay) FROM Tam t WHERE t.dateTime >= :startDate AND t.dateTime <= :endDate")
-    Double sumAmountForCurrentMonth(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    @Query("SELECT SUM(t.payInAmount) FROM Tam t WHERE t.dateTime >= :startDate AND t.dateTime <= :endDate")
+    Double sumPayInAmountForCurrentMonth(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     public List<Tam> findByDateTimeBetween(LocalDateTime startDate, LocalDateTime endDate);
+
 }

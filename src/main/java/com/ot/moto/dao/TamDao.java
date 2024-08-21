@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,8 +26,11 @@ public class TamDao {
     public List<Tam> findByDriverName(String name){
         return tamRepository.findByDriverName(name);
     }
+    public Double getSumPayInAmountForDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return tamRepository.sumPayInAmountOnDate(startDate, endDate);
+    }
 
-
-
-
+    public Double getSumPayInAmountForCurrentMonth(LocalDateTime startDate, LocalDateTime endDate) {
+        return tamRepository.sumPayInAmountForCurrentMonth(startDate, endDate);
+    }
 }

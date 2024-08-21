@@ -87,4 +87,36 @@ public class TamController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Operation(summary = "Get total sum of payInAmount for the current month", description = "Returns the total sum of payInAmount for the current month")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SUCCESS"),
+            @ApiResponse(responseCode = "204", description = "No Content"),
+            @ApiResponse(responseCode = "500", description = "Failure occurred")
+    })
+    @GetMapping("/sumPayInAmountForCurrentMonth")
+    public ResponseEntity<ResponseStructure<Object>> getSumPayInAmountForCurrentMonth() {
+        try {
+            Double sum = tamService.getSumPayInAmountForCurrentMonth();
+            return ResponseStructure.successResponse(sum, "Total sum for current month retrieved successfully");
+        } catch (Exception e) {
+            return ResponseStructure.errorResponse(null, 500, "Error fetching sum for current month: " + e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Get total sum of payInAmount for yesterday", description = "Returns the total sum of payInAmount for yesterday")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SUCCESS"),
+            @ApiResponse(responseCode = "204", description = "No Content"),
+            @ApiResponse(responseCode = "500", description = "Failure occurred")
+    })
+    @GetMapping("/sumPayInAmountForYesterday")
+    public ResponseEntity<ResponseStructure<Object>> getSumPayInAmountForYesterday() {
+        try {
+            Double sum = tamService.getSumPayInAmountForYesterday();
+            return ResponseStructure.successResponse(sum, "Total sum for yesterday retrieved successfully");
+        } catch (Exception e) {
+            return ResponseStructure.errorResponse(null, 500, "Error fetching sum for yesterday: " + e.getMessage());
+        }
+    }
 }
