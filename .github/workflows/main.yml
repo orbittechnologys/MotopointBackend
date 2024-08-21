@@ -15,11 +15,14 @@ jobs:
       run: |
         install -m 600 -D /dev/null ~/.ssh/id_rsa
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
     
     - name: Connect and Pull
+      env:
+        SSHPASS: ${{ secrets.SSH_PASSWORD }}
       run: |
-        sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+        sshpass -e ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
         "cd ${{ secrets.WORK_DIR }} && \
          sudo chown -R jdlearn:jdlearn /home/MotopointBackend && \
          sudo git stash && \
@@ -28,8 +31,6 @@ jobs:
          sudo mvn install && \
          sudo systemctl restart backend.service && \
          exit"
-      env:
-        SSHPASS: ${{ secrets.SSH_PASSWORD }}
-        
+
     - name: Cleanup
       run: rm -rf ~/.ssh
