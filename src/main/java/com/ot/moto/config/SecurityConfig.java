@@ -93,10 +93,9 @@ public class SecurityConfig {
             "/report/sumAmountCollectedByDriver",
             "/report/getAllBankStatement",
             "/tam/sumPayInAmountForCurrentMonth",
-            "/tam/sumPayInAmountForYesterday"
-
-
-
+            "/tam/sumPayInAmountForYesterday",
+            "/master/create",
+            "/master/slab/{slab}"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create", "/staff/update",
