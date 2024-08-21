@@ -17,6 +17,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -215,5 +216,46 @@ public class ReportController {
     @GetMapping("/getCodAmountForYesterdayOrgReport")
     public ResponseEntity<ResponseStructure<Object>> getCodAmountForYesterdayOrgReport() {
         return orgReportService.getSumForYesterday();
+    }
+
+
+    @Operation(summary = "Download Org Reports as Excel", description = "No Input, returns the Excel file for Org Reports")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SUCCESS"),
+            @ApiResponse(responseCode = "404", description = "Report not found"),
+            @ApiResponse(responseCode = "500", description = "Failure occurred")
+    })
+    @GetMapping("/download")
+    public ResponseEntity<InputStreamResource> downloadOrgReportsExcel() {
+        try {
+            ResponseEntity<InputStreamResource> responseEntity = orgReportService.generateExcelForOrgReports();
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                return responseEntity;
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Operation(summary = "Total Amount of Month Collected By driver", description = "No Input , returns Success/Failure Object")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SUCCESS"),
+            @ApiResponse(responseCode = "500", description = "Failure occured")
+    })
+    @GetMapping("/sumAmountCollectedByDriver")
+    public ResponseEntity<Object> getTopDriverWithHighestAmountForCurrentMonth() {
+        return orgReportService.getTopDriverWithHighestAmountForCurrentMonth();
+    }
+
+    @Operation(summary = "BankStatement Report", description = "Input is BankStatement file, returns Success/Failure Object")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Reports Found"),
+            @ApiResponse(responseCode = "404", description = " BankStatement Reports Not Found")})
+    @GetMapping("/getAllBankStatement")
+    public ResponseEntity<ResponseStructure<Object>> getAllBankStatements(@RequestParam(defaultValue = "0") int page,
+                                                                          @RequestParam(defaultValue = "10") int size,
+                                                                          @RequestParam(defaultValue = "id") String field) {
+        return reportService.getAllBankstatement(page, size, field);
     }
 }

@@ -44,4 +44,8 @@ public class OrgReportsDao {
     public Double getSumAmountOnDate(LocalDateTime startDate, LocalDateTime endDate) {
         return orgReportsRepository.sumAmountOnDate(startDate, endDate);
     }
+
+    public List<Object[]> findDriverWithHighestAmountForCurrentMonth(LocalDateTime startDate, LocalDateTime endDate) {
+        return orgReportsRepository.findDriverWithHighestAmountForCurrentMonth(startDate, endDate);
+    }
 }

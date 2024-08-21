@@ -74,7 +74,6 @@ public class TamController {
         return tamService.findByDriverName(name);
     }
 
-
     @GetMapping("/download")
     public ResponseEntity<InputStreamResource> downloadTamReport() {
         try {

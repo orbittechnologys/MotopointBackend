@@ -1,6 +1,7 @@
 package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
+import com.ot.moto.dto.request.AssignFleet;
 import com.ot.moto.dto.request.CreateFleetReq;
 import com.ot.moto.dto.request.UpdateFleetReq;
 import com.ot.moto.service.FleetService;
@@ -106,6 +107,18 @@ public class FleetController {
     @GetMapping("/ownTypeCount")
     public ResponseEntity<ResponseStructure<Object>> getFleetCounts() {
         return fleetService.getFleetCounts();
+    }
+
+
+    @Operation(summary = "Assign Fleet", description = "Input is Fleet Id and Driver Id, returns Fleet Object")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Fleet Assigned"),
+            @ApiResponse(responseCode = "404", description = "Fleet Not Found"),
+            @ApiResponse(responseCode = "409", description = "Conflict with existing data")
+    })
+    @GetMapping("/assignFleet")
+    public ResponseEntity<ResponseStructure<Object>> assignFleet(@RequestBody AssignFleet assignFleet) {
+        return fleetService.assignFleet(assignFleet);
     }
 }
 

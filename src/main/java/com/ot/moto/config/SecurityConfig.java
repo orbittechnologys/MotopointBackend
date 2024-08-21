@@ -87,7 +87,13 @@ public class SecurityConfig {
             "/report/getCodAmountForYesterdayOrgReport",
             "/staff/findByUsernameContaining/{name}",
             "/driver/findByUsernameContaining/{name}",
-            "/tam/download"
+            "/tam/download",
+            "/report/download",
+            "/fleet/assignFleet",
+            "/report/sumAmountCollectedByDriver",
+            "/report/getAllBankStatement"
+
+
 
     };
 

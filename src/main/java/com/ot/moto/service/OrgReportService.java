@@ -6,19 +6,27 @@ import com.ot.moto.entity.OrgReports;
 import com.ot.moto.entity.Tam;
 import com.ot.moto.repository.OrgReportsRepository;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -201,11 +209,10 @@ public class OrgReportService {
     }
 
 
-
     public ResponseEntity<ResponseStructure<Object>> getAllOrg(int page, int size, String field) {
         try {
 
-            Page<OrgReports> orgReports = orgReportsDao.findAll(page,size,field);
+            Page<OrgReports> orgReports = orgReportsDao.findAll(page, size, field);
             if (orgReports.isEmpty()) {
                 logger.warn("No Staff found.");
                 return ResponseStructure.errorResponse(null, 404, "No Driver found");
@@ -220,7 +227,7 @@ public class OrgReportService {
 
     public ResponseEntity<ResponseStructure<Object>> getOrgByDriverID(String driverId) {
         try {
-            List <OrgReports> orgReports = orgReportsDao.findByDriverId(driverId);
+            List<OrgReports> orgReports = orgReportsDao.findByDriverId(driverId);
             if (orgReports == null) {
                 logger.warn("No OrgReports found for Driver ID: " + driverId);
                 return ResponseStructure.errorResponse(null, 404, "No reports found for Driver ID: " + driverId);
@@ -232,21 +239,20 @@ public class OrgReportService {
         }
     }
 
-    public ResponseEntity<ResponseStructure<List<OrgReports>>> findByDriverName(String name){
+    public ResponseEntity<ResponseStructure<List<OrgReports>>> findByDriverName(String name) {
         ResponseStructure<List<OrgReports>> responseStructure = new ResponseStructure<>();
 
         List<OrgReports> driverList = orgReportsDao.findByDriverName(name);
-        if(driverList.isEmpty()) {
+        if (driverList.isEmpty()) {
             responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
             responseStructure.setMessage("Driver Not Found in OrgReports ");
             responseStructure.setData(null);
-            return new ResponseEntity<>(responseStructure,HttpStatus.NOT_FOUND);
-        }
-        else {
+            return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
+        } else {
             responseStructure.setStatus(HttpStatus.OK.value());
             responseStructure.setMessage("Driver Found in OrgReports ");
             responseStructure.setData(driverList);
-            return new ResponseEntity<>(responseStructure,HttpStatus.OK);
+            return new ResponseEntity<>(responseStructure, HttpStatus.OK);
         }
     }
 
@@ -278,5 +284,91 @@ public class OrgReportService {
         } catch (Exception e) {
             return ResponseStructure.errorResponse(null, 500, "Error fetching sum for yesterday: " + e.getMessage());
         }
+    }
+
+
+    public ResponseEntity<InputStreamResource> generateExcelForOrgReports() {
+        try {
+            List<OrgReports> orgReportsList = orgReportsRepository.findAll();
+            if (orgReportsList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Org Reports");
+
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {
+                    "ID", "No", "DID", "Ref ID", "Driver Name", "Driver Username", "Driver ID",
+                    "Amount", "Price", "Driver Debit Amount", "Driver Credit Amount", "Is Free Order",
+                    "Dispatch Time", "Subscriber", "Driver Paid Org", "Org Settled", "Driver Settled"
+            };
+            for (int i = 0; i < headers.length; i++) {
+                headerRow.createCell(i).setCellValue(headers[i]);
+            }
+
+            int rowNum = 1;
+            for (OrgReports report : orgReportsList) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(report.getId());
+                row.createCell(1).setCellValue(report.getNo() != null ? report.getNo() : 0);
+                row.createCell(2).setCellValue(report.getDid() != null ? report.getDid() : 0);
+                row.createCell(3).setCellValue(report.getRefId() != null ? report.getRefId() : 0);
+                row.createCell(4).setCellValue(report.getDriverName());
+                row.createCell(5).setCellValue(report.getDriverUsername());
+                row.createCell(6).setCellValue(report.getDriverId());
+                row.createCell(7).setCellValue(report.getAmount() != null ? report.getAmount() : 0.0);
+                row.createCell(8).setCellValue(report.getPrice() != null ? report.getPrice() : 0.0);
+                row.createCell(9).setCellValue(report.getDriverDebitAmount() != null ? report.getDriverDebitAmount() : 0.0);
+                row.createCell(10).setCellValue(report.getDriverCreditAmount() != null ? report.getDriverCreditAmount() : 0.0);
+                row.createCell(11).setCellValue(report.getIsFreeOrder() != null && report.getIsFreeOrder() ? "Yes" : "No");
+                row.createCell(12).setCellValue(report.getDispatchTime() != null ? report.getDispatchTime().toString() : "");
+                row.createCell(13).setCellValue(report.getSubscriber());
+                row.createCell(14).setCellValue(report.getDriverPaidOrg() != null && report.getDriverPaidOrg() ? "Yes" : "No");
+                row.createCell(15).setCellValue(report.getOrgSettled() != null && report.getOrgSettled() ? "Yes" : "No");
+                row.createCell(16).setCellValue(report.getDriverSettled() != null && report.getDriverSettled() ? "Yes" : "No");
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
+
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers1 = new HttpHeaders();
+            headers1.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=org_reports.xlsx");
+            headers1.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers1)
+                    .contentLength(outputStream.size())
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(resource);
+
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    public ResponseEntity<Object> getTopDriverWithHighestAmountForCurrentMonth() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startDate = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endDate = now.withDayOfMonth(now.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+
+        List<Object[]> results = orgReportsDao.findDriverWithHighestAmountForCurrentMonth(startDate, endDate);
+
+        if (results.isEmpty()) {
+            return ResponseEntity.ok("No data available for the current month.");
+        }
+
+        Object[] topDriver = results.get(0);
+        String driverId = (String) topDriver[0];
+        String driverName = (String) topDriver[1];
+        Double totalAmount = (Double) topDriver[2];
+
+        String responseMessage = String.format("Driver with ID: %s, Name: %s collected the highest amount: %s", driverId, driverName, totalAmount);
+
+        return ResponseEntity.ok(responseMessage);
     }
 }

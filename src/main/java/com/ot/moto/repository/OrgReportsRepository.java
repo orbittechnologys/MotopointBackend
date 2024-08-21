@@ -22,4 +22,12 @@ public interface OrgReportsRepository extends JpaRepository<OrgReports,Long> {
 
     @Query("SELECT SUM(o.amount) FROM OrgReports o WHERE o.dispatchTime BETWEEN :startDate AND :endDate")
     Double sumAmountOnDate(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT o.driverId, o.driverName, SUM(o.amount) as totalAmount " +
+            "FROM OrgReports o " +
+            "WHERE o.dispatchTime BETWEEN :startDate AND :endDate " +
+            "GROUP BY o.driverId, o.driverName " +
+            "ORDER BY totalAmount DESC")
+    List<Object[]> findDriverWithHighestAmountForCurrentMonth(@Param("startDate") LocalDateTime startDate,
+                                                              @Param("endDate") LocalDateTime endDate);
 }

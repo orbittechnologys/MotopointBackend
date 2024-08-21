@@ -41,6 +41,8 @@ public class Fleet {
 
     private String image;
 
+    private LocalDate fleetAssignDate;
+
     @OneToOne
     @JoinColumn
     @JsonManagedReference("fleet")

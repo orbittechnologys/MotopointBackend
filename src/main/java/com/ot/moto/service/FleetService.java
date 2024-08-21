@@ -3,6 +3,7 @@ package com.ot.moto.service;
 import com.ot.moto.dao.DriverDao;
 import com.ot.moto.dao.FleetDao;
 import com.ot.moto.dto.ResponseStructure;
+import com.ot.moto.dto.request.AssignFleet;
 import com.ot.moto.dto.request.CreateFleetReq;
 import com.ot.moto.dto.request.UpdateFleetReq;
 import com.ot.moto.entity.Driver;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -180,5 +182,24 @@ public class FleetService {
 
     public long countFourWheelers() {
         return fleetDao.countByVehicleType(Fleet.VEHICLE_TYPE.FOUR_WHEELER);
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> assignFleet(AssignFleet assignFleet) {
+        try {
+            Fleet fleet = fetchFleet(assignFleet.getId());
+            if (Objects.isNull(fleet)) {
+                logger.warn("No fleet found with id: {}", assignFleet.getId());
+                return ResponseStructure.errorResponse(null, 404, "Fleet not found with id: " + assignFleet.getId());
+            }
+            Driver driver = driverDao.getById(assignFleet.getDriverId());
+            fleet.setDriver(driver);
+            fleet.setFleetAssignDate(LocalDate.now());
+            fleetDao.createFleet(fleet);
+            logger.info("Fleet updated successfully: {}", fleet.getId());
+            return ResponseStructure.successResponse(fleet, "Fleet Assigned successfully on Date " + fleet.getFleetAssignDate());
+        } catch (Exception e) {
+            logger.error("Error updating fleet", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
     }
 }
