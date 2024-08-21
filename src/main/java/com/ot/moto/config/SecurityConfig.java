@@ -81,8 +81,8 @@ public class SecurityConfig {
             "/staff/create",
             "/report/getAll",
             "/report/getTotalAmountByPaymentType",
-            "report/getAllOrg",
-            "report/getOrgReportsByDriverId",
+            "/report/getAllOrg",
+            "/report/getOrgReportsByDriverId",
             "/report/currentMonthOrgReport",
             "/report/getCodAmountForYesterdayOrgReport",
             "/staff/findByUsernameContaining/{name}",
@@ -145,5 +145,4 @@ public class SecurityConfig {
 
         return httpSecurity.build();
     }
-
 }
