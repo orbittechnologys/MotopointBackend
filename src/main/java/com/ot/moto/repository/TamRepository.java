@@ -4,7 +4,11 @@ import com.ot.moto.entity.Tam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TamRepository extends JpaRepository<Tam, Long> {
@@ -17,4 +21,11 @@ public interface TamRepository extends JpaRepository<Tam, Long> {
 
     public List<Tam> findByDriverName(String name );
 
+    @Query("SELECT SUM(t.amountToPay) FROM Tam t WHERE t.dateTime >= :startOfDay AND t.dateTime <= :endOfDay")
+    public Double sumAmountOnDate(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
+
+    @Query("SELECT SUM(t.amountToPay) FROM Tam t WHERE t.dateTime >= :startDate AND t.dateTime <= :endDate")
+    Double sumAmountForCurrentMonth(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    public List<Tam> findByDateTimeBetween(LocalDateTime startDate, LocalDateTime endDate);
 }

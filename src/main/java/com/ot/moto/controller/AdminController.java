@@ -59,6 +59,7 @@ public class AdminController {
         return adminService.updateAdmin(req);
     }
 
+
     @Operation(summary = "delete Admin", description = "Input is adminId, returns deleted Admin Obj")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Admin Updated"),
             @ApiResponse(responseCode = "404", description = "Admin Not Found"),

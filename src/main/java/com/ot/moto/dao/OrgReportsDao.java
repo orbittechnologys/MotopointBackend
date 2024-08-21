@@ -41,7 +41,6 @@ public class OrgReportsDao {
         return orgReportsRepository.sumAmountForCurrentMonth(startDate, endDate);
     }
 
-
     public Double getSumAmountOnDate(LocalDateTime startDate, LocalDateTime endDate) {
         return orgReportsRepository.sumAmountOnDate(startDate, endDate);
     }

@@ -7,16 +7,23 @@ import com.ot.moto.entity.Tam;
 import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.TamRepository;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -321,4 +328,97 @@ public class TamService {
             return new ResponseEntity<>(responseStructure,HttpStatus.OK);
         }
     }
-}
+
+
+        public ResponseEntity<InputStreamResource> generateExcelForAll() {
+            try {
+                List<Tam> tamList = tamRepository.findAll();
+                if (tamList.isEmpty()) {
+                    return ResponseEntity.notFound().build();
+                }
+
+                XSSFWorkbook workbook = new XSSFWorkbook();
+                Sheet sheet = workbook.createSheet("Tam Data");
+
+                // Create header row
+                Row headerRow = sheet.createRow(0);
+                String[] headers = {
+                        "ID", "DateTime", "KeySessionId", "Status", "ServiceName", "MerchantName", "TerminalId",
+                        "Location", "BranchName", "Product", "Quantity", "Phone", "CustomerPhone", "RpnPayment",
+                        "STAN", "AmountToPay", "PayInAmount", "PayInAmountData", "PayOutAmount", "PayOutAmountData",
+                        "PaymentMode", "UsedVoucherNumber", "ConfirmationId", "IsVouchered", "HoldTrxnDateTime",
+                        "ConfTrxnDateTime", "PayInVoucher", "PayoutVoucher", "AuthCode", "CPR", "VoucherPhoneNumber",
+                        "ResponseMessage", "MerchantId", "JahezRiderId", "CprNumber", "DriverCompanyName",
+                        "DriverCompanyJahezId", "MobileNumber", "DriverName"
+                };
+                for (int i = 0; i < headers.length; i++) {
+                    headerRow.createCell(i).setCellValue(headers[i]);
+                }
+
+                // Populate data rows
+                int rowNum = 1;
+                for (Tam tam : tamList) {
+                    Row row = sheet.createRow(rowNum++);
+                    row.createCell(0).setCellValue(tam.getId());
+                    row.createCell(1).setCellValue(tam.getDateTime() != null ? tam.getDateTime().toString() : "");
+                    row.createCell(2).setCellValue(tam.getKeySessionId());
+                    row.createCell(3).setCellValue(tam.getStatus());
+                    row.createCell(4).setCellValue(tam.getServiceName());
+                    row.createCell(5).setCellValue(tam.getMerchantName());
+                    row.createCell(6).setCellValue(tam.getTerminalId());
+                    row.createCell(7).setCellValue(tam.getLocation());
+                    row.createCell(8).setCellValue(tam.getBranchName());
+                    row.createCell(9).setCellValue(tam.getProduct());
+                    row.createCell(10).setCellValue(tam.getQuantity() != null ? tam.getQuantity() : 0);
+                    row.createCell(11).setCellValue(tam.getPhone());
+                    row.createCell(12).setCellValue(tam.getCustomerPhone());
+                    row.createCell(13).setCellValue(tam.getRpnPayment() != null ? tam.getRpnPayment() : 0);
+                    row.createCell(14).setCellValue(tam.getSTAN() != null ? tam.getSTAN() : 0);
+                    row.createCell(15).setCellValue(tam.getAmountToPay() != null ? tam.getAmountToPay() : 0.0);
+                    row.createCell(16).setCellValue(tam.getPayInAmount() != null ? tam.getPayInAmount() : 0.0);
+                    row.createCell(17).setCellValue(tam.getPayInAmountData());
+                    row.createCell(18).setCellValue(tam.getPayOutAmount() != null ? tam.getPayOutAmount() : 0.0);
+                    row.createCell(19).setCellValue(tam.getPayOutAmountData());
+                    row.createCell(20).setCellValue(tam.getPaymentMode());
+                    row.createCell(21).setCellValue(tam.getUsedVoucherNumber() != null ? tam.getUsedVoucherNumber() : 0);
+                    row.createCell(22).setCellValue(tam.getConfirmationId() != null ? tam.getConfirmationId() : 0);
+                    row.createCell(23).setCellValue(tam.isVouchered());
+                    row.createCell(24).setCellValue(tam.getHoldTrxnDateTime() != null ? tam.getHoldTrxnDateTime().toString() : "");
+                    row.createCell(25).setCellValue(tam.getConfTrxnDateTime() != null ? tam.getConfTrxnDateTime().toString() : "");
+                    row.createCell(26).setCellValue(tam.getPayInVoucher());
+                    row.createCell(27).setCellValue(tam.getPayoutVoucher());
+                    row.createCell(28).setCellValue(tam.getAuthCode() != null ? tam.getAuthCode() : 0);
+                    row.createCell(29).setCellValue(tam.getCPR() != null ? tam.getCPR() : 0);
+                    row.createCell(30).setCellValue(tam.getVoucherPhoneNumber() != null ? tam.getVoucherPhoneNumber() : 0);
+                    row.createCell(31).setCellValue(tam.getResponseMessage());
+                    row.createCell(32).setCellValue(tam.getMerchantId() != null ? tam.getMerchantId() : 0);
+                    row.createCell(33).setCellValue(tam.getJahezRiderId() != null ? tam.getJahezRiderId() : 0);
+                    row.createCell(34).setCellValue(tam.getCprNumber() != null ? tam.getCprNumber() : 0);
+                    row.createCell(35).setCellValue(tam.getDriverCompanyName());
+                    row.createCell(36).setCellValue(tam.getDriverCompanyJahezId());
+                    row.createCell(37).setCellValue(tam.getMobileNumber() != null ? tam.getMobileNumber() : 0);
+                    row.createCell(38).setCellValue(tam.getDriverName());
+                }
+
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                workbook.write(outputStream);
+                workbook.close();
+
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(outputStream.toByteArray());
+                InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+                HttpHeaders headers1 = new HttpHeaders();
+                headers1.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=tam_data.xlsx");
+                headers1.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+                return ResponseEntity.ok()
+                        .headers(headers1)
+                        .contentLength(outputStream.size())
+                        .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                        .body(resource);
+
+            } catch (IOException e) {
+                return ResponseEntity.internalServerError().build();
+            }
+        }
+    }
