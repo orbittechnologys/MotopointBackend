@@ -184,12 +184,12 @@ public class ReportService {
 
             Page<Orders> ordersPage = orderDao.findAll(page, size, field);
             if (ordersPage.isEmpty()) {
-                logger.warn("No Staff found.");
-                return ResponseStructure.errorResponse(null, 404, "No Driver found");
+                logger.warn("No jahez found ");
+                return ResponseStructure.errorResponse(null, 404, "No jahez found");
             }
-            return ResponseStructure.successResponse(ordersPage, "Driver found");
+            return ResponseStructure.successResponse(ordersPage, "jahez found");
         } catch (Exception e) {
-            logger.error("Error fetching Staff", e);
+            logger.error("Error fetching jahez", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
