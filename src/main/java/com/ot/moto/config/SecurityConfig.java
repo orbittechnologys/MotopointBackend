@@ -84,7 +84,9 @@ public class SecurityConfig {
             "report/getAllOrg",
             "report/getOrgReportsByDriverId",
             "/report/currentMonthOrgReport",
-            "/report/getCodAmountForYesterdayOrgReport"
+            "/report/getCodAmountForYesterdayOrgReport",
+            "/staff//findByUsernameContaining/{name}",
+            "/driver/findByUsernameContaining/{name}"
 
     };
 
