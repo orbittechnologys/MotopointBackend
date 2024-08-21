@@ -43,8 +43,7 @@ public class OrderDao {
 
     public Double getArrearsForToday() {
         LocalDate today = LocalDate.now();
-        return ordersRepository.sumAmountOnDate(today);
+        Double sum = ordersRepository.sumAmountOnDate(today);
+        return (sum != null) ? sum : 0;
     }
-
-
 }

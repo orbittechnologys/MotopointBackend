@@ -2,6 +2,9 @@ package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.service.TamService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.List;
 
 @RestController
 @RequestMapping("/tam")
@@ -35,6 +39,23 @@ public class TamController {
         } catch (Exception e) {
             return ResponseStructure.errorResponse(null, 500, "ERROR: " + e.getMessage());
         }
+    }
+
+    @Operation(summary = "Get all tam", description = "Returns List of tam Objects")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "tam Found"),
+            @ApiResponse(responseCode = "404", description = "No tam Found")
+    })
+    @GetMapping("/findAll")
+    public ResponseEntity<ResponseStructure<Object>> findAll(@RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "10") int size,
+                                                             @RequestParam(defaultValue = "id") String field) {
+        return tamService.findAll(page, size, field);
+    }
+
+    @GetMapping("/getByJahezRiderId")
+    public ResponseEntity<ResponseStructure<Object>> getByJahezRiderId(@RequestParam Long jahezRiderId){
+        return tamService.getByJahezRiderId(jahezRiderId);
     }
 }
 

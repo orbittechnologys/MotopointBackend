@@ -3,6 +3,7 @@ package com.ot.moto.service;
 import com.ot.moto.dao.TamDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.entity.Driver;
+import com.ot.moto.entity.Orders;
 import com.ot.moto.entity.Tam;
 import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.TamRepository;
@@ -10,6 +11,9 @@ import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -260,4 +264,49 @@ public class TamService {
             driverRepository.save(driver);
         }
     }
+
+    public ResponseEntity<ResponseStructure<Object>> findAll(int page, int size, String field) {
+        logger.info("Fetching tam with page number {}, page size {}, sorted by field {}", page, size, field);
+
+        try {
+            PageRequest pageRequest = PageRequest.of(page, size, Sort.by(field));
+            Page<Tam> ordersPage = tamRepository.findAll(pageRequest);
+
+            if (ordersPage.isEmpty()) {
+                logger.warn("No tam found for page number {} and page size {}", page, size);
+                return ResponseStructure.errorResponse(null, 404, "No tam found");
+            }
+            logger.info("Successfully fetched tam for page number {} and page size {}", page, size);
+            return ResponseStructure.successResponse(ordersPage, "Tam found successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching tam: {}", e.getMessage(), e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching tam: " + e.getMessage());
+        }
+    }
+
+
+    public ResponseEntity<ResponseStructure<Object>> getByJahezRiderId(Long jahezRiderId) {
+        logger.info("Fetching tam with jahezRiderId: {}", jahezRiderId);
+
+        try {
+            if (jahezRiderId == null) {
+                logger.warn("JahezRiderId is null");
+                return ResponseStructure.errorResponse(null, 400, "JahezRiderId cannot be null");
+            }
+
+            List<Tam> tam = tamRepository.findByJahezRiderId(jahezRiderId);
+
+            if (tam == null) {
+                logger.warn("No Jahez rider found with ID: {}", jahezRiderId);
+                return ResponseStructure.errorResponse(null, 404, "No Jahez rider found with ID: " + jahezRiderId);
+            }
+
+            logger.info("Successfully fetched Jahez rider with ID: {}", jahezRiderId);
+            return ResponseStructure.successResponse(tam, "Jahez rider found successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching Jahez rider with ID: {}", jahezRiderId, e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching Jahez rider with ID: " + jahezRiderId);
+        }
+    }
+
 }

@@ -104,12 +104,12 @@ public class ReportController {
     }
 
 
-    @Operation(summary = "Get Total Amount by Payment Type", description = "Returns the total amount for each payment type (BENEFIT, TAM, CASH, OTHER)")
+    @Operation(summary = "Get Total Amount by Payment Type", description = "Returns the total amount for each payment type (BENEFIT, TAM, CASH)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
             @ApiResponse(responseCode = "500", description = "Failure occurred")
     })
-    @GetMapping("/total-by-type")
+    @GetMapping("/getTotalAmountByPaymentType")
     public ResponseEntity<ResponseStructure<Object>> getTotalAmountByPaymentType() {
         try {
             Map<String, Double> totalAmounts = reportService.getTotalAmountByPaymentType();
@@ -161,5 +161,25 @@ public class ReportController {
     @GetMapping("/getCodAmountForYesterday")
     public ResponseEntity<ResponseStructure<Object>> getCodAmountForYesterday() {
         return reportService.getSumAmountForYesterday();
+    }
+
+
+    @Operation(summary = "Get All OrgReports", description = "returns List of OrgReports Object")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OrgReports Found"),
+            @ApiResponse(responseCode = "404", description = "OrgReports Not Found")})
+    @GetMapping("/getAllOrg")
+    public ResponseEntity<ResponseStructure<Object>> getAllOrg(@RequestParam(defaultValue = "0") int page,
+                                                               @RequestParam(defaultValue = "10") int size,
+                                                               @RequestParam(defaultValue = "id") String field) {
+        return orgReportService.getAllOrg(page,size,field);
+    }
+
+
+    @Operation(summary = "Get OrgReports by driver id", description = "returns List of OrgReports Object")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OrgReports Found"),
+            @ApiResponse(responseCode = "404", description = "OrgReports Not Found")})
+    @GetMapping("/getOrgReportsByDriverId")
+    public ResponseEntity<ResponseStructure<Object>> getOrgReportsByDriverId(@RequestParam String driverId) {
+        return orgReportService.getOrgByDriverID(driverId);
     }
 }

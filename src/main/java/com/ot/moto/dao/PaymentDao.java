@@ -46,5 +46,4 @@ public class PaymentDao {
         Double sumCurrentMonth = paymentRepository.sumAmountForCurrentMonth(startDate, endDate);
         return Objects.isNull(sumCurrentMonth) ? 0 : sumCurrentMonth;
     }
-
 }

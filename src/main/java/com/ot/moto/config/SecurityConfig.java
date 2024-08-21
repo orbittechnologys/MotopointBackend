@@ -72,7 +72,15 @@ public class SecurityConfig {
             "/driver/topDriver",
             "/driver/create",
             "/driver/findByUsernameContaining/{name}",
-            "/tam/upload/tamSheet"
+            "/tam/upload/tamSheet",
+            "/tam/findAll",
+            "/tam/getByJahezRiderId",
+            "/staff/delete",
+            "/staff/create",
+            "/report/getAll",
+            "/report/getTotalAmountByPaymentType",
+            "report/getAllOrg",
+            "report/getOrgReportsByDriverId"
 
     };
 

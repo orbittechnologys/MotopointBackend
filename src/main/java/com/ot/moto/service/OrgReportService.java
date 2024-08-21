@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -193,6 +194,38 @@ public class OrgReportService {
         } catch (DateTimeParseException e) {
             logger.error("Failed to parse date time: {}", dateTimeStr, e);
             return null;
+        }
+    }
+
+
+
+    public ResponseEntity<ResponseStructure<Object>> getAllOrg(int page, int size, String field) {
+        try {
+
+            Page<OrgReports> orgReports = orgReportsDao.findAll(page,size,field);
+            if (orgReports.isEmpty()) {
+                logger.warn("No Staff found.");
+                return ResponseStructure.errorResponse(null, 404, "No Driver found");
+            }
+            return ResponseStructure.successResponse(orgReports, "Driver found");
+        } catch (Exception e) {
+            logger.error("Error fetching Staff", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+
+    public ResponseEntity<ResponseStructure<Object>> getOrgByDriverID(String driverId) {
+        try {
+            List <OrgReports> orgReports = orgReportsDao.findByDriverId(driverId);
+            if (orgReports == null) {
+                logger.warn("No OrgReports found for Driver ID: " + driverId);
+                return ResponseStructure.errorResponse(null, 404, "No reports found for Driver ID: " + driverId);
+            }
+            return ResponseStructure.successResponse(orgReports, "Reports found for Driver ID: " + driverId);
+        } catch (Exception e) {
+            logger.error("Error fetching OrgReports for Driver ID: " + driverId, e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
 }

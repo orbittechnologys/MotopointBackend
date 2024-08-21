@@ -182,7 +182,6 @@ public class StaffService {
 
     public ResponseEntity<ResponseStructure<Object>> deleteStaff(Long staffId) {
         try {
-
             Staff staff = staffDao.getStaffById(staffId);
             if (Objects.isNull(staff)) {
                 logger.warn("Staff not found with ID: {}", staffId);
@@ -198,6 +197,7 @@ public class StaffService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
+
 
     public ResponseEntity<ResponseStructure<List<Staff>>> findByUsernameContaining(String name){
         ResponseStructure<List<Staff>> responseStructure = new ResponseStructure<>();
