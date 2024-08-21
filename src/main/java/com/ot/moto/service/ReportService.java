@@ -1,15 +1,13 @@
 package com.ot.moto.service;
 
-import com.ot.moto.dao.DriverDao;
-import com.ot.moto.dao.OrderDao;
-import com.ot.moto.dao.OrgReportsDao;
-import com.ot.moto.dao.PaymentDao;
+import com.ot.moto.dao.*;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateStaffReq;
 import com.ot.moto.entity.*;
 import com.ot.moto.repository.OrgReportsRepository;
 import com.ot.moto.repository.PaymentRepository;
 import com.ot.moto.util.StringUtil;
+import jakarta.annotation.PostConstruct;
 import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +35,12 @@ public class ReportService {
 
     @Autowired
     private PaymentDao paymentDao;
+
+    @Autowired
+    private SalaryDao salaryDao;
+
+    @Autowired
+    private MasterDao masterDao;
 
     @Autowired
     private PaymentRepository paymentRepository;
@@ -167,6 +171,7 @@ public class ReportService {
         orders.setDriver(driver);
 
         addDriverDeliveries(codAmount, deliveries, driver);
+        createSalaryFromOrders(orders);
 
         return orders;
     }
@@ -176,6 +181,77 @@ public class ReportService {
         driver.setTotalOrders(driver.getTotalOrders() + deliveries);
         driver.setCurrentOrders(deliveries);
         return driverDao.createDriver(driver);
+    }
+
+    public Salary createSalaryFromOrders(Orders orders) {
+        LocalDate localDate = orders.getDate();
+        int year = localDate.getYear();
+        int month = localDate.getMonthValue();
+
+        Salary salary = salaryDao.getSalaryByMonthAndYearAndDriver((long) month, (long) year, orders.getDriver());
+
+        boolean newRecord = Objects.isNull(salary);
+        Master s1Master = masterDao.getMasterBySlab("S1");
+        Master s2Master = masterDao.getMasterBySlab("S2");
+        Master s3Master = masterDao.getMasterBySlab("S3");
+        Master s4Master = masterDao.getMasterBySlab("S4");
+        Master s5Master = masterDao.getMasterBySlab("S5");
+
+        if (newRecord) {
+            salary.setMonth((long) month);
+            salary.setYear((long) year);
+            salary.setDriver(orders.getDriver());
+
+            salary.setNoOfS1(orders.getNoOfS1());
+            salary.setNoOfS2(orders.getNoOfS2());
+            salary.setNoOfS3(orders.getNoOfS3());
+            salary.setNoOfS4(orders.getNoOfS4());
+            salary.setNoOfS5(orders.getNoOfS5());
+
+            long totalOrders = orders.getNoOfS1() + orders.getNoOfS2() + orders.getNoOfS3() + orders.getNoOfS4() + orders.getNoOfS5();
+
+            salary.setTotalOrders(totalOrders);
+
+
+            salary.setS1Earnings(s1Master.getMotoPaid() * salary.getNoOfS1());
+            salary.setS2Earnings(s2Master.getMotoPaid() * salary.getNoOfS2());
+            salary.setS3Earnings(s3Master.getMotoPaid() * salary.getNoOfS3());
+            salary.setS4Earnings(s4Master.getMotoPaid() * salary.getNoOfS4());
+            salary.setS5Earnings(s5Master.getMotoPaid() * salary.getNoOfS5());
+
+            salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
+                    + salary.getS4Earnings() + salary.getS5Earnings());
+
+            salary.setTotalDeductions(0.0);
+            salary.setVisaCharges(0.0);
+            salary.setOtherCharges(0.0);
+            salary.setBonus(0.0);
+            salary.setIncentives(0.0);
+            salary.setStatus("NOT_SETTLED");
+
+        } else {
+            salary.setNoOfS1(salary.getNoOfS1() + orders.getNoOfS1());
+            salary.setNoOfS2(salary.getNoOfS2() + orders.getNoOfS2());
+            salary.setNoOfS3(salary.getNoOfS3() + orders.getNoOfS3());
+            salary.setNoOfS4(salary.getNoOfS4() + orders.getNoOfS4());
+            salary.setNoOfS5(salary.getNoOfS5() + orders.getNoOfS5());
+
+            long totalOrders = salary.getNoOfS1() + salary.getNoOfS2() + salary.getNoOfS3() + salary.getNoOfS4() + orders.getNoOfS5();
+
+            salary.setTotalOrders(totalOrders);
+
+            salary.setS1Earnings(salary.getS1Earnings() + s1Master.getMotoPaid() * salary.getNoOfS1());
+            salary.setS2Earnings(salary.getS2Earnings() + s2Master.getMotoPaid() * salary.getNoOfS2());
+            salary.setS3Earnings(salary.getS3Earnings() + s3Master.getMotoPaid() * salary.getNoOfS3());
+            salary.setS4Earnings(salary.getS4Earnings() + s4Master.getMotoPaid() * salary.getNoOfS4());
+            salary.setS5Earnings(salary.getS5Earnings() + s5Master.getMotoPaid() * salary.getNoOfS5());
+
+            salary.setTotalEarnings(salary.getTotalEarnings() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
+                    + salary.getS4Earnings() + salary.getS5Earnings());
+        }
+
+        salary = salaryDao.saveSalary(salary);
+        return salary;
     }
 
 
