@@ -24,6 +24,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.ot.moto.entity.Payment.PAYMENT_TYPE.BENEFIT;
+
 @Service
 public class ReportService {
 
@@ -299,7 +301,7 @@ public class ReportService {
 
                 String description = row.getCell(1).toString();
                 double amount = row.getCell(2).getNumericCellValue();
-                String paymentType = row.getCell(3).toString();
+                String paymentType = String.valueOf(BENEFIT);
 
                 String dateStr = row.getCell(0).toString();
                 LocalDate date = LocalDate.parse(dateStr, formatter);
