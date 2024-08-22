@@ -92,6 +92,8 @@ public class SecurityConfig {
             "/report/download",
             "/fleet/assignFleet",
             "/report/sumAmountCollectedByDriver",
+            "/report/getSumForCurrentMonthForBenefit",
+            "/report/getAmountForYesterdayForBenefit",
             "/report/getAllBankStatement",
             "/tam/sumPayInAmountForCurrentMonth",
             "/tam/sumPayInAmountForYesterday",
