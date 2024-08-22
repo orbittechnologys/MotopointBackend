@@ -198,6 +198,7 @@ public class ReportService {
         Master s5Master = masterDao.getMasterBySlab("S5");
 
         if (newRecord) {
+            salary = new Salary();
             salary.setMonth((long) month);
             salary.setYear((long) year);
             salary.setDriver(orders.getDriver());
