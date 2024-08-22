@@ -120,7 +120,7 @@ public class ReportController {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
             @ApiResponse(responseCode = "500", description = "Failure occurred")
     })
-    @GetMapping("/current-month")
+    @GetMapping("/getSumForCurrentMonthForBenefit")
     public ResponseEntity<ResponseStructure<Object>> getSumForCurrentMonth() {
         return reportService.getSumForCurrentMonth();
     }
@@ -153,7 +153,7 @@ public class ReportController {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
             @ApiResponse(responseCode = "500", description = "Failure occured")
     })
-    @GetMapping("/getCodAmountForYesterday")
+    @GetMapping("/getAmountForYesterdayForBenefit")
     public ResponseEntity<ResponseStructure<Object>> getCodAmountForYesterday() {
         return reportService.getSumAmountForYesterday();
     }
