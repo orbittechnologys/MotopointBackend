@@ -34,7 +34,7 @@ public class ReportController {
     private OrgReportService orgReportService;
 
 
-    @Operation(summary = "Jahez Report", description = "Input is Jahez Report file, returns Success/Failure Object")
+    @Operation(summary = "upload JahezReport", description = "Input is Jahez Report file, returns Success/Failure Object")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
             @ApiResponse(responseCode = "500", description = "Failure occured")
@@ -54,7 +54,7 @@ public class ReportController {
         }
     }
 
-    @Operation(summary = "Org Report", description = "Input is Org Report file, returns Success/Failure Object")
+    @Operation(summary = "upload OrgReport", description = "Input is Org Report file, returns Success/Failure Object")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
             @ApiResponse(responseCode = "500", description = "Failure occured")
@@ -78,7 +78,7 @@ public class ReportController {
     }
 
 
-    @Operation(summary = "BankStatement Report", description = "Input is BankStatement Report file, returns Success/Failure Object")
+    @Operation(summary = "upload bankStatement", description = "Input is BankStatement Report file, returns Success/Failure Object")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
             @ApiResponse(responseCode = "500", description = "Failure occured")
@@ -99,7 +99,9 @@ public class ReportController {
     }
 
 
-    @Operation(summary = "Get Total Amount by Payment Type", description = "Returns the total amount for each payment type (BENEFIT, TAM, CASH)")
+//    _____
+
+    @Operation(summary = "Payment Type from PAYMENT(bank statement)", description = "Returns the total amount for each payment type (BENEFIT, TAM, CASH)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
             @ApiResponse(responseCode = "500", description = "Failure occurred")
@@ -115,7 +117,7 @@ public class ReportController {
     }
 
 
-    @Operation(summary = "Get Total Amount by Payment ", description = "Returns the total amount for each payment type")
+    @Operation(summary = "BENEFIT(payment table) ", description = "Returns the total amount for each payment type")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
             @ApiResponse(responseCode = "500", description = "Failure occurred")
@@ -126,7 +128,7 @@ public class ReportController {
     }
 
 
-    @Operation(summary = "Jahez Report", description = "Input is Jahez Report file, returns Success/Failure Object")
+    @Operation(summary = "all Jahez Report from ORDERS", description = "Input is Jahez Report file, returns Success/Failure Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Reports Found"),
             @ApiResponse(responseCode = "404", description = "Reports Not Found")})
     @GetMapping("/getAll")
@@ -136,7 +138,8 @@ public class ReportController {
         return reportService.getAllReport(page, size, field);
     }
 
-    @Operation(summary = "Total amount of particular date", description = "Input is date, returns Success/Failure Object")
+//    __
+    @Operation(summary = "Total amount of a date ORDERS(jahez)", description = "Input is date, returns Success/Failure Object")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
             @ApiResponse(responseCode = "500", description = "Failure occured")
@@ -148,7 +151,7 @@ public class ReportController {
 
 
 
-    @Operation(summary = "Total Amount of yesterday", description = "No Input , returns Success/Failure Object")
+    @Operation(summary = "BENEFIT(payment table)", description = "No Input , returns Success/Failure Object")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
             @ApiResponse(responseCode = "500", description = "Failure occured")
@@ -159,7 +162,7 @@ public class ReportController {
     }
 
 
-    @Operation(summary = "Get All OrgReports", description = "returns List of OrgReports Object")
+    @Operation(summary = "All OrgReport ", description = "returns List of OrgReports Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OrgReports Found"),
             @ApiResponse(responseCode = "404", description = "OrgReports Not Found")})
     @GetMapping("/getAllOrg")
@@ -170,7 +173,7 @@ public class ReportController {
     }
 
 
-    @Operation(summary = "Get OrgReports by driver id", description = "returns List of OrgReports Object")
+    @Operation(summary = "OrgReport ", description = "returns List of OrgReports Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OrgReports Found"),
             @ApiResponse(responseCode = "404", description = "OrgReports Not Found")})
     @GetMapping("/getOrgReportsByDriverId")
@@ -179,7 +182,7 @@ public class ReportController {
     }
 
 
-    @Operation(summary = "Fetch driver By Name in OrgsReport ", description = "returns driver Object By Name in OrgsReport")
+    @Operation(summary = "OrgReport ", description = "returns driver Object By Name in OrgsReport")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
             @ApiResponse(responseCode = "404", description = "Driver Not Found")})
     @GetMapping(value = "/findByDriverName")
@@ -188,7 +191,7 @@ public class ReportController {
     }
 
 
-    @Operation(summary = "Get Total Amount by Payment ", description = "Returns the total amount for each payment type")
+    @Operation(summary = "OrgReports ", description = "Returns the total amount for each payment type")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
             @ApiResponse(responseCode = "500", description = "Failure occurred")
@@ -199,7 +202,7 @@ public class ReportController {
     }
 
 
-    @Operation(summary = "Total Amount of yesterday", description = "No Input , returns Success/Failure Object")
+    @Operation(summary = "OrgReports", description = "No Input , returns Success/Failure Object")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
             @ApiResponse(responseCode = "500", description = "Failure occured")
@@ -210,7 +213,7 @@ public class ReportController {
     }
 
 
-    @Operation(summary = "Download Org Reports as Excel", description = "No Input, returns the Excel file for Org Reports")
+    @Operation(summary = "OrgReports", description = "No Input, returns the Excel file for Org Reports")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
             @ApiResponse(responseCode = "404", description = "Report not found"),
@@ -230,7 +233,7 @@ public class ReportController {
         }
     }
 
-    @Operation(summary = "Total Amount of Month Collected By driver", description = "No Input , returns Success/Failure Object")
+    @Operation(summary = "highest COD OrgReports ", description = "No Input , returns Success/Failure Object")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
             @ApiResponse(responseCode = "500", description = "Failure occured")
@@ -240,7 +243,8 @@ public class ReportController {
         return orgReportService.getTopDriverWithHighestAmountForCurrentMonth();
     }
 
-    @Operation(summary = "BankStatement Report", description = "Input is BankStatement file, returns Success/Failure Object")
+
+    @Operation(summary = "BankStatements(PAYMENT)", description = "Input is BankStatement file, returns Success/Failure Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Reports Found"),
             @ApiResponse(responseCode = "404", description = " BankStatement Reports Not Found")})
     @GetMapping("/getAllBankStatement")
