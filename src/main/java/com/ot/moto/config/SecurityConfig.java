@@ -100,7 +100,9 @@ public class SecurityConfig {
             "/master/slab/{slab}",
             "/user/forgotPassword",
             "/user/updateNewPassword/{otp}/{password}",
-            "/user/validateOTP/{otp}"
+            "/user/validateOTP/{otp}",
+            "/staff/download-csv",
+            "/driver/download-csv"
 
     };
 
