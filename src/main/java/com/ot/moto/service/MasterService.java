@@ -3,6 +3,7 @@ package com.ot.moto.service;
 import com.ot.moto.dao.MasterDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateMasterReq;
+import com.ot.moto.dto.request.UpdateMasterReq;
 import com.ot.moto.entity.Admin;
 import com.ot.moto.entity.Master;
 import com.ot.moto.repository.MasterRepository;
@@ -26,28 +27,28 @@ public class MasterService {
 
     private static final Logger logger = LoggerFactory.getLogger(MasterService.class);
 
-    public ResponseEntity<ResponseStructure<Object>> createMaster(CreateMasterReq req){
+    public ResponseEntity<ResponseStructure<Object>> createMaster(CreateMasterReq req) {
 
-        try{
+        try {
             Master master = masterDao.getMasterBySlab(req.getSlab());
 
-            if(Objects.nonNull(master)){
+            if (Objects.nonNull(master)) {
                 logger.error("Slab already exists", req.getSlab());
-                return ResponseStructure.errorResponse(null, 409, "Slab already exists"+ req.getSlab());
+                return ResponseStructure.errorResponse(null, 409, "Slab already exists" + req.getSlab());
             }
 
             master = buildMasterFromRequest(req);
             master = masterDao.createMaster(master);
 
-            return ResponseStructure.successResponse(master,"Master created successfully");
-        }catch (Exception e){
+            return ResponseStructure.successResponse(master, "Master created successfully");
+        } catch (Exception e) {
             logger.error("Error while creating Master", e);
             return ResponseStructure.errorResponse(null, 500, "Error while creating master: " + e.getMessage());
         }
 
     }
 
-    private Master buildMasterFromRequest(CreateMasterReq req){
+    private Master buildMasterFromRequest(CreateMasterReq req) {
         Master master = new Master();
         master.setSlab(req.getSlab());
         master.setStartKm(req.getStartKm());
@@ -59,16 +60,16 @@ public class MasterService {
 
     }
 
-    public ResponseEntity<ResponseStructure<Object>> getMasterBySlab(String slab){
-        try{
+    public ResponseEntity<ResponseStructure<Object>> getMasterBySlab(String slab) {
+        try {
             Master master = masterDao.getMasterBySlab(slab);
 
             if (Objects.isNull(master)) {
-                return ResponseStructure.errorResponse(null,404,"Master not found with slab:"+slab);
+                return ResponseStructure.errorResponse(null, 404, "Master not found with slab:" + slab);
             }
 
-            return ResponseStructure.successResponse(master,"Master Fetched successfully");
-        }catch (Exception e){
+            return ResponseStructure.successResponse(master, "Master Fetched successfully");
+        } catch (Exception e) {
             logger.error("Error while fetching Master", e);
             return ResponseStructure.errorResponse(null, 500, "Error while fetching master: " + e.getMessage());
         }
@@ -108,4 +109,32 @@ public class MasterService {
         }
     }
 
+    public ResponseEntity<ResponseStructure<Object>> updateMaster(Long id, UpdateMasterReq req) {
+        try {
+            Master existingMaster = masterDao.getMasterById(id);
+
+            if (Objects.isNull(existingMaster)) {
+                logger.warn("Master not found with ID: {}", id);
+                return ResponseStructure.errorResponse(null, 404, "Master ID not found: " + id);
+            }
+            existingMaster = updateMasterFromRequest(existingMaster, req);
+            existingMaster = masterDao.updateMaster(existingMaster);
+
+            logger.info("Master updated successfully with ID: {}", id);
+            return ResponseStructure.successResponse(existingMaster, "Master updated successfully");
+
+        } catch (Exception e) {
+            logger.error("Error while updating Master with ID: {}", id, e);
+            return ResponseStructure.errorResponse(null, 500, "Error while updating Master: " + e.getMessage());
+        }
+    }
+
+    private Master updateMasterFromRequest(Master master, UpdateMasterReq req) {
+        master.setSlab(req.getSlab());
+        master.setStartKm(req.getStartKm());
+        master.setEndKm(req.getEndKm());
+        master.setJahezPaid(req.getJahezPaid());
+        master.setMotoPaid(req.getMotoPaid());
+        return master;
+    }
 }

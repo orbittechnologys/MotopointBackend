@@ -100,6 +100,7 @@ public class SecurityConfig {
             "/master/create",
             "/master/getAll",
             "/master/delete",
+            "/master/update",
             "/master/slab/{slab}",
             "/user/forgotPassword",
             "/user/updateNewPassword",

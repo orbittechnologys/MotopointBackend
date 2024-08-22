@@ -2,6 +2,7 @@ package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateMasterReq;
+import com.ot.moto.dto.request.UpdateMasterReq;
 import com.ot.moto.service.MasterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -59,5 +60,18 @@ public class MasterController {
     @DeleteMapping("/delete")
     public ResponseEntity<ResponseStructure<Object>> delete(@RequestParam Long masterId) {
         return masterService.deleteAdmin(masterId);
+    }
+
+    @Operation(summary = "Update Master", description = "Updates an existing Master entity by its ID and returns the updated object")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Master updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Master ID not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error while updating Master")
+    })
+    @PutMapping("/update")
+    public ResponseEntity<ResponseStructure<Object>> updateMaster(
+            @RequestParam Long masterId,
+            @RequestBody UpdateMasterReq updateMasterReq) {
+        return masterService.updateMaster(masterId, updateMasterReq);
     }
 }

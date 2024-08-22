@@ -38,4 +38,8 @@ public class MasterDao {
     public void delete(Master master){
          masterRepository.delete(master);
     }
+
+    public Master updateMaster(Master existingMaster) {
+        return masterRepository.save(existingMaster);
+    }
 }
