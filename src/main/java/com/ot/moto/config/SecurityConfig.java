@@ -99,6 +99,7 @@ public class SecurityConfig {
             "/tam/sumPayInAmountForYesterday",
             "/master/create",
             "/master/getAll",
+            "/master/delete",
             "/master/slab/{slab}",
             "/user/forgotPassword",
             "/user/updateNewPassword",

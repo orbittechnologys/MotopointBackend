@@ -3,6 +3,7 @@ package com.ot.moto.service;
 import com.ot.moto.dao.MasterDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateMasterReq;
+import com.ot.moto.entity.Admin;
 import com.ot.moto.entity.Master;
 import com.ot.moto.repository.MasterRepository;
 import org.slf4j.Logger;
@@ -87,4 +88,24 @@ public class MasterService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
+
+    public ResponseEntity<ResponseStructure<Object>> deleteAdmin(Long masterId) {
+        try {
+
+            Master master = masterDao.getMasterById(masterId);
+            if (master == null) {
+                logger.warn("Master not found with ID: {}", masterId);
+                return ResponseStructure.errorResponse(null, 404, "Master ID not found");
+            }
+
+            masterDao.delete(master);
+            logger.info("Master data deleted successfully with ID: {}", masterId);
+            return ResponseStructure.successResponse(null, "Master ID deleted successfully");
+
+        } catch (Exception e) {
+            logger.error("Error deleting Master data with ID: {}", masterId, e);
+            return ResponseStructure.errorResponse(null, 500, "Failed to delete Master ID: " + masterId);
+        }
+    }
+
 }

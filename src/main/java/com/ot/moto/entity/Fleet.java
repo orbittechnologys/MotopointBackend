@@ -43,6 +43,8 @@ public class Fleet {
 
     private LocalDate fleetAssignDate;
 
+    private String model;
+
     @OneToOne
     @JoinColumn
     @JsonManagedReference("fleet")

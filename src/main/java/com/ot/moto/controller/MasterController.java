@@ -49,4 +49,15 @@ public class MasterController {
                                                                  @RequestParam(defaultValue = "id") String field) {
         return masterService.getAllByMaster(page, size, field);
     }
+
+    @Operation(summary = "Delete Master", description = "Deletes the Master entity by its ID and returns a response structure")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Master deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Master ID not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @DeleteMapping("/delete")
+    public ResponseEntity<ResponseStructure<Object>> delete(@RequestParam Long masterId) {
+        return masterService.deleteAdmin(masterId);
+    }
 }

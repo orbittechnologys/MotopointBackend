@@ -25,9 +25,8 @@ public class Payment {
 
     private LocalDate date;
 
-    // Default constructor
     public Payment() {
-        this.type = PAYMENT_TYPE.BENEFIT.name(); // Set default value
+        this.type = PAYMENT_TYPE.BENEFIT.name();
     }
 
     @ManyToOne
