@@ -71,6 +71,7 @@ public class SecurityConfig {
             "/order/top-driver",
             "/driver/topDriver",
             "/driver/create",
+            "/driver/download-csv",
             "/driver/findByUsernameContaining/{name}",
             "/tam/upload/tamSheet",
             "/tam/findAll",

@@ -39,6 +39,7 @@ public class MasterController {
         return masterService.getMasterBySlab(slab);
     }
 
+
     @Operation(summary = "Get all master", description = "returns List of master Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "master data Found"),
             @ApiResponse(responseCode = "404", description = "master data Not Found")})

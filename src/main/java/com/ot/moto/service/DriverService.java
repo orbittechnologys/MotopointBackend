@@ -1,5 +1,6 @@
 package com.ot.moto.service;
 
+import com.opencsv.CSVWriter;
 import com.ot.moto.dao.DriverDao;
 import com.ot.moto.dao.OrderDao;
 import com.ot.moto.dao.UserDao;
@@ -10,17 +11,23 @@ import com.ot.moto.dto.response.DriverDetails;
 import com.ot.moto.dto.response.TopDrivers;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.User;
+import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.OrdersRepository;
 import com.ot.moto.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -42,6 +49,9 @@ public class DriverService {
 
     @Autowired
     private OrdersRepository ordersRepository;
+
+    @Autowired
+    private DriverRepository driverRepository;
 
     public ResponseEntity<ResponseStructure<Object>> createDriver(CreateDriverReq request) {
         try {
@@ -348,4 +358,83 @@ public class DriverService {
             return new ResponseEntity<>(responseStructure,HttpStatus.OK);
         }
     }
+
+    public ResponseEntity<InputStreamResource> generateCsvForDrivers() {
+        try {
+            List<Driver> allDrivers = driverRepository.findAll();
+            if (allDrivers.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            StringWriter writer = new StringWriter();
+            CSVWriter csvWriter = new CSVWriter(writer);
+
+            String[] header = {"Driver ID", "Amount Pending", "Amount Received", "Total Orders", "Current Orders", "Jahez ID",
+                    "Visa Expiry Date", "Salary Amount", "Address", "Reference Location", "Visa Type", "Visa Procurement",
+                    "Nationality", "Passport Number", "CPR Number", "Vehicle Type", "Licence Type", "Licence Number",
+                    "Licence Expiry Date", "License Photo URL", "RC Photo URL", "Bank Account Name", "Bank Name",
+                    "Bank Account Number", "Bank IBAN Number", "Bank Branch", "Bank Branch Code", "Bank Swift Code",
+                    "Bank IFSC", "Bank Account Currency", "Bank Mobile Pay Number", "Passbook Image URL"};
+
+            csvWriter.writeNext(header);
+
+            for (Driver driver : allDrivers) {
+                String[] data = {
+                        String.valueOf(driver.getId()),
+                        String.valueOf(driver.getAmountPending()),
+                        String.valueOf(driver.getAmountReceived()),
+                        String.valueOf(driver.getTotalOrders()),
+                        String.valueOf(driver.getCurrentOrders()),
+                        driver.getJahezId(),
+                        driver.getVisaExpiryDate() != null ? driver.getVisaExpiryDate().toString() : "",
+                        String.valueOf(driver.getSalaryAmount()),
+                        driver.getAddress(),
+                        driver.getReferenceLocation(),
+                        driver.getVisaType(),
+                        driver.getVisaProcurement(),
+                        driver.getNationality(),
+                        driver.getPassportNumber(),
+                        driver.getCprNumber(),
+                        driver.getVehicleType(),
+                        driver.getLicenceType(),
+                        driver.getLicenceNumber(),
+                        driver.getLicenceExpiryDate(),
+                        driver.getLicensePhotoUrl(),
+                        driver.getRcPhotoUrl(),
+                        driver.getBankAccountName(),
+                        driver.getBankName(),
+                        driver.getBankAccountNumber(),
+                        driver.getBankIbanNumber(),
+                        driver.getBankBranch(),
+                        driver.getBankBranchCode(),
+                        driver.getBankSwiftCode(),
+                        driver.getBankIfsc(),
+                        driver.getBankAccountCurrency(),
+                        driver.getBankMobilePayNumber(),
+                        driver.getPassbookImageUrl()
+                };
+                csvWriter.writeNext(data);
+            }
+
+            csvWriter.close();
+            String csvContent = writer.toString();
+
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(csvContent.getBytes());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=drivers.csv");
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(csvContent.getBytes().length)
+                    .contentType(MediaType.parseMediaType("application/csv"))
+                    .body(resource);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

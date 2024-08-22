@@ -1,5 +1,6 @@
 package com.ot.moto.service;
 
+import com.opencsv.CSVWriter;
 import com.ot.moto.dao.StaffDao;
 import com.ot.moto.dao.UserDao;
 import com.ot.moto.dto.ResponseStructure;
@@ -8,16 +9,22 @@ import com.ot.moto.dto.request.UpdateStaffReq;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Staff;
 import com.ot.moto.entity.User;
+import com.ot.moto.repository.StaffRepository;
 import com.ot.moto.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,6 +40,9 @@ public class StaffService {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private StaffRepository staffRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(StaffService.class);
 
@@ -167,7 +177,7 @@ public class StaffService {
     public ResponseEntity<ResponseStructure<Object>> getAllStaff(int page, int size, String field) {
         try {
 
-            Page<Staff> staffPage = staffDao.findAll(page,size,field);
+            Page<Staff> staffPage = staffDao.findAll(page, size, field);
             if (staffPage.isEmpty()) {
                 logger.warn("No Staff found.");
                 return ResponseStructure.errorResponse(null, 404, "No Driver found");
@@ -199,21 +209,68 @@ public class StaffService {
     }
 
 
-    public ResponseEntity<ResponseStructure<List<Staff>>> findByUsernameContaining(String name){
+    public ResponseEntity<ResponseStructure<List<Staff>>> findByUsernameContaining(String name) {
         ResponseStructure<List<Staff>> responseStructure = new ResponseStructure<>();
 
         List<Staff> driverList = staffDao.findByUsernameContaining(name);
-        if(driverList.isEmpty()) {
+        if (driverList.isEmpty()) {
             responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
             responseStructure.setMessage("Driver Not Found With NAME  ");
             responseStructure.setData(null);
-            return new ResponseEntity<>(responseStructure,HttpStatus.NOT_FOUND);
-        }
-        else {
+            return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
+        } else {
             responseStructure.setStatus(HttpStatus.OK.value());
             responseStructure.setMessage("Driver Found With NAME ");
             responseStructure.setData(driverList);
-            return new ResponseEntity<>(responseStructure,HttpStatus.OK);
+            return new ResponseEntity<>(responseStructure, HttpStatus.OK);
         }
     }
+
+
+    public ResponseEntity<InputStreamResource> generateCsvForAllStaff() {
+        try {
+            List<Staff> allStaff = staffRepository.findAll();
+            if (allStaff.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            StringWriter writer = new StringWriter();
+            CSVWriter csvWriter = new CSVWriter(writer);
+
+            String[] header = {"Staff ID", "First Name", "Last Name", "Designation", "Employee ID", "Role"};
+            csvWriter.writeNext(header);
+
+            for (Staff staff : allStaff) {
+                String[] data = {
+                        String.valueOf(staff.getId()),
+                        staff.getFirstName(),
+                        staff.getLastName(),
+                        staff.getDesignation(),
+                        staff.getEmployeeId(),
+                        staff.getRole()
+                };
+                csvWriter.writeNext(data);
+            }
+
+            csvWriter.close();
+            String csvContent = writer.toString();
+
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(csvContent.getBytes());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=all_staff.csv");
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(csvContent.getBytes().length)
+                    .contentType(MediaType.parseMediaType("application/csv"))
+                    .body(resource);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

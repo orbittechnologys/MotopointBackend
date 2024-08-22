@@ -1,16 +1,15 @@
 package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
-import com.ot.moto.dto.request.CreateAdminReq;
 import com.ot.moto.dto.request.CreateStaffReq;
 import com.ot.moto.dto.request.UpdateStaffReq;
-import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Staff;
 import com.ot.moto.service.StaffService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -76,5 +75,13 @@ public class StaffController {
     @GetMapping(value = "/findByUsernameContaining/{name}")
     public ResponseEntity<ResponseStructure<List<Staff>>> findByUsernameContaining(@PathVariable String name) {
         return staffService.findByUsernameContaining(name);
+    }
+
+    @Operation(summary = "csv download for staffs ", description = "returns csv file of staffs")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "csv downloaded"),
+            @ApiResponse(responseCode = "404", description = "csv not downloaded")})
+    @GetMapping("/download-csv")
+    public ResponseEntity<InputStreamResource> generateCsvForAllStaff() {
+        return staffService.generateCsvForAllStaff();
     }
 }

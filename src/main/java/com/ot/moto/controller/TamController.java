@@ -30,6 +30,9 @@ public class TamController {
     @Autowired
     private TamService tamService;
 
+    @Operation(summary = "uploadTamSheet ", description = "uploads tam sheet in database")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
+            @ApiResponse(responseCode = "404", description = "Driver Not Found")})
     @PostMapping(value = "/upload/tamSheet", consumes = {"multipart/form-data"})
     public ResponseEntity<ResponseStructure<Object>> uploadTamSheet(@RequestParam("file") MultipartFile file) {
         try (InputStream inputStream = file.getInputStream();
@@ -61,6 +64,9 @@ public class TamController {
     }
 
 
+    @Operation(summary = "Fetch driver By Name in tam ", description = "returns driver Object By Name in tam")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
+            @ApiResponse(responseCode = "404", description = "Driver Not Found")})
     @GetMapping("/getByJahezRiderId")
     public ResponseEntity<ResponseStructure<Object>> getByJahezRiderId(@RequestParam Long jahezRiderId){
         return tamService.getByJahezRiderId(jahezRiderId);
@@ -74,6 +80,9 @@ public class TamController {
         return tamService.findByDriverName(name);
     }
 
+    @Operation(summary = "download Tam Report ", description = "returns download button for tam report")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
+            @ApiResponse(responseCode = "404", description = "TamReport Not Found")})
     @GetMapping("/download")
     public ResponseEntity<InputStreamResource> downloadTamReport() {
         try {

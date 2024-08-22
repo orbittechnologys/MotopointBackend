@@ -33,6 +33,6 @@ public class MasterDao {
     }
 
     public Page<Master> findAll(int offset, int pageSize, String field) {
-        return masterRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
+        return masterRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).ascending()));
     }
 }

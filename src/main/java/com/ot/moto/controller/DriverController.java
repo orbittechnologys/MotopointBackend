@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -95,6 +96,15 @@ public class DriverController {
     @GetMapping(value = "/findByUsernameContaining/{name}")
     public ResponseEntity<ResponseStructure<List<Driver>>> findByUsernameContaining(@PathVariable String name) {
         return driverService.findByUsernameContaining(name);
+    }
+
+
+    @Operation(summary = "csv download for drivers ", description = "returns csv file of drivers")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "csv downloaded"),
+            @ApiResponse(responseCode = "404", description = "csv not downloaded")})
+    @GetMapping("/download-csv")
+    public ResponseEntity<InputStreamResource> downloadDriversCsv() {
+        return driverService.generateCsvForDrivers();
     }
 }
 
