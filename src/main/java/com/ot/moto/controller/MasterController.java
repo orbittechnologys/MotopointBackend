@@ -38,4 +38,14 @@ public class MasterController {
     public ResponseEntity<ResponseStructure<Object>> getMasterBySlab(@PathVariable String slab){
         return masterService.getMasterBySlab(slab);
     }
+
+    @Operation(summary = "Get all master", description = "returns List of master Object")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "master data Found"),
+            @ApiResponse(responseCode = "404", description = "master data Not Found")})
+    @GetMapping("/getAll")
+    public ResponseEntity<ResponseStructure<Object>> getAllAdmin(@RequestParam(defaultValue = "0") int page,
+                                                                 @RequestParam(defaultValue = "10") int size,
+                                                                 @RequestParam(defaultValue = "id") String field) {
+        return masterService.getAllByMaster(page, size, field);
+    }
 }

@@ -95,7 +95,12 @@ public class SecurityConfig {
             "/tam/sumPayInAmountForCurrentMonth",
             "/tam/sumPayInAmountForYesterday",
             "/master/create",
-            "/master/slab/{slab}"
+            "/master/getAll",
+            "/master/slab/{slab}",
+            "/user/forgotPassword",
+            "/user/updateNewPassword/{otp}/{password}",
+            "/user/validateOTP/{otp}"
+
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create", "/staff/update",

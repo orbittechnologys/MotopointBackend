@@ -1,8 +1,12 @@
 package com.ot.moto.dao;
 
 import com.ot.moto.entity.Master;
+import com.ot.moto.entity.Orders;
 import com.ot.moto.repository.MasterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import javax.swing.text.html.Option;
@@ -26,5 +30,9 @@ public class MasterDao {
     public Master getMasterById(Long id){
         Optional<Master> masterOptional = masterRepository.findById(id);
         return  masterOptional.orElse(null);
+    }
+
+    public Page<Master> findAll(int offset, int pageSize, String field) {
+        return masterRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
 }

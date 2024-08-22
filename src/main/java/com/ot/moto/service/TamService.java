@@ -44,7 +44,7 @@ public class TamService {
     @Autowired
     private DriverRepository driverRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger(StaffService.class);
+    private static final Logger logger = LoggerFactory.getLogger(TamService.class);
 
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); // Adjust pattern as needed
 

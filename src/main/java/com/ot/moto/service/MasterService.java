@@ -4,9 +4,11 @@ import com.ot.moto.dao.MasterDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateMasterReq;
 import com.ot.moto.entity.Master;
+import com.ot.moto.repository.MasterRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +20,14 @@ public class MasterService {
     @Autowired
     private MasterDao masterDao;
 
+    @Autowired
+    private MasterRepository masterRepository;
+
     private static final Logger logger = LoggerFactory.getLogger(MasterService.class);
 
     public ResponseEntity<ResponseStructure<Object>> createMaster(CreateMasterReq req){
 
         try{
-
             Master master = masterDao.getMasterBySlab(req.getSlab());
 
             if(Objects.nonNull(master)){
@@ -62,10 +66,25 @@ public class MasterService {
                 return ResponseStructure.errorResponse(null,404,"Master not found with slab:"+slab);
             }
 
-            return ResponseStructure.successResponse(master,"Master created successfully");
+            return ResponseStructure.successResponse(master,"Master Fetched successfully");
         }catch (Exception e){
             logger.error("Error while fetching Master", e);
             return ResponseStructure.errorResponse(null, 500, "Error while fetching master: " + e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> getAllByMaster(int page, int size, String field) {
+        try {
+
+            Page<Master> payments = masterDao.findAll(page, size, field);
+            if (payments.isEmpty()) {
+                logger.warn("No Master Data found.");
+                return ResponseStructure.errorResponse(null, 404, "No Master Data found");
+            }
+            return ResponseStructure.successResponse(payments, "Master Data  found");
+        } catch (Exception e) {
+            logger.error("Error fetching Master Data ", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
 }

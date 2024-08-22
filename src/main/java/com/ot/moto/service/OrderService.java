@@ -26,7 +26,7 @@ public class OrderService {
     @Autowired
     private OrdersRepository ordersRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger(DriverService.class);
+    private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
 
 

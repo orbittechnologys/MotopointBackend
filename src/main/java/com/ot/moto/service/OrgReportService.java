@@ -1,7 +1,9 @@
 package com.ot.moto.service;
 
+import com.ot.moto.dao.DriverDao;
 import com.ot.moto.dao.OrgReportsDao;
 import com.ot.moto.dto.ResponseStructure;
+import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.OrgReports;
 import com.ot.moto.entity.Tam;
 import com.ot.moto.repository.OrgReportsRepository;
@@ -25,10 +27,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 @Service
 public class OrgReportService {
@@ -38,6 +37,9 @@ public class OrgReportService {
 
     @Autowired
     private OrgReportsRepository orgReportsRepository;
+
+    @Autowired
+    private DriverDao driverDao;
 
     private static final Logger logger = LoggerFactory.getLogger(OrgReportService.class);
 
@@ -351,24 +353,37 @@ public class OrgReportService {
         }
     }
 
-    public ResponseEntity<Object> getTopDriverWithHighestAmountForCurrentMonth() {
+    public ResponseEntity<ResponseStructure<Object>> getTopDriverWithHighestAmountForCurrentMonth() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime startDate = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
         LocalDateTime endDate = now.withDayOfMonth(now.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59).withNano(999999999);
 
-        List<Object[]> results = orgReportsDao.findDriverWithHighestAmountForCurrentMonth(startDate, endDate);
+        try {
+            List<Object[]> results = orgReportsDao.findDriverWithHighestAmountForCurrentMonth(startDate, endDate);
 
-        if (results.isEmpty()) {
-            return ResponseEntity.ok("No data available for the current month.");
+            if (results.isEmpty()) {
+                return ResponseStructure.errorResponse(null, 404, "No data available for the current month.");
+            }
+
+            Object[] topDriver = results.get(0);
+            String driverId = (String) topDriver[0];
+            String driverName = (String) topDriver[1];
+            Double totalAmount = (Double) topDriver[2];
+
+            Driver driver = driverDao.findByNameIgnoreCase(driverName);
+
+            if (driver == null) {
+                return ResponseStructure.errorResponse(null, 404, "The driver with name " + driverName + " does not exist in the system.");
+            }
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("driverId", driverId);
+            responseData.put("driverName", driverName);
+            responseData.put("totalAmount", totalAmount);
+            responseData.put("profilePic", driver.getProfilePic());
+
+            return ResponseStructure.successResponse(responseData, "Top driver with the highest amount for the current month retrieved successfully.");
+        } catch (Exception e) {
+            return ResponseStructure.errorResponse(null, 500, "Error fetching the top driver: " + e.getMessage());
         }
-
-        Object[] topDriver = results.get(0);
-        String driverId = (String) topDriver[0];
-        String driverName = (String) topDriver[1];
-        Double totalAmount = (Double) topDriver[2];
-
-        String responseMessage = String.format("Driver with ID: %s, Name: %s collected the highest amount: %s", driverId, driverName, totalAmount);
-
-        return ResponseEntity.ok(responseMessage);
     }
 }

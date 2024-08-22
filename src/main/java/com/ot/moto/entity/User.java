@@ -35,6 +35,8 @@ public class User {
 
     private LocalDate joiningDate;
 
+    private String otp;
+
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
     private boolean status = true;
 

@@ -245,7 +245,7 @@ public class ReportController {
             @ApiResponse(responseCode = "500", description = "Failure occured")
     })
     @GetMapping("/sumAmountCollectedByDriver")
-    public ResponseEntity<Object> getTopDriverWithHighestAmountForCurrentMonth() {
+    public ResponseEntity<ResponseStructure<Object>> getTopDriverWithHighestAmountForCurrentMonth() {
         return orgReportService.getTopDriverWithHighestAmountForCurrentMonth();
     }
 

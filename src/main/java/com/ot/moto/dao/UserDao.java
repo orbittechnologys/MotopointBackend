@@ -15,17 +15,15 @@ public class UserDao {
     @Autowired
     private UserRepository userRepository;
 
-    /*public boolean checkUserExists(String email, String phone) {
-        Optional<User> user = userRepository.findByEmail(email);
-        if (Objects.nonNull(user)) {
-            return true;
-        }
-        user = userRepository.findByPhone(phone);
-        if (Objects.nonNull(user)) {
-            return true;
-        }
-        return false;
-    }*/
+
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
+    public User findByOtp(String otp) {
+        return userRepository.findByOtp(otp);
+    }
+
 
     public boolean checkUserExists(String email, String phone) {
         Optional<User> userByEmail = userRepository.findByEmail(email);
@@ -67,5 +65,4 @@ public class UserDao {
             throw new RuntimeException("User not found");
         }
     }
-
 }

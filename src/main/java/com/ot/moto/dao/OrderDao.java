@@ -31,6 +31,7 @@ public class OrderDao {
     public Page<Orders> findAll(int offset, int pageSize, String field) {
         return ordersRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
+
     public long sumTotalOrdersOnDate(LocalDate date) {
         Long sumTotalDate = ordersRepository.sumTotalOrdersOnDate(date);
         return Objects.isNull(sumTotalDate) ? 0 : sumTotalDate;
