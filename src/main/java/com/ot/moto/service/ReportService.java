@@ -393,43 +393,6 @@ public class ReportService {
         return totalAmounts;
     }
 
-//    public ResponseEntity<ResponseStructure<List<Payment>>> findPaymentsByDriverUsernameContaining(String username) {
-//        List<Payment> payments = paymentRepository.findPaymentsByDriverNameContaining(username);
-//        ResponseStructure<List<Payment>> responseStructure = new ResponseStructure<>();
-//
-//        Optional<Driver> driverOpt = driverRepository.findByNameIgnoreCase(username);
-//        if (driverOpt.isEmpty()) {
-//            responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
-//            responseStructure.setMessage("Driver not found.");
-//            responseStructure.setData(null);
-//            return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
-//        }
-//
-//        String driverPhoneNumber = driverOpt.get().getPhone();
-//
-//        Pattern phonePattern = Pattern.compile("/PHONE/(\\d+)-");;
-//        List<Payment> filteredPayments = payments.stream()
-//                .filter(payment -> {
-//                    Matcher matcher = phonePattern.matcher(payment.getDescription());
-//                    if (matcher.find()) {
-//                        return matcher.group(1).equals(driverPhoneNumber);
-//                    }
-//                    return false;
-//                })
-//                .collect(Collectors.toList());
-//
-//        if (filteredPayments.isEmpty()) {
-//            responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
-//            responseStructure.setMessage("No payments found with the matching phone number in the description.");
-//            responseStructure.setData(null);
-//            return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
-//        }
-//
-//        responseStructure.setStatus(HttpStatus.OK.value());
-//        responseStructure.setMessage("Payments retrieved successfully.");
-//        responseStructure.setData(filteredPayments);
-//        return new ResponseEntity<>(responseStructure, HttpStatus.OK);
-//    }
 
     public ResponseEntity<ResponseStructure<List<Payment>>> findPaymentsByDriverUsernameContaining(String username) {
         ResponseStructure<List<Payment>> responseStructure = new ResponseStructure<>();
