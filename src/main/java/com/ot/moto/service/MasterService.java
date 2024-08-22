@@ -109,32 +109,54 @@ public class MasterService {
         }
     }
 
-    public ResponseEntity<ResponseStructure<Object>> updateMaster(Long id, UpdateMasterReq req) {
+    public ResponseEntity<ResponseStructure<Object>> updateMaster(UpdateMasterReq request) {
         try {
-            Master existingMaster = masterDao.getMasterById(id);
-
-            if (Objects.isNull(existingMaster)) {
-                logger.warn("Master not found with ID: {}", id);
-                return ResponseStructure.errorResponse(null, 404, "Master ID not found: " + id);
+            Master master = fetchMaster(request.getId());
+            if (Objects.isNull(master)) {
+                logger.warn("No master found with id: {}", request.getId());
+                return ResponseStructure.errorResponse(null, 404, "Master not found with id: " + request.getId());
             }
-            existingMaster = updateMasterFromRequest(existingMaster, req);
-            existingMaster = masterDao.updateMaster(existingMaster);
 
-            logger.info("Master updated successfully with ID: {}", id);
-            return ResponseStructure.successResponse(existingMaster, "Master updated successfully");
+            master = updateMasterFromRequest(request, master);
+            masterDao.createMaster(master);
+
+            logger.info("Master updated successfully: {}", master.getId());
+
+            return ResponseStructure.successResponse(master, "Master updated successfully");
 
         } catch (Exception e) {
-            logger.error("Error while updating Master with ID: {}", id, e);
-            return ResponseStructure.errorResponse(null, 500, "Error while updating Master: " + e.getMessage());
+            logger.error("Error updating master", e);
+            return ResponseStructure.errorResponse(null, 500, "Error updating master: " + e.getMessage());
         }
     }
 
-    private Master updateMasterFromRequest(Master master, UpdateMasterReq req) {
-        master.setSlab(req.getSlab());
-        master.setStartKm(req.getStartKm());
-        master.setEndKm(req.getEndKm());
-        master.setJahezPaid(req.getJahezPaid());
-        master.setMotoPaid(req.getMotoPaid());
+    private Master fetchMaster(Long id) {
+        Master master = masterDao.getMasterById(id);
+        if (Objects.isNull(master)) {
+            logger.warn("No Master found. Invalid ID: {}", id);
+            return null;
+        }
         return master;
     }
+
+    private Master updateMasterFromRequest(UpdateMasterReq request, Master master) {
+        if (Objects.nonNull(request.getSlab())) {
+            master.setSlab(request.getSlab());
+        }
+        if (Objects.nonNull(request.getStartKm())) {
+            master.setStartKm(request.getStartKm());
+        }
+        if (Objects.nonNull(request.getEndKm())) {
+            master.setEndKm(request.getEndKm());
+        }
+        if (Objects.nonNull(request.getJahezPaid())) {
+            master.setJahezPaid(request.getJahezPaid());
+        }
+        if (Objects.nonNull(request.getMotoPaid())) {
+            master.setMotoPaid(request.getMotoPaid());
+        }
+
+        return master;
+    }
+
 }

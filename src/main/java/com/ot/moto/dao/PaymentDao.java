@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -45,5 +46,9 @@ public class PaymentDao {
     public Double getSumOfCurrentMonth(LocalDate startDate, LocalDate endDate) {
         Double sumCurrentMonth = paymentRepository.sumAmountForCurrentMonth(startDate, endDate);
         return Objects.isNull(sumCurrentMonth) ? 0 : sumCurrentMonth;
+    }
+
+    public List<Payment> findPaymentByDriverNameContaining(String name) {
+        return paymentRepository.findPaymentsByDriverNameContaining(name);
     }
 }

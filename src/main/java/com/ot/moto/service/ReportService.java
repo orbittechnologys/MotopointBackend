@@ -2,27 +2,25 @@ package com.ot.moto.service;
 
 import com.ot.moto.dao.*;
 import com.ot.moto.dto.ResponseStructure;
-import com.ot.moto.dto.request.CreateStaffReq;
 import com.ot.moto.entity.*;
-import com.ot.moto.repository.OrgReportsRepository;
+import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.PaymentRepository;
 import com.ot.moto.util.StringUtil;
-import jakarta.annotation.PostConstruct;
 import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.ot.moto.entity.Payment.PAYMENT_TYPE.BENEFIT;
 
@@ -47,6 +45,9 @@ public class ReportService {
     @Autowired
     private PaymentRepository paymentRepository;
 
+    @Autowired
+    private DriverRepository driverRepository;
+
 
     private static final Logger logger = LoggerFactory.getLogger(ReportService.class);
 
@@ -70,7 +71,6 @@ public class ReportService {
         }
     }
 
-
     public ResponseEntity<ResponseStructure<Object>> getArrearsForToday() {
         LocalDate today = LocalDate.now();
 
@@ -86,7 +86,6 @@ public class ReportService {
         }
     }
 
-
     public ResponseEntity<ResponseStructure<Object>> getSumAmountForYesterday() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
 
@@ -101,7 +100,6 @@ public class ReportService {
             return ResponseStructure.errorResponse(null, 500, "Error fetching amount for yesterday: " + e.getMessage());
         }
     }
-
 
     public ResponseEntity<ResponseStructure<Object>> uploadJahezReport(Sheet sheet) {
         try {
@@ -256,7 +254,6 @@ public class ReportService {
         return salary;
     }
 
-
     public ResponseEntity<ResponseStructure<Object>> getAllReport(int page, int size, String field) {
         try {
 
@@ -285,7 +282,6 @@ public class ReportService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
-
 
     public ResponseEntity<ResponseStructure<Object>> uploadBankStatement(Sheet sheet) {
         try {
@@ -333,7 +329,6 @@ public class ReportService {
         return ResponseStructure.successResponse(null, "Successfully Processed");
     }
 
-
     private boolean paymentRecordExists(Long driverId, LocalDate date) {
         return paymentDao.existsByDriverIdAndDate(driverId, date);
     }
@@ -354,7 +349,6 @@ public class ReportService {
         return null;
     }
 
-
     private void updateDriverPendingAmount(Driver driver, double amount, String paymentType, LocalDate date, String description) {
         double newAmountPending = driver.getAmountPending() - amount;
         driver.setAmountPending(newAmountPending);
@@ -364,7 +358,6 @@ public class ReportService {
 
         savePaymentRecord(driver, amount, paymentType, date, description);
     }
-
 
     private void savePaymentRecord(Driver driver, double amount, String paymentType, LocalDate date, String description) {
         Payment payment = new Payment();
@@ -377,7 +370,6 @@ public class ReportService {
         paymentDao.save(payment);
         logger.info("Saved payment record for driver: " + driver.getPhone() + ". Amount: " + amount + ", Description: " + description);
     }
-
 
     public Map<String, Double> getTotalAmountByPaymentType() {
 
@@ -399,5 +391,79 @@ public class ReportService {
             totalAmounts.put(type, total);
         }
         return totalAmounts;
+    }
+
+//    public ResponseEntity<ResponseStructure<List<Payment>>> findPaymentsByDriverUsernameContaining(String username) {
+//        List<Payment> payments = paymentRepository.findPaymentsByDriverNameContaining(username);
+//        ResponseStructure<List<Payment>> responseStructure = new ResponseStructure<>();
+//
+//        Optional<Driver> driverOpt = driverRepository.findByNameIgnoreCase(username);
+//        if (driverOpt.isEmpty()) {
+//            responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
+//            responseStructure.setMessage("Driver not found.");
+//            responseStructure.setData(null);
+//            return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
+//        }
+//
+//        String driverPhoneNumber = driverOpt.get().getPhone();
+//
+//        Pattern phonePattern = Pattern.compile("/PHONE/(\\d+)-");;
+//        List<Payment> filteredPayments = payments.stream()
+//                .filter(payment -> {
+//                    Matcher matcher = phonePattern.matcher(payment.getDescription());
+//                    if (matcher.find()) {
+//                        return matcher.group(1).equals(driverPhoneNumber);
+//                    }
+//                    return false;
+//                })
+//                .collect(Collectors.toList());
+//
+//        if (filteredPayments.isEmpty()) {
+//            responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
+//            responseStructure.setMessage("No payments found with the matching phone number in the description.");
+//            responseStructure.setData(null);
+//            return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
+//        }
+//
+//        responseStructure.setStatus(HttpStatus.OK.value());
+//        responseStructure.setMessage("Payments retrieved successfully.");
+//        responseStructure.setData(filteredPayments);
+//        return new ResponseEntity<>(responseStructure, HttpStatus.OK);
+//    }
+
+    public ResponseEntity<ResponseStructure<List<Payment>>> findPaymentsByDriverUsernameContaining(String username) {
+        ResponseStructure<List<Payment>> responseStructure = new ResponseStructure<>();
+
+        Optional<Driver> driverOpt = driverRepository.findByNameIgnoreCase(username);
+        if (driverOpt.isEmpty()) {
+            responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
+            responseStructure.setMessage("Driver not found.");
+            responseStructure.setData(null);
+            return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
+        }
+
+        String driverPhoneNumber = driverOpt.get().getPhone();
+
+        List<Payment> payments = paymentRepository.findPaymentsByDriverNameContaining(username);
+
+        Pattern phonePattern = Pattern.compile("/PHONE/(\\d+)-");
+        List<Payment> filteredPayments = payments.stream()
+                .filter(payment -> {
+                    Matcher matcher = phonePattern.matcher(payment.getDescription());
+                    return matcher.find() && matcher.group(1).equals(driverPhoneNumber);
+                })
+                .collect(Collectors.toList());
+
+        if (filteredPayments.isEmpty()) {
+            responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
+            responseStructure.setMessage("No payments found with the matching phone number in the description.");
+            responseStructure.setData(null);
+            return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
+        }
+
+        responseStructure.setStatus(HttpStatus.OK.value());
+        responseStructure.setMessage("Payments retrieved successfully.");
+        responseStructure.setData(filteredPayments);
+        return new ResponseEntity<>(responseStructure, HttpStatus.OK);
     }
 }

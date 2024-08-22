@@ -1,7 +1,6 @@
 package com.ot.moto.dao;
 
 import com.ot.moto.entity.Master;
-import com.ot.moto.entity.Orders;
 import com.ot.moto.repository.MasterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -9,7 +8,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @Repository

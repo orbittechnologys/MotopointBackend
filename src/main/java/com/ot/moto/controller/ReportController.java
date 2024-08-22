@@ -2,6 +2,7 @@ package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.entity.OrgReports;
+import com.ot.moto.entity.Payment;
 import com.ot.moto.service.OrgReportService;
 import com.ot.moto.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -252,5 +253,14 @@ public class ReportController {
                                                                           @RequestParam(defaultValue = "10") int size,
                                                                           @RequestParam(defaultValue = "id") String field) {
         return reportService.getAllBankstatement(page, size, field);
+    }
+
+    @Operation(summary = "find driver name from payment(BENEFIT) ", description = "Input is BankStatement file, returns Success/Failure Object")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Reports Found"),
+            @ApiResponse(responseCode = "404", description = " BankStatement Reports Not Found")})
+
+    @GetMapping("/findPaymentsByDriverName")
+    public ResponseEntity<ResponseStructure<List<Payment>>> searchPaymentsByDriverNameAndPhone(@RequestParam String name) {
+        return reportService.findPaymentsByDriverUsernameContaining(name);
     }
 }

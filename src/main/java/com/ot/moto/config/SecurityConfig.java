@@ -106,7 +106,8 @@ public class SecurityConfig {
             "/user/updateNewPassword",
             "/user/validateOTP",
             "/staff/download-csv",
-            "/driver/download-csv"
+            "/driver/download-csv",
+            "/report/findPaymentsByDriverName"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create", "/staff/update",

@@ -69,9 +69,7 @@ public class MasterController {
             @ApiResponse(responseCode = "500", description = "Internal server error while updating Master")
     })
     @PutMapping("/update")
-    public ResponseEntity<ResponseStructure<Object>> updateMaster(
-            @RequestParam Long masterId,
-            @RequestBody UpdateMasterReq updateMasterReq) {
-        return masterService.updateMaster(masterId, updateMasterReq);
+    public ResponseEntity<ResponseStructure<Object>> updateMaster(@RequestBody UpdateMasterReq updateMasterReq) {
+        return masterService.updateMaster(updateMasterReq);
     }
 }
