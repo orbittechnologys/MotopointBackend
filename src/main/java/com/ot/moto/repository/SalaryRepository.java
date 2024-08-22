@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface SalaryRepository extends JpaRepository<Salary, Long> {
 
     public Optional<Salary> findByMonthAndYearAndDriver(Long month, Long year, Driver driver);
+
+
 }
