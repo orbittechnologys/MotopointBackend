@@ -69,9 +69,9 @@ public class UserService {
         }
     }
 
-    public ResponseEntity<ResponseStructure<User>> updateNewPassword(String password, String otp) {
+    public ResponseEntity<ResponseStructure<User>> updateNewPassword(String password, Long id) {
         ResponseStructure<User> responseStructure = new ResponseStructure<>();
-        User user = userDao.findByOtp(otp);
+        User user = userDao.findById(id);
         if (Objects.isNull(user)) {
             responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
             responseStructure.setMessage("OTP invalid, password not updated");

@@ -24,6 +24,11 @@ public class UserDao {
         return userRepository.findByOtp(otp);
     }
 
+    public User findById(Long id) {
+        Optional<User> user = userRepository.findById(id);
+        return user.orElse(null);
+    }
+
 
     public boolean checkUserExists(String email, String phone) {
         Optional<User> userByEmail = userRepository.findByEmail(email);
@@ -35,7 +40,7 @@ public class UserDao {
         return userByPhone.isPresent();
     }
 
-    public Optional<User> getUser(String email,String phone){
+    public Optional<User> getUser(String email, String phone) {
         Optional<User> userByEmail = userRepository.findByEmail(email);
         if (userByEmail.isPresent()) {
             return userByEmail;
@@ -45,12 +50,12 @@ public class UserDao {
         return userByPhone;
     }
 
-    public Optional<User> getUserByPhone(String phone){
+    public Optional<User> getUserByPhone(String phone) {
         Optional<User> userByPhone = userRepository.findByPhone(phone);
         return userByPhone;
     }
 
-    public Optional<User> getUserByEmail(String email){
+    public Optional<User> getUserByEmail(String email) {
         Optional<User> userByPhone = userRepository.findByEmail(email);
         return userByPhone;
     }

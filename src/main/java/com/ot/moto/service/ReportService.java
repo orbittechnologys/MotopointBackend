@@ -272,7 +272,6 @@ public class ReportService {
 
     public ResponseEntity<ResponseStructure<Object>> getAllBankstatement(int page, int size, String field) {
         try {
-
             Page<Payment> payments = paymentDao.findAll(page, size, field);
             if (payments.isEmpty()) {
                 logger.warn("No Bank Statement found.");

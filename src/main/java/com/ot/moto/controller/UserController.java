@@ -45,15 +45,15 @@ public class UserController {
     @Operation(summary = "updateNewPassword for users ", description = "returns password and otp request")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "password updated "),
             @ApiResponse(responseCode = "404", description = "password did not update ")})
-    @PatchMapping(value = "/updateNewPassword/{otp}/{password}")
-    public ResponseEntity<ResponseStructure<User>> updateNewPassword(@RequestParam String password, @RequestParam String otp) {
-        return userService.updateNewPassword(password, otp);
+    @PatchMapping(value = "/updateNewPassword")
+    public ResponseEntity<ResponseStructure<User>> updateNewPassword(@RequestParam String password, @RequestParam Long id) {
+        return userService.updateNewPassword(password, id);
     }
 
     @Operation(summary = "validate otp for users ", description = "returns otp request ")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "otp valid and updated "),
             @ApiResponse(responseCode = "404", description = "otp not valid ")})
-    @GetMapping(value = "/validateOTP/{otp}")
+    @GetMapping(value = "/validateOTP")
     public ResponseEntity<ResponseStructure<User>> validateOTP(@RequestParam String otp) throws Exception {
         return userService.validateOtp(otp);
     }
