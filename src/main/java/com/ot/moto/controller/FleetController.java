@@ -116,7 +116,7 @@ public class FleetController {
             @ApiResponse(responseCode = "404", description = "Fleet Not Found"),
             @ApiResponse(responseCode = "409", description = "Conflict with existing data")
     })
-    @GetMapping("/assignFleet")
+    @PostMapping("/assignFleet")
     public ResponseEntity<ResponseStructure<Object>> assignFleet(@RequestBody AssignFleet assignFleet) {
         return fleetService.assignFleet(assignFleet);
     }
