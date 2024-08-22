@@ -8,10 +8,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Repository
 public class TamDao {
@@ -23,8 +21,8 @@ public class TamDao {
         return tamRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
 
-    public List<Tam> findByDriverName(String name){
-        return tamRepository.findByDriverName(name);
+    public List<Tam> findByDriverNameContaining(String name){
+        return tamRepository.findByDriverNameContaining(name);
     }
     public Double getSumPayInAmountForDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         return tamRepository.sumPayInAmountOnDate(startDate, endDate);

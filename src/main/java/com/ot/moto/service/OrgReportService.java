@@ -5,7 +5,6 @@ import com.ot.moto.dao.OrgReportsDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.OrgReports;
-import com.ot.moto.entity.Tam;
 import com.ot.moto.repository.OrgReportsRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -241,10 +240,10 @@ public class OrgReportService {
         }
     }
 
-    public ResponseEntity<ResponseStructure<List<OrgReports>>> findByDriverName(String name) {
+    public ResponseEntity<ResponseStructure<List<OrgReports>>> findByDriverNameContaining(String name) {
         ResponseStructure<List<OrgReports>> responseStructure = new ResponseStructure<>();
 
-        List<OrgReports> driverList = orgReportsDao.findByDriverName(name);
+        List<OrgReports> driverList = orgReportsDao.findByDriverNameContaining(name);
         if (driverList.isEmpty()) {
             responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
             responseStructure.setMessage("Driver Not Found in OrgReports ");

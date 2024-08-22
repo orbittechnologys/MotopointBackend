@@ -313,10 +313,10 @@ public class TamService {
         }
     }
 
-    public ResponseEntity<ResponseStructure<List<Tam>>> findByDriverName(String name) {
+    public ResponseEntity<ResponseStructure<List<Tam>>> findByDriverNameContaining(String name) {
         ResponseStructure<List<Tam>> responseStructure = new ResponseStructure<>();
 
-        List<Tam> driverList = tamDao.findByDriverName(name);
+        List<Tam> driverList = tamDao.findByDriverNameContaining(name);
         if (driverList.isEmpty()) {
             responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
             responseStructure.setMessage("Driver Not Found in TAM  ");

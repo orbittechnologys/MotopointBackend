@@ -1,32 +1,23 @@
 package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
-import com.ot.moto.dto.request.CreateFleetReq;
-import com.ot.moto.entity.Orders;
 import com.ot.moto.entity.OrgReports;
-import com.ot.moto.entity.Tam;
 import com.ot.moto.service.OrgReportService;
 import com.ot.moto.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -193,7 +184,7 @@ public class ReportController {
             @ApiResponse(responseCode = "404", description = "Driver Not Found")})
     @GetMapping(value = "/findByDriverName")
     public ResponseEntity<ResponseStructure<List<OrgReports>>> findByDriverName(@RequestParam String name) {
-        return orgReportService.findByDriverName(name);
+        return orgReportService.findByDriverNameContaining(name);
     }
 
 

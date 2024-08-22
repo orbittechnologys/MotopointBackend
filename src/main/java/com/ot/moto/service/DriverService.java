@@ -310,7 +310,6 @@ public class DriverService {
 
     public ResponseEntity<ResponseStructure<Object>> deleteDriver(Long driverId) {
         try {
-
             Driver driver = driverDao.getById(driverId);
             if (Objects.isNull(driver)) {
                 logger.warn("Driver not found with ID: {}", driverId);
@@ -326,38 +325,51 @@ public class DriverService {
         }
     }
 
-    public ResponseEntity<ResponseStructure<Object>> fetchTopDriver(){
-        try{
+    public ResponseEntity<ResponseStructure<Object>> fetchTopDriver() {
+        try {
+            logger.info("Fetching top drivers...");
+
             Driver topDriverTotalOrders = driverDao.findTopDriverByTotalOrders();
             Driver topDriverCurrentOrders = driverDao.findTopDriversByCurrentOrders();
 
-            TopDrivers topDrivers = new TopDrivers(topDriverTotalOrders,topDriverCurrentOrders);
+            TopDrivers topDrivers = new TopDrivers(topDriverTotalOrders, topDriverCurrentOrders);
 
-            return ResponseStructure.successResponse(topDrivers,"Fetched top drivers");
-        }catch (Exception e){
-            logger.error("Error fetching top Driver", e);
+            logger.info("Successfully fetched top drivers.");
+
+            return ResponseStructure.successResponse(topDrivers, "Fetched top drivers");
+        } catch (Exception e) {
+            logger.error("Error fetching top drivers", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
 
 
-    public ResponseEntity<ResponseStructure<List<Driver>>> findByUsernameContaining(String name){
-        ResponseStructure<List<Driver>> responseStructure = new ResponseStructure<>();
 
-        List<Driver> driverList = driverDao.findByUsernameContaining(name);
-        if(driverList.isEmpty()) {
-            responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
-            responseStructure.setMessage("Driver Not Found With NAME  ");
-            responseStructure.setData(null);
-            return new ResponseEntity<>(responseStructure,HttpStatus.NOT_FOUND);
-        }
-        else {
-            responseStructure.setStatus(HttpStatus.OK.value());
-            responseStructure.setMessage("Driver Found With NAME ");
-            responseStructure.setData(driverList);
-            return new ResponseEntity<>(responseStructure,HttpStatus.OK);
+    public ResponseEntity<ResponseStructure<List<Driver>>> findByUsernameContaining(String name) {
+        ResponseStructure<List<Driver>> responseStructure = new ResponseStructure<>();
+        try {
+            logger.info("Searching for drivers with username containing: {}", name);
+
+            List<Driver> driverList = driverDao.findByUsernameContaining(name);
+            if (driverList.isEmpty()) {
+                logger.warn("No drivers found with username containing: {}", name);
+                responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
+                responseStructure.setMessage("Driver Not Found With NAME");
+                responseStructure.setData(null);
+                return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
+            } else {
+                logger.info("Found {} drivers with username containing: {}", driverList.size(), name);
+                responseStructure.setStatus(HttpStatus.OK.value());
+                responseStructure.setMessage("Driver Found With NAME");
+                responseStructure.setData(driverList);
+                return new ResponseEntity<>(responseStructure, HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            logger.error("Error searching for drivers with username containing: {}", name, e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     public ResponseEntity<InputStreamResource> generateCsvForDrivers() {
         try {
@@ -436,5 +448,4 @@ public class DriverService {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 }

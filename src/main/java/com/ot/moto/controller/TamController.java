@@ -1,7 +1,6 @@
 package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
-import com.ot.moto.entity.Staff;
 import com.ot.moto.entity.Tam;
 import com.ot.moto.service.TamService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -76,8 +73,8 @@ public class TamController {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
             @ApiResponse(responseCode = "404", description = "Driver Not Found")})
     @GetMapping(value = "/findByDriverName")
-    public ResponseEntity<ResponseStructure<List<Tam>>> findByDriverName(@RequestParam String name) {
-        return tamService.findByDriverName(name);
+    public ResponseEntity<ResponseStructure<List<Tam>>> findByDriverNameContaining(@RequestParam String name) {
+        return tamService.findByDriverNameContaining(name);
     }
 
     @Operation(summary = "download Tam Report ", description = "returns download button for tam report")
