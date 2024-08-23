@@ -341,7 +341,6 @@ public class TamService {
             XSSFWorkbook workbook = new XSSFWorkbook();
             Sheet sheet = workbook.createSheet("Tam Data");
 
-            // Create header row
             Row headerRow = sheet.createRow(0);
             String[] headers = {
                     "ID", "DateTime", "KeySessionId", "Status", "ServiceName", "MerchantName", "TerminalId",
@@ -356,7 +355,6 @@ public class TamService {
                 headerRow.createCell(i).setCellValue(headers[i]);
             }
 
-            // Populate data rows
             int rowNum = 1;
             for (Tam tam : tamList) {
                 Row row = sheet.createRow(rowNum++);
@@ -422,7 +420,6 @@ public class TamService {
             return ResponseEntity.internalServerError().build();
         }
     }
-
 
 
     public Double getSumPayInAmountForCurrentMonth() {

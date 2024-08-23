@@ -34,4 +34,15 @@ public class SalaryDao {
     public Page<Salary> findAll(int offset, int pageSize, String field) {
         return salaryRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
+
+    public Salary findHighestBonus() {
+        return salaryRepository.findHighestBonus();
+    }
+
+    public Double getSumOfSettledSalaries() {
+        return salaryRepository.sumOfSettledSalaries();
+    }
+    public Double getSumOfNotSettledSalaries() {
+        return salaryRepository.sumOfNotSettledSalaries();
+    }
 }

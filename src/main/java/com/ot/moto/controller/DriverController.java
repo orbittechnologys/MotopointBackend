@@ -51,7 +51,7 @@ public class DriverController {
         return driverService.updateDriver(req);
     }
 
-    @Operation(summary = "Get Drivers", description = "returns List of Driver Object")
+    @Operation(summary = "Get all Drivers", description = "returns List of Driver Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
             @ApiResponse(responseCode = "404", description = "Driver Not Found")})
     @GetMapping("/getAll")

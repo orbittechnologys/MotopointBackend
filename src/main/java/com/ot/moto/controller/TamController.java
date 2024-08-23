@@ -78,7 +78,7 @@ public class TamController {
     }
 
     @Operation(summary = "download Tam Report ", description = "returns download button for tam report")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "TamReport Found"),
             @ApiResponse(responseCode = "404", description = "TamReport Not Found")})
     @GetMapping("/download")
     public ResponseEntity<InputStreamResource> downloadTamReport() {

@@ -283,6 +283,7 @@ public class DriverService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
+
     public DriverDetails getDriverDetails() {
 
         long totalDrivers = driverDao.countTotalDrivers();

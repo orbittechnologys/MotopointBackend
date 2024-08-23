@@ -107,7 +107,16 @@ public class SecurityConfig {
             "/user/validateOTP",
             "/staff/download-csv",
             "/driver/download-csv",
-            "/report/findPaymentsByDriverName"
+            "/report/findPaymentsByDriverName",
+            "/salary/download-csv",
+            "/salary/highestBonus",
+            "/salary/searchByVehicleNumber",
+            "/salary/getAll",
+            "/salary/getById/{id}",
+            "/salary/salaryPending",
+            "/salary/salaryCredited"
+
+
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create", "/staff/update",

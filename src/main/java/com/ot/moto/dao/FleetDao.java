@@ -50,5 +50,4 @@ public class FleetDao {
     public long countByVehicleType(Fleet.VEHICLE_TYPE vehicleType){
         return fleetRepository.countByVehicleType(vehicleType);
     }
-
 }
