@@ -198,6 +198,7 @@ public class ReportService {
         Master s5Master = masterDao.getMasterBySlab("S5");
 
         if (newRecord) {
+            salary = new Salary();
             salary.setMonth((long) month);
             salary.setYear((long) year);
             salary.setDriver(orders.getDriver());
@@ -236,17 +237,17 @@ public class ReportService {
             salary.setNoOfS4(salary.getNoOfS4() + orders.getNoOfS4());
             salary.setNoOfS5(salary.getNoOfS5() + orders.getNoOfS5());
 
-            long totalOrders = salary.getNoOfS1() + salary.getNoOfS2() + salary.getNoOfS3() + salary.getNoOfS4() + orders.getNoOfS5();
+            long totalOrders = salary.getNoOfS1() + salary.getNoOfS2() + salary.getNoOfS3() + salary.getNoOfS4() + salary.getNoOfS5();
 
             salary.setTotalOrders(totalOrders);
 
-            salary.setS1Earnings(salary.getS1Earnings() + s1Master.getMotoPaid() * salary.getNoOfS1());
-            salary.setS2Earnings(salary.getS2Earnings() + s2Master.getMotoPaid() * salary.getNoOfS2());
-            salary.setS3Earnings(salary.getS3Earnings() + s3Master.getMotoPaid() * salary.getNoOfS3());
-            salary.setS4Earnings(salary.getS4Earnings() + s4Master.getMotoPaid() * salary.getNoOfS4());
-            salary.setS5Earnings(salary.getS5Earnings() + s5Master.getMotoPaid() * salary.getNoOfS5());
+            salary.setS1Earnings(salary.getS1Earnings() + s1Master.getMotoPaid() * orders.getNoOfS1());
+            salary.setS2Earnings(salary.getS2Earnings() + s2Master.getMotoPaid() * orders.getNoOfS2());
+            salary.setS3Earnings(salary.getS3Earnings() + s3Master.getMotoPaid() * orders.getNoOfS3());
+            salary.setS4Earnings(salary.getS4Earnings() + s4Master.getMotoPaid() * orders.getNoOfS4());
+            salary.setS5Earnings(salary.getS5Earnings() + s5Master.getMotoPaid() * orders.getNoOfS5());
 
-            salary.setTotalEarnings(salary.getTotalEarnings() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
+            salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
                     + salary.getS4Earnings() + salary.getS5Earnings());
         }
 
