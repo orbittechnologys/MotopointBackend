@@ -20,7 +20,7 @@ public class SalaryController {
     @Autowired
     private SalaryService salaryService;
 
-    @Operation(summary = "Get Salary", description = "Input is Driver Id, returns Salary Object")
+    @Operation(summary = "Get Salary", description = "Input is salary Id, returns Salary Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Salary Found"),
             @ApiResponse(responseCode = "404", description = "Salary Not Found")})
     @GetMapping("/getById/{id}")
