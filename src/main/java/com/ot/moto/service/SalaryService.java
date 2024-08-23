@@ -191,7 +191,7 @@ public class SalaryService {
 
     public ResponseEntity<ResponseStructure<Object>> getSumOfSettledSalaries() {
         try {
-            Double totalSettledSalaries = salaryDao.getSumOfSettledSalaries();
+            List<Double> totalSettledSalaries = salaryDao.getSumOfSettledSalaries();
 
             if (totalSettledSalaries == null) {
                 logger.warn("Sum of settled salaries is null.");

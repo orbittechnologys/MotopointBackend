@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -39,7 +40,7 @@ public class SalaryDao {
         return salaryRepository.findHighestBonus();
     }
 
-    public Double getSumOfSettledSalaries() {
+    public List<Double> getSumOfSettledSalaries() {
         return salaryRepository.sumOfSettledSalaries();
     }
     public Double getSumOfNotSettledSalaries() {
