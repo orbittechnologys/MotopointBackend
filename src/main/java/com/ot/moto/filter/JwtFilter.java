@@ -89,17 +89,29 @@ public class JwtFilter extends OncePerRequestFilter {
             "/report/download",
             "/fleet/assignFleet",
             "/report/sumAmountCollectedByDriver",
+            "/report/getSumForCurrentMonthForBenefit",
+            "/report/getAmountForYesterdayForBenefit",
             "/report/getAllBankStatement",
             "/tam/sumPayInAmountForCurrentMonth",
             "/tam/sumPayInAmountForYesterday",
             "/master/create",
             "/master/getAll",
+            "/master/delete",
+            "/master/update",
             "/master/slab/{slab}",
             "/user/forgotPassword",
             "/user/updateNewPassword",
             "/user/validateOTP",
             "/staff/download-csv",
-            "/driver/download-csv"
+            "/driver/download-csv",
+            "/report/findPaymentsByDriverName",
+            "/salary/download-csv",
+            "/salary/highestBonus",
+            "/salary/searchByVehicleNumber",
+            "/salary/getAll",
+            "/salary/getById/{id}",
+            "/salary/salaryPending",
+            "/salary/salaryCredited"
     );
 
     @Override
