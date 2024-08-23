@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface PaymentRepository extends JpaRepository<Payment,Long> {
+public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     public boolean existsByDriverIdAndDate(Long driverId, LocalDate date);
 

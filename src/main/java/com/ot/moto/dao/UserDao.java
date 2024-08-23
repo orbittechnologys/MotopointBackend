@@ -29,7 +29,6 @@ public class UserDao {
         return user.orElse(null);
     }
 
-
     public boolean checkUserExists(String email, String phone) {
         Optional<User> userByEmail = userRepository.findByEmail(email);
         if (userByEmail.isPresent()) {

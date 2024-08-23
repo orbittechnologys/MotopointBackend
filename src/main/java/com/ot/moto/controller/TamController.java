@@ -65,7 +65,7 @@ public class TamController {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
             @ApiResponse(responseCode = "404", description = "Driver Not Found")})
     @GetMapping("/getByJahezRiderId")
-    public ResponseEntity<ResponseStructure<Object>> getByJahezRiderId(@RequestParam Long jahezRiderId){
+    public ResponseEntity<ResponseStructure<Object>> getByJahezRiderId(@RequestParam Long jahezRiderId) {
         return tamService.getByJahezRiderId(jahezRiderId);
     }
 

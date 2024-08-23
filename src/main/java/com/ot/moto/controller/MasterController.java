@@ -36,7 +36,7 @@ public class MasterController {
             @ApiResponse(responseCode = "404", description = "Master not found")
     })
     @GetMapping("/slab/{slab}")
-    public ResponseEntity<ResponseStructure<Object>> getMasterBySlab(@PathVariable String slab){
+    public ResponseEntity<ResponseStructure<Object>> getMasterBySlab(@PathVariable String slab) {
         return masterService.getMasterBySlab(slab);
     }
 

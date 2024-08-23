@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Entity
 @Data
-public class Staff extends  User {
+public class Staff extends User {
     {
         super.setRole("ROLE_STAFF");
     }

@@ -12,10 +12,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/driver")
@@ -106,5 +108,15 @@ public class DriverController {
     public ResponseEntity<InputStreamResource> downloadDriversCsv() {
         return driverService.generateCsvForDrivers();
     }
-}
 
+    @Operation(summary = "Get the attendence of drivers  ", description = "Returns List of driver Objects")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "driver Found"),
+            @ApiResponse(responseCode = "404", description = "No drivers Found")
+    })
+    @GetMapping("/attendance/details")
+    public ResponseEntity<ResponseStructure<Map<String, Object>>> getDriverAttendanceDetails() {
+        ResponseStructure<Map<String, Object>> response = driverService.getDriverAttendanceDetails();
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+}

@@ -114,7 +114,9 @@ public class SecurityConfig {
             "/salary/getAll",
             "/salary/getById/{id}",
             "/salary/salaryPending",
-            "/salary/salaryCredited"
+            "/salary/salaryCredited",
+            "/salary/settle-salaries",
+            "/driver/attendance/details"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create", "/staff/update",

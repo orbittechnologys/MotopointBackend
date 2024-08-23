@@ -29,7 +29,6 @@ public class OrderService {
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
 
-
     public ResponseEntity<ResponseStructure<Object>> getTotalOrdersForYesterday() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
         logger.info("Fetching total order count for yesterday ({})", yesterday);

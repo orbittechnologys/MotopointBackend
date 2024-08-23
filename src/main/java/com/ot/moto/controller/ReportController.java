@@ -84,7 +84,7 @@ public class ReportController {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
             @ApiResponse(responseCode = "500", description = "Failure occured")
     })
-    @PostMapping(value = "/upload/bankStatement" , consumes = {"multipart/form-data"})
+    @PostMapping(value = "/upload/bankStatement", consumes = {"multipart/form-data"})
     public ResponseEntity<ResponseStructure<Object>> uploadBankStatement(@RequestParam("file") MultipartFile file) {
         try (InputStream inputStream = file.getInputStream();
              Workbook workbook = new XSSFWorkbook(inputStream)) {
@@ -95,7 +95,7 @@ public class ReportController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseStructure.errorResponse(null,500,"ERROR");
+            return ResponseStructure.errorResponse(null, 500, "ERROR");
         }
     }
 
@@ -139,7 +139,7 @@ public class ReportController {
         return reportService.getAllReport(page, size, field);
     }
 
-//    __
+    //    __
     @Operation(summary = "Total amount of a date ORDERS(jahez)", description = "Input is date, returns Success/Failure Object")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
@@ -149,7 +149,6 @@ public class ReportController {
     public ResponseEntity<ResponseStructure<Object>> getArrearsForToday() {
         return reportService.getArrearsForToday();
     }
-
 
 
     @Operation(summary = "BENEFIT(payment table)", description = "No Input , returns Success/Failure Object")
@@ -170,7 +169,7 @@ public class ReportController {
     public ResponseEntity<ResponseStructure<Object>> getAllOrg(@RequestParam(defaultValue = "0") int page,
                                                                @RequestParam(defaultValue = "10") int size,
                                                                @RequestParam(defaultValue = "id") String field) {
-        return orgReportService.getAllOrg(page,size,field);
+        return orgReportService.getAllOrg(page, size, field);
     }
 
 

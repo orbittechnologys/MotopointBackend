@@ -17,11 +17,11 @@ public class DriverDao {
     @Autowired
     private DriverRepository driverRepository;
 
-    public Driver createDriver(Driver driver){
+    public Driver createDriver(Driver driver) {
         return driverRepository.save(driver);
     }
 
-    public Driver getById(Long id){
+    public Driver getById(Long id) {
         Optional<Driver> driver = driverRepository.findById(id);
         return driver.orElse(null);
     }
@@ -30,7 +30,7 @@ public class DriverDao {
         return driverRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
 
-    public Driver findByNameIgnoreCase(String driverName){
+    public Driver findByNameIgnoreCase(String driverName) {
         Optional<Driver> driverOptional = driverRepository.findByNameIgnoreCase(driverName);
         return driverOptional.orElse(null);
     }
@@ -59,21 +59,25 @@ public class DriverDao {
         return driverRepository.findByPhone(phoneNumber);
     }
 
-    public void deleteDriver(Driver driver){
+    public void deleteDriver(Driver driver) {
         driverRepository.delete(driver);
     }
 
-    public Driver findTopDriverByTotalOrders(){
+    public Driver findTopDriverByTotalOrders() {
         Optional<Driver> optionalDriver = driverRepository.findTopDriverByTotalOrders();
         return optionalDriver.orElse(null);
     }
 
-    public Driver findTopDriversByCurrentOrders(){
+    public Driver findTopDriversByCurrentOrders() {
         Optional<Driver> optionalDriver = driverRepository.findTopDriverByCurrentOrders();
         return optionalDriver.orElse(null);
     }
 
-    public List<Driver> findByUsernameContaining(String name){
+    public List<Driver> findByUsernameContaining(String name) {
         return driverRepository.findByUsernameContaining(name);
     }
- }
+
+    public List<Driver> getAllDrivers() {
+        return driverRepository.findAll();
+    }
+}

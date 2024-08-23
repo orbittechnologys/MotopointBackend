@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface DriverRepository extends JpaRepository<Driver,Long> {
+public interface DriverRepository extends JpaRepository<Driver, Long> {
 
 
     public Driver findByPhone(String phone);
@@ -38,5 +38,6 @@ public interface DriverRepository extends JpaRepository<Driver,Long> {
 
     @Query("SELECT d FROM Driver d ORDER BY d.currentOrders DESC LIMIT 1")
     Optional<Driver> findTopDriverByCurrentOrders();
+
 
 }

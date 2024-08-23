@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Data
 public class Payment {
 
-    public enum PAYMENT_TYPE{
+    public enum PAYMENT_TYPE {
         BENEFIT, CASH
     }
 

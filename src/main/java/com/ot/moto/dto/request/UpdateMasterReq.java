@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 
 public class UpdateMasterReq {
 
-        private Long id;
-        private String slab;
-        private Long startKm;
-        private Long endKm;
-        private Double jahezPaid;
-        private Double motoPaid;
+    private Long id;
+    private String slab;
+    private Long startKm;
+    private Long endKm;
+    private Double jahezPaid;
+    private Double motoPaid;
 
 }
 

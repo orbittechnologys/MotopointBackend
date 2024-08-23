@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface FleetRepository extends JpaRepository<Fleet,Long> {
+public interface FleetRepository extends JpaRepository<Fleet, Long> {
 
     public Fleet findByVehicleNumber(String vehicleNumber);
 

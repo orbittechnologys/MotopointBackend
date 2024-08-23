@@ -29,9 +29,8 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class DriverService {
@@ -46,6 +45,9 @@ public class DriverService {
 
     @Autowired
     private DriverDao driverDao;
+
+    @Autowired
+    private OrderDao orderDao;
 
     @Autowired
     private OrdersRepository ordersRepository;
@@ -272,7 +274,7 @@ public class DriverService {
     public ResponseEntity<ResponseStructure<Object>> getAllDriver(int page, int size, String field) {
         try {
 
-            Page<Driver> driverPage = driverDao.findAll(page,size,field);
+            Page<Driver> driverPage = driverDao.findAll(page, size, field);
             if (driverPage.isEmpty()) {
                 logger.warn("No Admin found.");
                 return ResponseStructure.errorResponse(null, 404, "No Driver found");
@@ -343,7 +345,6 @@ public class DriverService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
-
 
 
     public ResponseEntity<ResponseStructure<List<Driver>>> findByUsernameContaining(String name) {
@@ -449,4 +450,48 @@ public class DriverService {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    public ResponseStructure<Map<String, Object>> getDriverAttendanceDetails() {
+        try {
+
+            List<Driver> allDrivers = driverDao.getAllDrivers();
+
+            List<Driver> todayDrivers = orderDao.getDriversWithOrdersForToday();
+
+            List<Object[]> monthlyResults = orderDao.getDriverAttendanceForCurrentMonth();
+            Map<Long, Long> driverDaysPresentMap = monthlyResults.stream()
+                    .collect(Collectors.toMap(
+                            result -> ((Driver) result[0]).getId(),
+                            result -> (Long) result[1]
+                    ));
+
+            List<Map<String, Object>> driverAttendanceList = allDrivers.stream().map(driver -> {
+                Map<String, Object> driverData = new HashMap<>();
+                driverData.put("driverId", driver.getId());
+                driverData.put("driverName", driver.getUsername());
+                driverData.put("driverProfilePic", driver.getProfilePic());
+                driverData.put("daysPresent", driverDaysPresentMap.getOrDefault(driver.getId(), 0L));
+                driverData.put("attendance", todayDrivers.contains(driver) ? "Present" : "Absent");
+                return driverData;
+            }).collect(Collectors.toList());
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("totalWorkingDaysInMonth", 24);  // You can adjust this if needed
+            data.put("driverCount", driverAttendanceList.size());
+            data.put("drivers", driverAttendanceList);
+
+            ResponseStructure<Map<String, Object>> response = new ResponseStructure<>();
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Driver attendance details fetched successfully");
+            response.setData(data);
+            return response;
+        } catch (Exception e) {
+            ResponseStructure<Map<String, Object>> response = new ResponseStructure<>();
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setMessage("Error fetching driver attendance details: " + e.getMessage());
+            response.setData(null);
+            return response;
+        }
+    }
+
 }

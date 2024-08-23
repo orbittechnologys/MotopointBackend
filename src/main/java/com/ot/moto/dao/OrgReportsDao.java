@@ -32,7 +32,7 @@ public class OrgReportsDao {
         return orgReportsRepository.findByDriverId(driverId);
     }
 
-    public List<OrgReports> findByDriverNameContaining(String name){
+    public List<OrgReports> findByDriverNameContaining(String name) {
         return orgReportsRepository.findByDriverNameContaining(name);
     }
 

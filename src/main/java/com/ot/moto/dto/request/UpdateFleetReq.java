@@ -1,6 +1,7 @@
 package com.ot.moto.dto.request;
 
 import lombok.Data;
+
 import java.time.LocalDate;
 
 @Data
@@ -20,5 +21,5 @@ public class UpdateFleetReq {
 
     public Long driverId;
 
-    private String  image;
+    private String image;
 }

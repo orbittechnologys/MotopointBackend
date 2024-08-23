@@ -1,6 +1,7 @@
 package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
+import com.ot.moto.dto.request.SettleSalariesReq;
 import com.ot.moto.entity.Salary;
 import com.ot.moto.service.SalaryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,8 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/salary")
@@ -92,4 +95,14 @@ public class SalaryController {
     public ResponseEntity<ResponseStructure<Object>> getSumOfNotSettledSalaries() {
         return salaryService.getSumOfNotSettledSalaries();
     }
+
+
+    @Operation(summary = "settle multiple salaries ", description = "returns List of Salary Object")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Salary updated "),
+            @ApiResponse(responseCode = "404", description = "Salary Not Found")})
+    @PostMapping("/settle-salaries")
+    public ResponseEntity<ResponseStructure<Object>> settleSalaries(@RequestBody SettleSalariesReq request) {
+        return salaryService.settleSalaries(request);
+    }
+
 }

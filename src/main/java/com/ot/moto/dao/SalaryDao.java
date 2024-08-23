@@ -3,6 +3,8 @@ package com.ot.moto.dao;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Salary;
 import com.ot.moto.repository.SalaryRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,16 +20,19 @@ public class SalaryDao {
     @Autowired
     private SalaryRepository salaryRepository;
 
-    public Salary saveSalary(Salary salary){
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public Salary saveSalary(Salary salary) {
         return salaryRepository.save(salary);
     }
 
-    public Salary getSalaryByMonthAndYearAndDriver(Long month, Long year, Driver driver){
-        Optional<Salary> salaryOptional = salaryRepository.findByMonthAndYearAndDriver(month,year,driver);
+    public Salary getSalaryByMonthAndYearAndDriver(Long month, Long year, Driver driver) {
+        Optional<Salary> salaryOptional = salaryRepository.findByMonthAndYearAndDriver(month, year, driver);
         return salaryOptional.orElse(null);
     }
 
-    public Salary getById(Long id){
+    public Salary getById(Long id) {
         Optional<Salary> driver = salaryRepository.findById(id);
         return driver.orElse(null);
     }
@@ -36,7 +41,7 @@ public class SalaryDao {
         return salaryRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
 
-    public List<Salary> findHighestBonus() {
+    public Salary findHighestBonus() {
         return salaryRepository.findHighestBonus();
     }
 
@@ -46,5 +51,17 @@ public class SalaryDao {
 
     public Double getSumOfNotSettledSalaries() {
         return salaryRepository.sumOfNotSettledSalaries();
+    }
+
+    public void saveAll(List<Salary> salaries) {
+        salaryRepository.saveAll(salaries);
+    }
+
+    public void flush() {
+        entityManager.flush();
+    }
+
+    public void clear() {
+        entityManager.clear();
     }
 }

@@ -12,5 +12,5 @@ public class TopDrivers {
 
     private Driver topDriverByTotalOrders;
 
-    private  Driver topDriverByCurrentOrders;
+    private Driver topDriverByCurrentOrders;
 }

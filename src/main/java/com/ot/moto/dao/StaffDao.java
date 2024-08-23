@@ -35,11 +35,11 @@ public class StaffDao {
         return staffRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
 
-    public void deleteStaff(Staff staff){
+    public void deleteStaff(Staff staff) {
         staffRepository.delete(staff);
     }
 
-    public List<Staff> findByUsernameContaining(String name){
+    public List<Staff> findByUsernameContaining(String name) {
         return staffRepository.findByUsernameContaining(name);
     }
 }

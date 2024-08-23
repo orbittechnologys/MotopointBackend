@@ -8,13 +8,13 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface OrgReportsRepository extends JpaRepository<OrgReports,Long> {
+public interface OrgReportsRepository extends JpaRepository<OrgReports, Long> {
 
     public OrgReports findByDidAndDispatchTime(Long did, LocalDateTime dispatchTime);
 
     public List<OrgReports> findByDriverId(String driverId);
 
-    public List<OrgReports> findByDriverNameContaining(String name );
+    public List<OrgReports> findByDriverNameContaining(String name);
 
     @Query("SELECT SUM(o.amount) FROM OrgReports o WHERE o.dispatchTime >= :startDate AND o.dispatchTime <= :endDate")
     Double sumAmountForCurrentMonth(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);

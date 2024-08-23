@@ -56,7 +56,7 @@ public class StaffController {
     public ResponseEntity<ResponseStructure<Object>> getAllStaff(@RequestParam(defaultValue = "0") int page,
                                                                  @RequestParam(defaultValue = "10") int size,
                                                                  @RequestParam(defaultValue = "id") String field) {
-        return staffService.getAllStaff(page,size,field);
+        return staffService.getAllStaff(page, size, field);
     }
 
     @Operation(summary = "delete Staff", description = "Input is staff id,returns deleted Staff Object")

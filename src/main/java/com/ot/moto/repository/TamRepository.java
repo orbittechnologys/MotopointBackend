@@ -18,7 +18,7 @@ public interface TamRepository extends JpaRepository<Tam, Long> {
 
     public List<Tam> findByJahezRiderId(Long jahezRiderId);
 
-    public List<Tam> findByDriverNameContaining(String name );
+    public List<Tam> findByDriverNameContaining(String name);
 
     @Query("SELECT SUM(t.payInAmount) FROM Tam t WHERE t.dateTime >= :startDate AND t.dateTime <= :endDate")
     Double sumPayInAmountOnDate(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);

@@ -11,7 +11,7 @@ import java.util.List;
 
 @Entity
 @Data
-public class Driver extends  User{
+public class Driver extends User {
     {
         super.setRole("ROLE_DRIVER");
     }

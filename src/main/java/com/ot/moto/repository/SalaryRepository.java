@@ -13,8 +13,8 @@ public interface SalaryRepository extends JpaRepository<Salary, Long> {
 
     public Optional<Salary> findByMonthAndYearAndDriver(Long month, Long year, Driver driver);
 
-    @Query("SELECT s FROM Salary s WHERE s.bonus = (SELECT MAX(s2.bonus) FROM Salary s2)")
-    public List<Salary> findHighestBonus();
+    @Query(value = "SELECT * FROM Salary WHERE bonus = (SELECT MAX(bonus) FROM Salary) LIMIT 1", nativeQuery = true)
+    public Salary findHighestBonus();
 
 
     @Query("SELECT s FROM Salary s WHERE s.driver IN (SELECT d FROM Driver d WHERE d.fleet.vehicleNumber = :vehicleNumber)")

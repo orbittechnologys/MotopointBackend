@@ -21,9 +21,10 @@ public class TamDao {
         return tamRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
 
-    public List<Tam> findByDriverNameContaining(String name){
+    public List<Tam> findByDriverNameContaining(String name) {
         return tamRepository.findByDriverNameContaining(name);
     }
+
     public Double getSumPayInAmountForDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         return tamRepository.sumPayInAmountOnDate(startDate, endDate);
     }

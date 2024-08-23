@@ -47,7 +47,7 @@ public class FleetDao {
         return fleetRepository.countByOwnType(Fleet.OWN_TYPE.MOTO_POINT);
     }
 
-    public long countByVehicleType(Fleet.VEHICLE_TYPE vehicleType){
+    public long countByVehicleType(Fleet.VEHICLE_TYPE vehicleType) {
         return fleetRepository.countByVehicleType(vehicleType);
     }
 }
