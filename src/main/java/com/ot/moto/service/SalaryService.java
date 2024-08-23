@@ -35,6 +35,7 @@ public class SalaryService {
 
     private static final Logger logger = LoggerFactory.getLogger(SalaryService.class);
 
+
     public ResponseEntity<ResponseStructure<Object>> getSalaryById(Long id) {
         try {
             Salary salary = salaryDao.getById(id);
@@ -68,21 +69,42 @@ public class SalaryService {
 
     public ResponseEntity<ResponseStructure<Object>> HighestBonus() {
         try {
-            Salary salary = salaryRepository.findHighestBonus();
-            if (salary == null) {
+            List<Salary> salaries = salaryRepository.findHighestBonus();
+            if (salaries.isEmpty()) {
                 logger.warn("No Salary with a bonus found.");
                 return ResponseStructure.errorResponse(null, 404, "No Salary with a bonus found.");
             }
-            logger.info("Successfully retrieved salary with the highest bonus. Driver: {}, Bonus: {}",
-                    salary.getDriver().getUsername(),
-                    salary.getBonus());
-            return ResponseStructure.successResponse(salary, "Salary with highest bonus found");
+            for (Salary salary : salaries) {
+                logger.info("Salary with highest bonus found. Driver: {}, Bonus: {}",
+                        salary.getDriver().getUsername(),
+                        salary.getBonus());
+            }
+
+            return ResponseStructure.successResponse(salaries, "Salaries with the highest bonus found");
         } catch (Exception e) {
-            logger.error("Error fetching Salary with highest bonus", e);
-            return ResponseStructure.errorResponse(null, 500, "Error fetching salary with highest bonus: " + e.getMessage());
+            logger.error("Error fetching Salaries with highest bonus", e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching salaries with highest bonus: " + e.getMessage());
         }
     }
 
+//    public ResponseEntity<ResponseStructure<Object>> HighestBonus() {
+//        try {
+//            List<Salary> salaries = salaryRepository.findHighestBonus();
+//            if (salaries.isEmpty()) {
+//                logger.warn("No Salary with a bonus found.");
+//                return ResponseStructure.errorResponse(null, 404, "No Salary with a bonus found.");
+//            }
+//            // Assuming you want to return the first result if there are multiple with the highest bonus
+//            Salary salary = salaries.get(0);
+//            logger.info("Successfully retrieved salary with the highest bonus. Driver: {}, Bonus: {}",
+//                    salary.getDriver().getUsername(),
+//                    salary.getBonus());
+//            return ResponseStructure.successResponse(salary, "Salary with highest bonus found");
+//        } catch (Exception e) {
+//            logger.error("Error fetching Salary with highest bonus", e);
+//            return ResponseStructure.errorResponse(null, 500, "Error fetching salary with highest bonus: " + e.getMessage());
+//        }
+//    }
 
     public ResponseEntity<ResponseStructure<Object>> searchByVehicleNumber(String vehicleNumber) {
         try {
