@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class SalaryService {
@@ -78,18 +79,22 @@ public class SalaryService {
                 return ResponseStructure.errorResponse(null, 404, "No Salary with a bonus found.");
             }
 
-            Salary highestBonusSalary = salaryList.get(0);
-            logger.info("Salary with highest bonus found. Driver: {}, Bonus: {}",
-                    highestBonusSalary.getDriver().getUsername(),
-                    highestBonusSalary.getBonus());
+            Double highestBonus = salaryList.get(0).getBonus();
 
-            return ResponseStructure.successResponse(highestBonusSalary, "Salary with highest bonus found");
+            List<Salary> highestBonusSalaries = salaryList.stream()
+                    .filter(salary -> highestBonus.equals(salary.getBonus()))
+                    .collect(Collectors.toList());
+
+            logger.info("Salaries with the highest bonus found. Number of drivers: {}", highestBonusSalaries.size());
+            highestBonusSalaries.forEach(salary -> logger.info("Driver: {}, Bonus: {}",
+                    salary.getDriver().getUsername(), salary.getBonus()));
+
+            return ResponseStructure.successResponse(highestBonusSalaries, "Salaries with highest bonus found");
         } catch (Exception e) {
-            logger.error("Error fetching Salary with highest bonus", e);
-            return ResponseStructure.errorResponse(null, 500, "Error fetching salary with highest bonus: " + e.getMessage());
+            logger.error("Error fetching salaries with highest bonus", e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching salaries with highest bonus: " + e.getMessage());
         }
     }
-
 
 
     public ResponseEntity<ResponseStructure<Object>> searchByVehicleNumber(String vehicleNumber) {

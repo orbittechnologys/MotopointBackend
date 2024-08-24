@@ -120,7 +120,8 @@ public class SecurityConfig {
             "/summary/findAll",
             "/summary/download",
             "/summary/findBy/{id}",
-            "/staff/getAll"
+            "/staff/getAll",
+            "/staff/create"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create", "/staff/update",
