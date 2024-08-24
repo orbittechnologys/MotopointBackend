@@ -72,21 +72,24 @@ public class SalaryService {
 
     public ResponseEntity<ResponseStructure<Object>> HighestBonus() {
         try {
-            Salary salary = salaryRepository.findHighestBonus();
-            if (salary == null) {
+            List<Salary> salaryList = salaryRepository.findHighestBonus();
+            if (salaryList == null || salaryList.isEmpty()) {
                 logger.warn("No Salary with a bonus found.");
                 return ResponseStructure.errorResponse(null, 404, "No Salary with a bonus found.");
             }
-            logger.info("Salary with highest bonus found. Driver: {}, Bonus: {}",
-                    salary.getDriver().getUsername(),
-                    salary.getBonus());
 
-            return ResponseStructure.successResponse(salary, "Salary with highest bonus found");
+            Salary highestBonusSalary = salaryList.get(0);
+            logger.info("Salary with highest bonus found. Driver: {}, Bonus: {}",
+                    highestBonusSalary.getDriver().getUsername(),
+                    highestBonusSalary.getBonus());
+
+            return ResponseStructure.successResponse(highestBonusSalary, "Salary with highest bonus found");
         } catch (Exception e) {
             logger.error("Error fetching Salary with highest bonus", e);
             return ResponseStructure.errorResponse(null, 500, "Error fetching salary with highest bonus: " + e.getMessage());
         }
     }
+
 
 
     public ResponseEntity<ResponseStructure<Object>> searchByVehicleNumber(String vehicleNumber) {

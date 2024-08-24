@@ -55,6 +55,7 @@ public class Salary {
 
     private String status;
 
+
     @ManyToOne
     @JoinColumn
     private Driver driver;

@@ -41,7 +41,7 @@ public class SalaryDao {
         return salaryRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
 
-    public Salary findHighestBonus() {
+    public List<Salary> findHighestBonus() {
         return salaryRepository.findHighestBonus();
     }
 

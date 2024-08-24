@@ -444,5 +444,4 @@ public class TamService {
             throw new RuntimeException("Error fetching sum for yesterday: " + e.getMessage(), e);
         }
     }
-
 }

@@ -394,7 +394,6 @@ public class ReportService {
         return totalAmounts;
     }
 
-
     public ResponseEntity<ResponseStructure<List<Payment>>> findPaymentsByDriverUsernameContaining(String username) {
         ResponseStructure<List<Payment>> responseStructure = new ResponseStructure<>();
 

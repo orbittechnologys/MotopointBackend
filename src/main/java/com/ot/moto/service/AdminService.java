@@ -24,8 +24,6 @@ import java.util.Optional;
 @Service
 public class AdminService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AdminService.class);
-
     @Autowired
     private PasswordEncoder encoder;
 
@@ -34,6 +32,8 @@ public class AdminService {
 
     @Autowired
     private UserDao userDao;
+
+    private static final Logger logger = LoggerFactory.getLogger(AdminService.class);
 
     public ResponseEntity<ResponseStructure<Object>> createAdmin(CreateAdminReq request) {
         try {
