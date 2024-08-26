@@ -13,12 +13,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -200,6 +202,33 @@ public class FleetService {
         } catch (Exception e) {
             logger.error("Error updating fleet", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<List<Fleet>>> searchFleetByVehicleNumber(String vehicleNumberSubstring) {
+        ResponseStructure responseStructure = new ResponseStructure();
+        try {
+            List<Fleet> fleets = fleetDao.findFleetsByVehicleNumber(vehicleNumberSubstring);
+
+            if (fleets.isEmpty()) {
+                logger.warn("No fleets found with vehicle number containing: {}", vehicleNumberSubstring);
+                responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
+                responseStructure.setMessage("No fleets found with vehicle number containing: " + vehicleNumberSubstring);
+                responseStructure.setData(null);
+                return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
+            }
+
+            logger.info("Fleets found with vehicle number containing: {}", vehicleNumberSubstring);
+            responseStructure.setStatus(HttpStatus.OK.value());
+            responseStructure.setMessage("Fleets found successfully");
+            responseStructure.setData(fleets);
+            return new ResponseEntity<>(responseStructure, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error searching for fleets by vehicle number", e);
+            responseStructure.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            responseStructure.setMessage(e.getMessage());
+            responseStructure.setData(null);
+            return new ResponseEntity<>(responseStructure, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

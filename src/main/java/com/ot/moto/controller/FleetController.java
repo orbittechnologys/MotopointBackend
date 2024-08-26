@@ -4,6 +4,7 @@ import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.AssignFleet;
 import com.ot.moto.dto.request.CreateFleetReq;
 import com.ot.moto.dto.request.UpdateFleetReq;
+import com.ot.moto.entity.Fleet;
 import com.ot.moto.service.FleetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -11,6 +12,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/fleet")
@@ -119,5 +122,16 @@ public class FleetController {
     public ResponseEntity<ResponseStructure<Object>> assignFleet(@RequestBody AssignFleet assignFleet) {
         return fleetService.assignFleet(assignFleet);
     }
-}
 
+    @Operation(summary = "Search Fleet by Vehicle Number", description = "Searches for fleets with vehicle number containing the specified substring, returns a list of Fleet objects.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Fleets found successfully"),
+            @ApiResponse(responseCode = "404", description = "No fleets found with the specified vehicle number substring"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/search")
+    public ResponseEntity<ResponseStructure<List<Fleet>>> searchFleetsByVehicleNumber(
+            @RequestParam String vehicleNumberSubstring) {
+        return fleetService.searchFleetByVehicleNumber(vehicleNumberSubstring);
+    }
+}

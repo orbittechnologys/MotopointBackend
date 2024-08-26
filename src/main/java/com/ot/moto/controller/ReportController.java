@@ -263,4 +263,25 @@ public class ReportController {
     public ResponseEntity<ResponseStructure<List<Payment>>> searchPaymentsByDriverNameAndPhone(@RequestParam String name) {
         return reportService.findPaymentsByDriverUsernameContaining(name);
     }
+
+    @Operation(summary = "Payments", description = "No Input, returns the Excel file for Payments Reports")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SUCCESS"),
+            @ApiResponse(responseCode = "404", description = "Report not found"),
+            @ApiResponse(responseCode = "500", description = "Failure occurred")
+    })
+    @GetMapping("/payment/download")
+    public ResponseEntity<InputStreamResource> downloadPaymentExcel() {
+        try {
+            ResponseEntity<InputStreamResource> responseEntity = reportService.generateExcelForPayments();
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                return responseEntity;
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

@@ -7,14 +7,21 @@ import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.PaymentRepository;
 import com.ot.moto.util.StringUtil;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -445,4 +452,58 @@ public class ReportService {
         responseStructure.setData(payments);
         return new ResponseEntity<>(responseStructure, HttpStatus.OK);
     }
+
+    public ResponseEntity<InputStreamResource> generateExcelForPayments() {
+        try {
+            List<Payment> paymentsList = paymentRepository.findAll();
+            if (paymentsList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Benefit Reports");
+
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {
+                    "ID", "Amount", "Description", "Type", "Date", "Driver Name", "Driver PhoneNumber"
+            };
+            for (int i = 0; i < headers.length; i++) {
+                headerRow.createCell(i).setCellValue(headers[i]);
+            }
+
+            int rowNum = 1;
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            for (Payment payment : paymentsList) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(payment.getId());
+                row.createCell(1).setCellValue(payment.getAmount());
+                row.createCell(2).setCellValue(payment.getDescription());
+                row.createCell(3).setCellValue(payment.getType());
+                row.createCell(4).setCellValue(payment.getDate() != null ? payment.getDate().format(formatter) : "");
+                row.createCell(5).setCellValue(payment.getDriver() != null ? payment.getDriver().getUsername() : "");
+                row.createCell(6).setCellValue(payment.getDriver() != null ? payment.getDriver().getPhone() : "");
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
+
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers1 = new HttpHeaders();
+            headers1.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=payments.xlsx");
+            headers1.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers1)
+                    .contentLength(outputStream.size())
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(resource);
+
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 }

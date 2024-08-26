@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface FleetRepository extends JpaRepository<Fleet, Long> {
 
     public Fleet findByVehicleNumber(String vehicleNumber);
@@ -14,4 +16,6 @@ public interface FleetRepository extends JpaRepository<Fleet, Long> {
 
     @Query("SELECT COUNT(f) FROM Fleet f WHERE f.vehicleType = :vehicleType")
     public long countByVehicleType(@Param("vehicleType") Fleet.VEHICLE_TYPE vehicleType);
+
+    public List<Fleet> findByVehicleNumberContaining(String substring);
 }
