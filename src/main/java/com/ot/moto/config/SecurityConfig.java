@@ -128,7 +128,9 @@ public class SecurityConfig {
             "/order/download-csv",
             "/order/findByNameContaining",
             "/order/totalOrders",
-            "/order/highestOrders"
+            "/order/highestOrders",
+            "/fleet/search",
+            "/report/payment/download"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create", "/staff/update",
