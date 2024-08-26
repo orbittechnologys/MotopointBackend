@@ -56,4 +56,8 @@ public class OrderDao {
     public List<Object[]> getDriverAttendanceForCurrentMonth() {
         return ordersRepository.findDriverAttendanceForCurrentMonth(LocalDate.now());
     }
+
+    public List<Orders> findByDriverNameContaining(String letter) {
+        return ordersRepository.findByDriverNameContaining(letter);
+    }
 }

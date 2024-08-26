@@ -1,10 +1,6 @@
 package com.ot.moto.entity;
 
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
@@ -19,7 +15,7 @@ public class Summary {
 
     private Long deliveries;
 
-    private Long Salary;
+    private Double salary;
 
     private Double bonus;
 
@@ -28,4 +24,8 @@ public class Summary {
     private Double paidByTam;
 
     private Double profit;
+
+    @ManyToOne
+    @JoinColumn(name = "driver_id")
+    private Driver driver;
 }

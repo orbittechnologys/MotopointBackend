@@ -2,16 +2,13 @@ package com.ot.moto.repository;
 
 import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Orders;
-import jakarta.persistence.criteria.Order;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,5 +43,7 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     @Query("SELECT o.driver, COUNT(DISTINCT o.date) FROM Orders o WHERE MONTH(o.date) = MONTH(?1) AND YEAR(o.date) = YEAR(?1) GROUP BY o.driver")
     public List<Object[]> findDriverAttendanceForCurrentMonth(LocalDate date);
 
+    public List<Orders> findByDriverNameContaining(String letter);
 
+    public Long countByDriver(Driver driver);
 }

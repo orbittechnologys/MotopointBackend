@@ -109,33 +109,49 @@ public class ReportService {
             for (int i = rowStart; i <= rowEnd; i++) {
                 Row row = sheet.getRow(i);
 
-                String cellDate = row.getCell(0).toString();
-                System.out.println(cellDate);
-                String cellDriverName = row.getCell(1).toString();
-                String cellNoOfS1 = row.getCell(2).toString();
-                String cellNoOfS2 = row.getCell(3).toString();
-                String cellNoOfS3 = row.getCell(4).toString();
-                String cellNoOfS4 = row.getCell(5).toString();
-                String cellNoOfS5 = row.getCell(6).toString();
-                String cellDeliveries = row.getCell(7).toString();
-                String cellCodAmount = row.getCell(8).toString();
-                String cellCredit = row.getCell(9).toString();
-                String cellDebit = row.getCell(10).toString();
-
-
-                LocalDate cellLocalDate = LocalDate.parse(cellDate, formatter);
-                Orders orders = orderDao.checkOrderValid(cellDriverName, cellLocalDate);
-                if (Objects.nonNull(orders)) {
-                    logger.info("Entry not valid for :" + cellDriverName + "," + cellDate);
+                if (row == null) {
+                    logger.warn("Skipping null row at index: " + i);
                     continue;
                 }
-                orders = buildOrdersFromCellData(cellLocalDate, cellDriverName, StringUtil.getLong(cellNoOfS1),
-                        StringUtil.getLong(cellNoOfS2), StringUtil.getLong(cellNoOfS3), StringUtil.getLong(cellNoOfS4),
-                        StringUtil.getLong(cellNoOfS5), StringUtil.getLong(cellDeliveries), Double.parseDouble(cellCodAmount),
-                        Double.parseDouble(cellCredit), Double.parseDouble(cellDebit));
-                if (Objects.nonNull(orders)) {
-                    logger.info("Saving order  :" + orders.getDriverName() + "," + orders.getDate().toString());
-                    ordersList.add(orders);
+
+                // Check if the cell is empty before parsing
+                Cell dateCell = row.getCell(0);
+                if (dateCell == null || dateCell.toString().trim().isEmpty()) {
+                    logger.warn("Empty date cell at row index: " + i);
+                    continue; // Skip this row if the date is missing
+                }
+
+                String cellDate = dateCell.toString().trim();
+                String cellDriverName = row.getCell(1).toString().trim();
+                String cellNoOfS1 = row.getCell(2).toString().trim();
+                String cellNoOfS2 = row.getCell(3).toString().trim();
+                String cellNoOfS3 = row.getCell(4).toString().trim();
+                String cellNoOfS4 = row.getCell(5).toString().trim();
+                String cellNoOfS5 = row.getCell(6).toString().trim();
+                String cellDeliveries = row.getCell(7).toString().trim();
+                String cellCodAmount = row.getCell(8).toString().trim();
+                String cellCredit = row.getCell(9).toString().trim();
+                String cellDebit = row.getCell(10).toString().trim();
+
+                try {
+                    LocalDate cellLocalDate = LocalDate.parse(cellDate, formatter);
+                    Orders orders = orderDao.checkOrderValid(cellDriverName, cellLocalDate);
+                    if (Objects.nonNull(orders)) {
+                        logger.info("Entry not valid for: " + cellDriverName + ", " + cellDate);
+                        continue;
+                    }
+                    orders = buildOrdersFromCellData(cellLocalDate, cellDriverName, StringUtil.getLong(cellNoOfS1),
+                            StringUtil.getLong(cellNoOfS2), StringUtil.getLong(cellNoOfS3), StringUtil.getLong(cellNoOfS4),
+                            StringUtil.getLong(cellNoOfS5), StringUtil.getLong(cellDeliveries), Double.parseDouble(cellCodAmount),
+                            Double.parseDouble(cellCredit), Double.parseDouble(cellDebit));
+                    if (Objects.nonNull(orders)) {
+                        logger.info("Saving order: " + orders.getDriverName() + ", " + orders.getDate().toString());
+                        ordersList.add(orders);
+                    }
+                } catch (Exception e) {
+                    logger.error("Error processing row at index: " + i + " with date: " + cellDate, e);
+                    // Optionally continue processing other rows even if this one fails
+                    continue;
                 }
             }
 

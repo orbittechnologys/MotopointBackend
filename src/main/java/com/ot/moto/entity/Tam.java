@@ -1,12 +1,12 @@
 package com.ot.moto.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.ot.moto.service.SummaryService;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
@@ -57,4 +57,9 @@ public class Tam {
     private String driverCompanyJahezId;
     private Long mobileNumber;
     private String driverName;
+
+    @ManyToOne
+    @JoinColumn(name = "driver_id")
+    private Driver driver;
+
 }

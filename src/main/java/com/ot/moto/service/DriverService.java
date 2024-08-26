@@ -10,9 +10,11 @@ import com.ot.moto.dto.request.UpdateDriverReq;
 import com.ot.moto.dto.response.DriverDetails;
 import com.ot.moto.dto.response.TopDrivers;
 import com.ot.moto.entity.Driver;
+import com.ot.moto.entity.Summary;
 import com.ot.moto.entity.User;
 import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.OrdersRepository;
+import com.ot.moto.repository.SummaryRepository;
 import com.ot.moto.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +57,9 @@ public class DriverService {
     @Autowired
     private DriverRepository driverRepository;
 
+    @Autowired
+    private SummaryService summaryService;
+
     public ResponseEntity<ResponseStructure<Object>> createDriver(CreateDriverReq request) {
         try {
             if (userDao.checkUserExists(request.getEmail(), request.getPhone())) {
@@ -65,6 +70,8 @@ public class DriverService {
             driverDao.createDriver(driver);
             logger.info("Driver created successfully: {}", driver.getId());
 
+            // Update or create summary
+            summaryService.updateSummary(driver);
             return ResponseStructure.successResponse(driver, "Driver created successfully");
 
         } catch (Exception e) {
@@ -493,5 +500,4 @@ public class DriverService {
             return response;
         }
     }
-
 }

@@ -27,4 +27,10 @@ public interface SalaryRepository extends JpaRepository<Salary, Long> {
 
     @Query("SELECT SUM(s.totalEarnings) FROM Salary s WHERE s.status = 'NOT_SETTLED'")
     public Double sumOfNotSettledSalaries();
+
+    public Optional<Salary> findByDriverId(Long driverId);
+
+    public Optional<Salary> findFirstByDriverIdOrderByYearDescMonthDesc(Long driverId);
+
+    public Optional<Salary> findTopByDriverOrderByYearDescMonthDesc(Driver driver);
 }

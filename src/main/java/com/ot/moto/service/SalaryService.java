@@ -54,7 +54,6 @@ public class SalaryService {
         }
     }
 
-
     public ResponseEntity<ResponseStructure<Object>> getAll(int page, int size, String field) {
         try {
 
@@ -69,7 +68,6 @@ public class SalaryService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
-
 
     public ResponseEntity<ResponseStructure<Object>> HighestBonus() {
         try {
@@ -96,7 +94,6 @@ public class SalaryService {
         }
     }
 
-
     public ResponseEntity<ResponseStructure<Object>> searchByVehicleNumber(String vehicleNumber) {
         try {
             List<Salary> salaries = salaryRepository.findSalariesByVehicleNumber(vehicleNumber);
@@ -111,7 +108,6 @@ public class SalaryService {
             return ResponseStructure.errorResponse(null, 500, "Error fetching salary records: " + e.getMessage());
         }
     }
-
 
     public ResponseEntity<InputStreamResource> generateExcelForSalary() {
         try {
@@ -182,7 +178,6 @@ public class SalaryService {
         }
     }
 
-
     public ResponseEntity<ResponseStructure<Object>> getSumOfNotSettledSalaries() {
         try {
             Double totalNotSettledSalaries = salaryDao.getSumOfNotSettledSalaries();
@@ -200,7 +195,6 @@ public class SalaryService {
             return ResponseStructure.errorResponse(null, 500, "Error calculating sum of not settled salaries: " + e.getMessage());
         }
     }
-
 
     public ResponseEntity<ResponseStructure<Object>> getSumOfSettledSalaries() {
         try {

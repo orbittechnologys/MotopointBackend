@@ -1,9 +1,7 @@
 package com.ot.moto.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -84,4 +82,5 @@ public class Driver extends User {
     @OneToMany(mappedBy = "driver")
     @JsonBackReference("driver")
     private List<Orders> orders;
+
 }

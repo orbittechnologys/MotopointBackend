@@ -1,14 +1,17 @@
 package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
-import com.ot.moto.dto.request.UpdateFleetReq;
+import com.ot.moto.entity.Orders;
 import com.ot.moto.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/order")
@@ -52,5 +55,18 @@ public class OrderController {
         return orderService.findAll(page, size, field);
     }
 
+    @GetMapping("/download-csv")
+    public ResponseEntity<InputStreamResource> downloadOrdersCsv() {
+        return orderService.generateCsvForOrders();
+    }
 
+    @Operation(summary = "Get the Orders of driver  ", description = "Returns List of Orders Objects")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "driver Found"),
+            @ApiResponse(responseCode = "404", description = "No drivers Found")
+    })
+    @GetMapping(value = "/findByNameContaining")
+    public ResponseEntity<ResponseStructure<List<Orders>>> findByDriverNameContaning(@RequestParam String letter) {
+        return orderService.findByDriverNameContaining(letter);
+    }
 }

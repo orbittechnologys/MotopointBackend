@@ -44,6 +44,9 @@ public class TamService {
     @Autowired
     private DriverRepository driverRepository;
 
+    @Autowired
+    private SummaryService summaryService;
+
     private static final Logger logger = LoggerFactory.getLogger(TamService.class);
 
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); // Adjust pattern as needed
@@ -73,6 +76,13 @@ public class TamService {
                     logger.info("Saving Tam record: " + tam.getDriverName() + " at time: " + tam.getDateTime());
                     deductAmountPending(tam.getMobileNumber(), tam.getPayInAmount());
                     tamList.add(tam);
+
+                    Driver driver = driverRepository.findByPhone(String.valueOf(tam.getMobileNumber()));
+
+                    if (driver != null) {
+                        summaryService.updateSummary(driver);
+                    }
+
                 } else {
                     logger.warn("Invalid or failed to parse row " + i + ", skipping...");
                 }

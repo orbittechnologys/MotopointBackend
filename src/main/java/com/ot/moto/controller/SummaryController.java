@@ -48,4 +48,37 @@ public class SummaryController {
     public ResponseEntity<InputStreamResource> downloadExcelForSummary() {
         return summaryService.generateExcelForSummary();
     }
+
+
+    @Operation(summary = "Get total 'payToJahez'", description = "Returns the total 'payToJahez' value")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Total 'payToJahez' retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Error fetching total 'payToJahez'")
+    })
+    @GetMapping("/totalPayToJahez")
+    public ResponseEntity<ResponseStructure<Object>> getTotalPayToJahez() {
+        return summaryService.getTotalPayToJahez();
+    }
+
+
+    @Operation(summary = "Get total 'salaryPaid'", description = "Returns the total 'salaryPaid' value")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Total 'salaryPaid' retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Error fetching total 'salaryPaid'")
+    })
+    @GetMapping("/totalSalaryPaid")
+    public ResponseEntity<ResponseStructure<Object>> getTotalSalaryPaid() {
+        return summaryService.getTotalSalaryPaid();
+    }
+
+
+    @Operation(summary = "Get total 'profit'", description = "Returns the total 'profit' value")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Total 'profit' retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Error fetching total 'profit'")
+    })
+    @GetMapping("/totalProfit")
+    public ResponseEntity<ResponseStructure<Object>> getTotalProfit() {
+        return summaryService.getTotalProfit();
+    }
 }

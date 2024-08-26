@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 @Data
 public class CreateDriverReq {
+
     private String jahezId;
 
     private String email;

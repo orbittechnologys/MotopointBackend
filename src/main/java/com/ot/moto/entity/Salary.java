@@ -1,7 +1,10 @@
 package com.ot.moto.entity;
 
+import com.ot.moto.service.SummaryService;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Entity
 @Data
@@ -54,7 +57,6 @@ public class Salary {
     private Double incentives;
 
     private String status;
-
 
     @ManyToOne
     @JoinColumn
