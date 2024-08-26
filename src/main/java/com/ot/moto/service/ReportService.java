@@ -413,7 +413,7 @@ public class ReportService {
     public ResponseEntity<ResponseStructure<List<Payment>>> findPaymentsByDriverUsernameContaining(String username) {
         ResponseStructure<List<Payment>> responseStructure = new ResponseStructure<>();
 
-        Optional<Driver> driverOpt = driverRepository.findByNameIgnoreCase(username);
+       /* Optional<Driver> driverOpt = driverRepository.findByNameIgnoreCase(username);
         if (driverOpt.isEmpty()) {
             responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
             responseStructure.setMessage("Driver not found.");
@@ -421,11 +421,11 @@ public class ReportService {
             return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
         }
 
-        String driverPhoneNumber = driverOpt.get().getPhone();
+        String driverPhoneNumber = driverOpt.get().getPhone();*/
 
         List<Payment> payments = paymentRepository.findPaymentsByDriverNameContaining(username);
 
-        Pattern phonePattern = Pattern.compile("/PHONE/(\\d+)-");
+        /*Pattern phonePattern = Pattern.compile("/PHONE/(\\d+)-");
         List<Payment> filteredPayments = payments.stream()
                 .filter(payment -> {
                     Matcher matcher = phonePattern.matcher(payment.getDescription());
@@ -438,11 +438,11 @@ public class ReportService {
             responseStructure.setMessage("No payments found with the matching phone number in the description.");
             responseStructure.setData(null);
             return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
-        }
+        }*/
 
         responseStructure.setStatus(HttpStatus.OK.value());
         responseStructure.setMessage("Payments retrieved successfully.");
-        responseStructure.setData(filteredPayments);
+        responseStructure.setData(payments);
         return new ResponseEntity<>(responseStructure, HttpStatus.OK);
     }
 }
