@@ -22,7 +22,7 @@ public interface SalaryRepository extends JpaRepository<Salary, Long> {
 
 
     @Query("SELECT SUM(s.totalEarnings) FROM Salary s WHERE s.status = 'SETTLED'")
-    public List<Double> sumOfSettledSalaries();
+    public Double sumOfSettledSalaries();
 
 
     @Query("SELECT SUM(s.totalEarnings) FROM Salary s WHERE s.status = 'NOT_SETTLED'")

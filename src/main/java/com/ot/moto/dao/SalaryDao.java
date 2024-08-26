@@ -45,7 +45,7 @@ public class SalaryDao {
         return salaryRepository.findHighestBonus();
     }
 
-    public List<Double> getSumOfSettledSalaries() {
+    public Double getSumOfSettledSalaries() {
         return salaryRepository.sumOfSettledSalaries();
     }
 
