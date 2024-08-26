@@ -201,12 +201,12 @@ public class OrderService {
         }
     }
 
-
     public ResponseEntity<ResponseStructure<Object>> getTopDriverWithHighestLifetimeOrders() {
         try {
             List<Object[]> results = orderDao.findDriverWithHighestTotalOrders();
 
             if (results.isEmpty()) {
+                logger.warn("No driver data available.");
                 return ResponseStructure.errorResponse(null, 404, "No driver data available.");
             }
 
@@ -215,10 +215,11 @@ public class OrderService {
             String driverName = (String) topDriver[1];
             Long totalOrders = (Long) topDriver[2];
 
-            Driver driver = driverDao.findByNameIgnoreCase(driverName);
+            Driver driver = driverDao.getById(driverId);
 
             if (driver == null) {
-                return ResponseStructure.errorResponse(null, 404, "The driver with name " + driverName + " does not exist in the system.");
+                logger.warn("The driver with ID " + driverId + " does not exist in the system.");
+                return ResponseStructure.errorResponse(null, 404, "The driver with ID " + driverId + " does not exist in the system.");
             }
 
             Map<String, Object> responseData = new HashMap<>();
@@ -227,8 +228,10 @@ public class OrderService {
             responseData.put("totalOrders", totalOrders);
             responseData.put("profilePic", driver.getProfilePic());
 
+            logger.info("Top driver with the highest lifetime orders retrieved successfully.");
             return ResponseStructure.successResponse(responseData, "Top driver with the highest lifetime orders retrieved successfully.");
         } catch (Exception e) {
+            logger.error("Error fetching the top driver: {}", e.getMessage(), e);
             return ResponseStructure.errorResponse(null, 500, "Error fetching the top driver: " + e.getMessage());
         }
     }
