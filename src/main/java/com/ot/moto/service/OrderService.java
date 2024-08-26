@@ -1,8 +1,10 @@
 package com.ot.moto.service;
 
 import com.opencsv.CSVWriter;
+import com.ot.moto.dao.DriverDao;
 import com.ot.moto.dao.OrderDao;
 import com.ot.moto.dto.ResponseStructure;
+import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Orders;
 import com.ot.moto.repository.OrdersRepository;
 import org.slf4j.Logger;
@@ -21,7 +23,9 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class OrderService {
@@ -31,6 +35,9 @@ public class OrderService {
 
     @Autowired
     private OrdersRepository ordersRepository;
+
+    @Autowired
+    private DriverDao driverDao;
 
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
@@ -48,7 +55,6 @@ public class OrderService {
             return ResponseStructure.errorResponse(null, 500, "Error fetching order count for yesterday: " + e.getMessage());
         }
     }
-
 
     public ResponseEntity<ResponseStructure<Object>> getTotalOrdersForMonth(int year, int month) {
         LocalDate startOfMonth = LocalDate.of(year, month, 1);
@@ -156,5 +162,75 @@ public class OrderService {
         }
     }
 
+    public ResponseEntity<ResponseStructure<Object>> getTotalOrdersForAllDrivers() {
+        try {
+            List<Object[]> results = ordersRepository.findTotalOrdersForAllDrivers();
+
+            if (results.isEmpty()) {
+                logger.warn("No data available for total orders of drivers.");
+                return ResponseStructure.errorResponse(null, 404, "No data available for total orders of drivers.");
+            }
+
+            Map<String, Object> responseData = new HashMap<>();
+            for (Object[] result : results) {
+                Long driverId = (Long) result[0];
+                String driverName = (String) result[1];
+                String profilePic = (String) result[2];
+                Long totalOrders = (Long) result[3];
+
+                Map<String, Object> driverData = new HashMap<>();
+                driverData.put("driverId", driverId);
+                driverData.put("driverName", driverName);
+                driverData.put("profilePic", profilePic);
+                driverData.put("totalOrders", totalOrders);
+
+                responseData.put(driverId.toString(), driverData);
+            }
+
+            if (responseData.isEmpty()) {
+                logger.warn("No drivers found in the system.");
+                return ResponseStructure.errorResponse(null, 404, "No drivers found in the system.");
+            }
+
+            logger.info("Total orders for all drivers retrieved successfully.");
+            return ResponseStructure.successResponse(responseData, "Total orders for all drivers retrieved successfully.");
+
+        } catch (Exception e) {
+            logger.error("Error fetching total orders for all drivers: {}", e.getMessage(), e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching total orders for all drivers: " + e.getMessage());
+        }
+    }
+
+
+    public ResponseEntity<ResponseStructure<Object>> getTopDriverWithHighestLifetimeOrders() {
+        try {
+            List<Object[]> results = orderDao.findDriverWithHighestTotalOrders();
+
+            if (results.isEmpty()) {
+                return ResponseStructure.errorResponse(null, 404, "No driver data available.");
+            }
+
+            Object[] topDriver = results.get(0);
+            Long driverId = (Long) topDriver[0];
+            String driverName = (String) topDriver[1];
+            Long totalOrders = (Long) topDriver[2];
+
+            Driver driver = driverDao.findByNameIgnoreCase(driverName);
+
+            if (driver == null) {
+                return ResponseStructure.errorResponse(null, 404, "The driver with name " + driverName + " does not exist in the system.");
+            }
+
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("driverId", driverId);
+            responseData.put("driverName", driverName);
+            responseData.put("totalOrders", totalOrders);
+            responseData.put("profilePic", driver.getProfilePic());
+
+            return ResponseStructure.successResponse(responseData, "Top driver with the highest lifetime orders retrieved successfully.");
+        } catch (Exception e) {
+            return ResponseStructure.errorResponse(null, 500, "Error fetching the top driver: " + e.getMessage());
+        }
+    }
 
 }

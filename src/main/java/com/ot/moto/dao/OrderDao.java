@@ -60,4 +60,12 @@ public class OrderDao {
     public List<Orders> findByDriverNameContaining(String letter) {
         return ordersRepository.findByDriverNameContaining(letter);
     }
+
+    public List<Object[]> findTotalOrdersForAllDrivers() {
+        return ordersRepository.findTotalOrdersForAllDrivers();
+    }
+
+    public List<Object[]> findDriverWithHighestTotalOrders() {
+        return ordersRepository.findDriverWithHighestTotalOrders();
+    }
 }

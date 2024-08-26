@@ -46,4 +46,12 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     public List<Orders> findByDriverNameContaining(String letter);
 
     public Long countByDriver(Driver driver);
+
+    @Query("SELECT o.driver.id, o.driver.username, o.driver.profilePic, SUM(o.totalOrders) " +
+            "FROM Orders o " +
+            "GROUP BY o.driver.id, o.driver.username, o.driver.profilePic")
+    public List<Object[]> findTotalOrdersForAllDrivers();
+
+    @Query("SELECT o.driver, SUM(o.totalOrders) AS totalOrders FROM Orders o GROUP BY o.driver ORDER BY totalOrders DESC")
+    public List<Object[]> findDriverWithHighestTotalOrders();
 }

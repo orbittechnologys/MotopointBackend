@@ -1,6 +1,7 @@
 package com.ot.moto.service;
 
 import com.ot.moto.dao.DriverDao;
+import com.ot.moto.dao.OrderDao;
 import com.ot.moto.dao.OrgReportsDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.entity.Driver;
@@ -39,6 +40,10 @@ public class OrgReportService {
 
     @Autowired
     private DriverDao driverDao;
+
+    @Autowired
+    private OrderDao orderDao;
+
 
     private static final Logger logger = LoggerFactory.getLogger(OrgReportService.class);
 
@@ -208,7 +213,6 @@ public class OrgReportService {
             return null;
         }
     }
-
 
     public ResponseEntity<ResponseStructure<Object>> getAllOrg(int page, int size, String field) {
         try {
@@ -385,4 +389,5 @@ public class OrgReportService {
             return ResponseStructure.errorResponse(null, 500, "Error fetching the top driver: " + e.getMessage());
         }
     }
+
 }

@@ -69,4 +69,19 @@ public class OrderController {
     public ResponseEntity<ResponseStructure<List<Orders>>> findByNameContaning(@RequestParam String letter) {
         return orderService.findByDriverNameContaining(letter);
     }
+
+    @GetMapping(value = "/totalOrders")
+    public ResponseEntity<ResponseStructure<Object>> getTotalOrdersForAllDrivers(){
+        return orderService.getTotalOrdersForAllDrivers();
+    }
+
+    @Operation(summary = "Get the Orders of driver  ", description = "Returns List of Orders Objects")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "driver Found"),
+            @ApiResponse(responseCode = "404", description = "No drivers Found")
+    })
+    @GetMapping("/highestOrders")
+    public ResponseEntity<ResponseStructure<Object>> getTopDriverWithHighestLifetimeOrders() {
+        return orderService.getTopDriverWithHighestLifetimeOrders();
+    }
 }
