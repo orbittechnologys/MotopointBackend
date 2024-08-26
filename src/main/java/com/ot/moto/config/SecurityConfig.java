@@ -124,7 +124,9 @@ public class SecurityConfig {
             "/staff/create",
             "/summary/totalPayToJahez",
             "/summary/totalProfit",
-            "/summary/totalSalaryPaid"
+            "/summary/totalSalaryPaid",
+            "/order/download-csv",
+            "/order/findByNameContaining"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create", "/staff/update",

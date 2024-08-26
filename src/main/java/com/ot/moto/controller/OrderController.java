@@ -66,7 +66,7 @@ public class OrderController {
             @ApiResponse(responseCode = "404", description = "No drivers Found")
     })
     @GetMapping(value = "/findByNameContaining")
-    public ResponseEntity<ResponseStructure<List<Orders>>> findByDriverNameContaning(@RequestParam String letter) {
+    public ResponseEntity<ResponseStructure<List<Orders>>> findByNameContaning(@RequestParam String letter) {
         return orderService.findByDriverNameContaining(letter);
     }
 }
