@@ -194,7 +194,7 @@ public class ReportService {
         orders.setDriver(driver);
 
         addDriverDeliveries(codAmount, deliveries, driver);
-        createSalaryFromOrders(orders);
+        createSalaryFromOrders(orders, driver);
 
         return orders;
     }
@@ -207,7 +207,7 @@ public class ReportService {
         return driverDao.createDriver(driver);
     }
 
-    public Salary createSalaryFromOrders(Orders orders) {
+    public Salary createSalaryFromOrders(Orders orders, Driver driver) {
         LocalDate localDate = orders.getDate();
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
@@ -248,7 +248,6 @@ public class ReportService {
                     + salary.getS4Earnings() + salary.getS5Earnings());
 
             /*Add Driver Salary */
-            Driver driver = driverDao.getById(orders.getDriver().getId());
             driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
                     + salary.getS4Earnings() + salary.getS5Earnings());
             Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() +
