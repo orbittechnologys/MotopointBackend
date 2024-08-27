@@ -45,6 +45,3 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
     @Query("SELECT SUM(d.profit) FROM Driver d")
     public Double sumProfitForAllDrivers();
 }
-
-//@Query("SELECT SUM(d.paidByTam) FROM Driver d")
-//public Double sumPaidByTamForAllDrivers();

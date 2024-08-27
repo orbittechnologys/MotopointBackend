@@ -93,8 +93,3 @@ public class DriverDao {
         return Objects.isNull(sum) ? 0 : sum;
     }
 }
-
-//public Double sumPaidByTamForAllDrivers() {
-//    Double sum = driverRepository.sumPaidByTamForAllDrivers();
-//    return Objects.isNull(sum) ? 0 : sum;
-//}

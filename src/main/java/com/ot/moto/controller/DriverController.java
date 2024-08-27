@@ -5,12 +5,10 @@ import com.ot.moto.dto.request.CreateDriverReq;
 import com.ot.moto.dto.request.UpdateDriverReq;
 import com.ot.moto.dto.response.DriverDetails;
 import com.ot.moto.entity.Driver;
-import com.ot.moto.entity.User;
 import com.ot.moto.service.DriverService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.hibernate.type.descriptor.java.ObjectJavaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -59,8 +57,8 @@ public class DriverController {
             @ApiResponse(responseCode = "404", description = "Driver Not Found")})
     @GetMapping("/getAll")
     public ResponseEntity<ResponseStructure<Object>> getAllDriver(@RequestParam(defaultValue = "0") int page,
-                                                                 @RequestParam(defaultValue = "10") int size,
-                                                                 @RequestParam(defaultValue = "id") String field) {
+                                                                  @RequestParam(defaultValue = "10") int size,
+                                                                  @RequestParam(defaultValue = "id") String field) {
         return driverService.getAllDriver(page, size, field);
     }
 
@@ -126,9 +124,9 @@ public class DriverController {
             @ApiResponse(responseCode = "200", description = "Total pay to jahez Found "),
             @ApiResponse(responseCode = "404", description = "Total pay to jahez not Found")
     })
-    @GetMapping("/sum-payToJahez")
+    @GetMapping("/summary/sum-payToJahez")
     public ResponseEntity<ResponseStructure<Object>> getSumPayToJahezForAllDrivers() {
-        return  driverService.getSumPayToJahezForAllDrivers();
+        return driverService.getSumPayToJahezForAllDrivers();
     }
 
     @Operation(summary = "Get total profit  ", description = "Returns total amount of profit")
@@ -136,8 +134,16 @@ public class DriverController {
             @ApiResponse(responseCode = "200", description = "Total Profit Found "),
             @ApiResponse(responseCode = "404", description = "Total Profit Not Found")
     })
-    @GetMapping("/total-profit")
+    @GetMapping("/summary/total-profit")
     public ResponseEntity<ResponseStructure<Object>> getSumProfitForAllDrivers() {
-        return  driverService.getSumProfitForAllDrivers();
+        return driverService.getSumProfitForAllDrivers();
+    }
+
+    @Operation(summary = "csv download for summary ", description = "returns csv file of summary")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "csv downloaded"),
+            @ApiResponse(responseCode = "404", description = "csv not downloaded")})
+    @GetMapping("/summary/download-csv")
+    public ResponseEntity<InputStreamResource> generateCsvForDriversForSummary() {
+        return driverService.generateCsvForDriversForSummary();
     }
 }

@@ -14,6 +14,11 @@ import com.ot.moto.entity.User;
 import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.OrdersRepository;
 import com.ot.moto.util.StringUtil;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +32,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.time.LocalDate;
 import java.util.*;
@@ -518,17 +525,56 @@ public class DriverService {
             return ResponseStructure.errorResponse(null, 500, "Internal server error.");
         }
     }
-}
 
-//    public ResponseEntity<ResponseStructure<Object>> getSumPaidByTamForAllDrivers() {
-//        try {
-//            Double amount = driverDao.sumPaidByTamForAllDrivers();
-//            Double result = (amount == null) ? 0 : amount;
-//
-//            logger.info("Successfully retrieved sumPaidByTam for all drivers: {}", result);
-//            return ResponseStructure.successResponse(result, "Sum retrieved successfully.");
-//        } catch (Exception e) {
-//            logger.error("Error while fetching sumPaidByTam for all drivers.", e);
-//            return ResponseStructure.errorResponse(null, 500, "Internal server error.");
-//        }
-//    }
+    public ResponseEntity<InputStreamResource> generateCsvForDriversForSummary() {
+        try {
+            List<Driver> allDrivers = driverRepository.findAll();
+            if (allDrivers.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            // Create an output stream
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            OutputStreamWriter writer = new OutputStreamWriter(outputStream);
+            CSVWriter csvWriter = new CSVWriter(writer);
+
+            // Define the header
+            String[] header = {"Driver Name", "Deliveries", "Salary", "Bonus", "Pay To Jahez", "Paid By Tam", "Profit"};
+            csvWriter.writeNext(header);
+
+            // Populate the data rows
+            for (Driver driver : allDrivers) {
+                String[] data = {
+                        driver.getUsername(), // Accessing username from the User superclass
+                        driver.getOrders() != null ? String.valueOf(driver.getOrders().size()) : "0", // Assuming deliveries means the number of orders
+                        driver.getSalaryAmount() != null ? String.valueOf(driver.getSalaryAmount()) : "0",
+                        driver.getBonus() != null ? String.valueOf(driver.getBonus()) : "0",
+                        driver.getPayToJahez() != null ? String.valueOf(driver.getPayToJahez()) : "0",
+                        driver.getPaidByTam() != null ? String.valueOf(driver.getPaidByTam()) : "0",
+                        driver.getProfit() != null ? String.valueOf(driver.getProfit()) : "0"
+                };
+                csvWriter.writeNext(data);
+            }
+
+            // Close the writer
+            csvWriter.close();
+            writer.close();
+
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=drivers.csv");
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(outputStream.toByteArray().length)
+                    .contentType(MediaType.parseMediaType("text/csv"))
+                    .body(resource);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+}
