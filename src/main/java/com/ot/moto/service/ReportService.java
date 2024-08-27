@@ -255,7 +255,7 @@ public class ReportService {
                     s3Master.getJahezPaid() * salary.getNoOfS3() +
                     s4Master.getJahezPaid() * salary.getNoOfS4() +
                     s5Master.getJahezPaid() * salary.getNoOfS5();
-            driver.setProfit(driver.getProfit() + jahezAmount - driver.getSalaryAmount());
+            driver.setProfit(Optional.ofNullable(driver.getProfit()).orElse(0.0) + jahezAmount - driver.getSalaryAmount());
             driverDao.createDriver(driver);
 
             salary.setTotalDeductions(0.0);

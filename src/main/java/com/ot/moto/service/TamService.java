@@ -31,6 +31,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class TamService {
@@ -269,7 +270,7 @@ public class TamService {
     private void deductAmountPending(long mobileNumber, double amount) {
         Driver driver = driverRepository.findByPhone(String.valueOf(mobileNumber));
         if (Objects.nonNull(driver)) {
-            driver.setPaidByTam(driver.getPaidByTam() + amount);
+            driver.setPaidByTam(Optional.ofNullable(driver.getPaidByTam()).orElse(0.0) + amount);
             driver.setPayToJahez(driver.getCodAmount() - amount);
             driver.setAmountPending(driver.getAmountPending() - amount);
             driverRepository.save(driver);
