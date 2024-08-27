@@ -131,8 +131,8 @@ public class SecurityConfig {
             "/order/highestOrders",
             "/fleet/search",
             "/report/payment/download",
-            "/driver/sum-payToJahez",
-            "/driver/total-profit",
+            "/driver/summary/sum-payToJahez",
+            "/driver/summary/total-profit",
             "/driver/summary/download-csv",
             "/driver/getAll"
     };
