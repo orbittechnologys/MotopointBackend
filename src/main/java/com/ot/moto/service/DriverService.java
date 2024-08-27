@@ -318,7 +318,6 @@ public class DriverService {
         return new DriverDetails(totalDrivers, attendanceCount, ridersCount, driversCount, visaTypeCount, flexiCount);
     }
 
-
     public ResponseEntity<ResponseStructure<Object>> deleteDriver(Long driverId) {
         try {
             Driver driver = driverDao.getById(driverId);
