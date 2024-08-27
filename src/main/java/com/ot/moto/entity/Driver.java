@@ -14,9 +14,9 @@ public class Driver extends User {
         super.setRole("ROLE_DRIVER");
     }
 
-    private double amountPending;
+    private Double amountPending;
 
-    private double amountReceived;
+    private Double amountReceived;
 
     private Long totalOrders;
 
@@ -26,7 +26,7 @@ public class Driver extends User {
 
     private LocalDate visaExpiryDate;
 
-    private double salaryAmount;
+    private Double salaryAmount;
 
     private String address;
 
@@ -63,6 +63,7 @@ public class Driver extends User {
     private String bankIbanNumber;
 
     private String bankBranch;
+
     private String bankBranchCode;
 
     private String bankSwiftCode;
@@ -74,6 +75,16 @@ public class Driver extends User {
     private String bankMobilePayNumber;
 
     private String passbookImageUrl;
+
+    private Double payToJahez;
+
+    private Double codAmount;
+
+    private Double bonus;
+
+    private Double paidByTam;
+
+    private Double profit;
 
     @OneToOne(mappedBy = "driver")
     @JsonBackReference("fleet")

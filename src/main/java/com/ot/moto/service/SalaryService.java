@@ -1,9 +1,11 @@
 package com.ot.moto.service;
 
+import com.ot.moto.dao.DriverDao;
 import com.ot.moto.dao.SalaryDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.SettleSalary;
 import com.ot.moto.dto.request.SettleSalariesReq;
+import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Salary;
 import com.ot.moto.repository.SalaryRepository;
 import jakarta.transaction.Transactional;
@@ -33,6 +35,9 @@ public class SalaryService {
 
     @Autowired
     private SalaryDao salaryDao;
+
+    @Autowired
+    private DriverDao driverDao;
 
     @Autowired
     private SalaryRepository salaryRepository;
@@ -252,6 +257,12 @@ public class SalaryService {
                     salary.setTotalDeductions(
                             (currentVisaCharges + visaCharges) + (currentOtherCharges + otherCharges)
                     );
+
+                    /*Set Driver Salary to Zero When Status is SETTLED*/
+                    Driver driver = driverDao.getById(salary.getDriver().getId());
+                    driver.setSalaryAmount(0.0);
+                    driver.setBonus(driver.getBonus() + sal.getBonus());
+                    driverDao.createDriver(driver);
 
                     settledSalaries.add(salary);
                 } else {

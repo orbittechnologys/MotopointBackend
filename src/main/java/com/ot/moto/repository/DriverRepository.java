@@ -16,28 +16,35 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
     public List<Driver> findByUsernameContaining(String username);
 
     @Query("SELECT d FROM Driver d WHERE LOWER(d.username) = LOWER(:username)")
-    Optional<Driver> findByNameIgnoreCase(@Param("username") String username);
+    public Optional<Driver> findByNameIgnoreCase(@Param("username") String username);
 
     @Query("SELECT COUNT(d) FROM Driver d WHERE d.visaType = 'FLEXI'")
-    long countFlexiVisa();
+    public long countFlexiVisa();
 
     @Query("SELECT COUNT(d) FROM Driver d WHERE d.visaType <> 'FLEXI'")
-    long countOtherVisaTypes();
+    public long countOtherVisaTypes();
 
     @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType = '2WHEELER'")
-    long countTwoWheelerRiders();
+    public long countTwoWheelerRiders();
 
     @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType = '4WHEELER'")
-    long countFourWheelerDrivers();
+    public long countFourWheelerDrivers();
 
     @Query("SELECT COUNT(d) FROM Driver d")
-    long countTotalDrivers();
+    public long countTotalDrivers();
 
     @Query("SELECT d FROM Driver d ORDER BY d.totalOrders DESC LIMIT 1")
-    Optional<Driver> findTopDriverByTotalOrders();
+    public Optional<Driver> findTopDriverByTotalOrders();
 
     @Query("SELECT d FROM Driver d ORDER BY d.currentOrders DESC LIMIT 1")
-    Optional<Driver> findTopDriverByCurrentOrders();
+    public Optional<Driver> findTopDriverByCurrentOrders();
 
+    @Query("SELECT SUM(d.payToJahez) FROM Driver d")
+    public Double sumPayToJahezForAllDrivers();
 
+    @Query("SELECT SUM(d.profit) FROM Driver d")
+    public Double sumProfitForAllDrivers();
 }
+
+//@Query("SELECT SUM(d.paidByTam) FROM Driver d")
+//public Double sumPaidByTamForAllDrivers();

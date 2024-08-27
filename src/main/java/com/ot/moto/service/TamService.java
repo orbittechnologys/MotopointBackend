@@ -44,8 +44,6 @@ public class TamService {
     @Autowired
     private DriverRepository driverRepository;
 
-    @Autowired
-    private SummaryService summaryService;
 
     private static final Logger logger = LoggerFactory.getLogger(TamService.class);
 
@@ -79,9 +77,6 @@ public class TamService {
 
                     Driver driver = driverRepository.findByPhone(String.valueOf(tam.getMobileNumber()));
 
-                    if (driver != null) {
-                        summaryService.updateSummary(driver);
-                    }
 
                 } else {
                     logger.warn("Invalid or failed to parse row " + i + ", skipping...");
@@ -274,6 +269,8 @@ public class TamService {
     private void deductAmountPending(long mobileNumber, double amount) {
         Driver driver = driverRepository.findByPhone(String.valueOf(mobileNumber));
         if (Objects.nonNull(driver)) {
+            driver.setPaidByTam(driver.getPaidByTam() + amount);
+            driver.setPayToJahez(driver.getCodAmount() - amount);
             driver.setAmountPending(driver.getAmountPending() - amount);
             driverRepository.save(driver);
         }

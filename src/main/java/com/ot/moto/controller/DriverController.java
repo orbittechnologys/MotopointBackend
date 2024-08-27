@@ -10,6 +10,7 @@ import com.ot.moto.service.DriverService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.hibernate.type.descriptor.java.ObjectJavaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -118,5 +119,25 @@ public class DriverController {
     public ResponseEntity<ResponseStructure<Map<String, Object>>> getDriverAttendanceDetails() {
         ResponseStructure<Map<String, Object>> response = driverService.getDriverAttendanceDetails();
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+
+    @Operation(summary = "Get total of pay to jahez  ", description = "Returns total amount of pay to jahez")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Total pay to jahez Found "),
+            @ApiResponse(responseCode = "404", description = "Total pay to jahez not Found")
+    })
+    @GetMapping("/sum-payToJahez")
+    public ResponseEntity<ResponseStructure<Object>> getSumPayToJahezForAllDrivers() {
+        return  driverService.getSumPayToJahezForAllDrivers();
+    }
+
+    @Operation(summary = "Get total profit  ", description = "Returns total amount of profit")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Total Profit Found "),
+            @ApiResponse(responseCode = "404", description = "Total Profit Not Found")
+    })
+    @GetMapping("/total-profit")
+    public ResponseEntity<ResponseStructure<Object>> getSumProfitForAllDrivers() {
+        return  driverService.getSumProfitForAllDrivers();
     }
 }

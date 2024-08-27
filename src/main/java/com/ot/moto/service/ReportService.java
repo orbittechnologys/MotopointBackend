@@ -201,6 +201,7 @@ public class ReportService {
 
     public Driver addDriverDeliveries(Double codAmount, Long deliveries, Driver driver) {
         driver.setAmountPending(driver.getAmountPending() + codAmount);
+        driver.setCodAmount(driver.getCodAmount() + codAmount);
         driver.setTotalOrders(driver.getTotalOrders() + deliveries);
         driver.setCurrentOrders(deliveries);
         return driverDao.createDriver(driver);
@@ -246,6 +247,18 @@ public class ReportService {
             salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
                     + salary.getS4Earnings() + salary.getS5Earnings());
 
+            /*Add Driver Salary */
+            Driver driver = driverDao.getById(orders.getDriver().getId());
+            driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
+                    + salary.getS4Earnings() + salary.getS5Earnings());
+            Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() +
+                    s2Master.getJahezPaid() * salary.getNoOfS2() +
+                    s3Master.getJahezPaid() * salary.getNoOfS3() +
+                    s4Master.getJahezPaid() * salary.getNoOfS4() +
+                    s5Master.getJahezPaid() * salary.getNoOfS5();
+            driver.setProfit(driver.getProfit() + jahezAmount - driver.getSalaryAmount());
+            driverDao.createDriver(driver);
+
             salary.setTotalDeductions(0.0);
             salary.setVisaCharges(0.0);
             salary.setOtherCharges(0.0);
@@ -272,6 +285,18 @@ public class ReportService {
 
             salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
                     + salary.getS4Earnings() + salary.getS5Earnings());
+
+            /*Add Driver Salary */
+            Driver driver = driverDao.getById(orders.getDriver().getId());
+            driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
+                    + salary.getS4Earnings() + salary.getS5Earnings());
+            Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() +
+                    s2Master.getJahezPaid() * salary.getNoOfS2() +
+                    s3Master.getJahezPaid() * salary.getNoOfS3() +
+                    s4Master.getJahezPaid() * salary.getNoOfS4() +
+                    s5Master.getJahezPaid() * salary.getNoOfS5();
+            driver.setProfit(driver.getProfit() + jahezAmount - driver.getSalaryAmount());
+            driverDao.createDriver(driver);
         }
 
         salary = salaryDao.saveSalary(salary);

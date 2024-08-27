@@ -10,11 +10,9 @@ import com.ot.moto.dto.request.UpdateDriverReq;
 import com.ot.moto.dto.response.DriverDetails;
 import com.ot.moto.dto.response.TopDrivers;
 import com.ot.moto.entity.Driver;
-import com.ot.moto.entity.Summary;
 import com.ot.moto.entity.User;
 import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.OrdersRepository;
-import com.ot.moto.repository.SummaryRepository;
 import com.ot.moto.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,8 +55,6 @@ public class DriverService {
     @Autowired
     private DriverRepository driverRepository;
 
-    @Autowired
-    private SummaryService summaryService;
 
     public ResponseEntity<ResponseStructure<Object>> createDriver(CreateDriverReq request) {
         try {
@@ -70,8 +66,6 @@ public class DriverService {
             driverDao.createDriver(driver);
             logger.info("Driver created successfully: {}", driver.getId());
 
-            // Update or create summary
-            summaryService.updateSummary(driver);
             return ResponseStructure.successResponse(driver, "Driver created successfully");
 
         } catch (Exception e) {
@@ -353,7 +347,6 @@ public class DriverService {
         }
     }
 
-
     public ResponseEntity<ResponseStructure<List<Driver>>> findByUsernameContaining(String name) {
         ResponseStructure<List<Driver>> responseStructure = new ResponseStructure<>();
         try {
@@ -378,7 +371,6 @@ public class DriverService {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     public ResponseEntity<InputStreamResource> generateCsvForDrivers() {
         try {
@@ -500,4 +492,43 @@ public class DriverService {
             return response;
         }
     }
+
+    public ResponseEntity<ResponseStructure<Object>> getSumPayToJahezForAllDrivers() {
+        try {
+            Double amount = driverDao.SumPayToJahezForAllDrivers();
+            Double result = (amount == null) ? 0 : amount;
+
+            logger.info("Successfully retrieved sumPayToJahez for all drivers: {}", result);
+            return ResponseStructure.successResponse(result, "Sum retrieved successfully.");
+        } catch (Exception e) {
+            logger.error("Error while fetching sumPayToJahez for all drivers.", e);
+            return ResponseStructure.errorResponse(null, 500, "Internal server error.");
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> getSumProfitForAllDrivers() {
+        try {
+            Double amount = driverDao.sumProfitForAllDrivers();
+            Double result = (amount == null) ? 0 : amount;
+
+            logger.info("Successfully retrieved sumProfit for all drivers: {}", result);
+            return ResponseStructure.successResponse(result, "Sum retrieved successfully.");
+        } catch (Exception e) {
+            logger.error("Error while fetching sumProfit for all drivers.", e);
+            return ResponseStructure.errorResponse(null, 500, "Internal server error.");
+        }
+    }
 }
+
+//    public ResponseEntity<ResponseStructure<Object>> getSumPaidByTamForAllDrivers() {
+//        try {
+//            Double amount = driverDao.sumPaidByTamForAllDrivers();
+//            Double result = (amount == null) ? 0 : amount;
+//
+//            logger.info("Successfully retrieved sumPaidByTam for all drivers: {}", result);
+//            return ResponseStructure.successResponse(result, "Sum retrieved successfully.");
+//        } catch (Exception e) {
+//            logger.error("Error while fetching sumPaidByTam for all drivers.", e);
+//            return ResponseStructure.errorResponse(null, 500, "Internal server error.");
+//        }
+//    }

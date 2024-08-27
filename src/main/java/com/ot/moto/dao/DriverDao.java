@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -81,4 +82,19 @@ public class DriverDao {
         return driverRepository.findAll();
     }
 
+
+    public Double SumPayToJahezForAllDrivers() {
+        Double amount = driverRepository.sumPayToJahezForAllDrivers();
+        return Objects.isNull(amount) ? 0 : amount;
+    }
+
+    public Double sumProfitForAllDrivers() {
+        Double sum = driverRepository.sumProfitForAllDrivers();
+        return Objects.isNull(sum) ? 0 : sum;
+    }
 }
+
+//public Double sumPaidByTamForAllDrivers() {
+//    Double sum = driverRepository.sumPaidByTamForAllDrivers();
+//    return Objects.isNull(sum) ? 0 : sum;
+//}
