@@ -286,7 +286,6 @@ public class ReportService {
                     + salary.getS4Earnings() + salary.getS5Earnings());
 
             /*Add Driver Salary */
-            Driver driver = driverDao.getById(orders.getDriver().getId());
             driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
                     + salary.getS4Earnings() + salary.getS5Earnings());
             Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() +
