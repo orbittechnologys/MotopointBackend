@@ -201,7 +201,7 @@ public class ReportService {
 
     public Driver addDriverDeliveries(Double codAmount, Long deliveries, Driver driver) {
         driver.setAmountPending(driver.getAmountPending() + codAmount);
-        driver.setCodAmount(driver.getCodAmount() + codAmount);
+        driver.setCodAmount(Optional.ofNullable(driver.getCodAmount()).orElse(0.0) + codAmount);
         driver.setTotalOrders(driver.getTotalOrders() + deliveries);
         driver.setCurrentOrders(deliveries);
         return driverDao.createDriver(driver);
