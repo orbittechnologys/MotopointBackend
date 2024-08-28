@@ -20,9 +20,9 @@ public class Bonus {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long deliveryCount;
+    private Long deliveryCount ;
 
-    private Double bonusAmount;
+    private Double bonusAmount ;
 
     private LocalDate specialDate;
 

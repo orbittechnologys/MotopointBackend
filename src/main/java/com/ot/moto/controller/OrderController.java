@@ -43,7 +43,7 @@ public class OrderController {
     }
 
 
-    @Operation(summary = "Get Fleets", description = "Returns List of Fleet Objects")
+    @Operation(summary = "Get all orders", description = "Returns List of Fleet Objects")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Fleets Found"),
             @ApiResponse(responseCode = "404", description = "No Fleets Found")

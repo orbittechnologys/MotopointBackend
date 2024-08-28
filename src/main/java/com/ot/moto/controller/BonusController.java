@@ -39,7 +39,9 @@ public class BonusController {
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<ResponseStructure<Object>> getAll(@RequestParam int page, @RequestParam int size, @RequestParam String field) {
+    public ResponseEntity<ResponseStructure<Object>> getAll(@RequestParam(defaultValue = "0") int page,
+                                                            @RequestParam(defaultValue = "10") int size,
+                                                            @RequestParam(defaultValue = "id") String field) {
         return bonusService.getAll(page, size, field);
     }
 
