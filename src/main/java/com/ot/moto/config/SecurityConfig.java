@@ -135,7 +135,9 @@ public class SecurityConfig {
             "/driver/summary/total-profit",
             "/driver/summary/download-csv",
             "/driver/getAll",
-            "/master/create"
+            "/master/create",
+            "/fleet/count-assigned-two-wheeler",
+            "/fleet/count-assigned-four-wheeler"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create",
