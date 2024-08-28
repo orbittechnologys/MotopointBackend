@@ -112,7 +112,9 @@ public class JwtFilter extends OncePerRequestFilter {
             "/salary/getById/{id}",
             "/salary/salaryPending",
             "/salary/salaryCredited",
-            "/staff/getAll"
+            "/staff/getAll",
+            "/fleet/count-assigned-two-wheeler",
+            "/fleet/count-assigned-four-wheeler"
     );
 
     @Override
