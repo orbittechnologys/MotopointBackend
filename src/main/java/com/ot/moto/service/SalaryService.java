@@ -101,7 +101,7 @@ public class SalaryService {
 
     public ResponseEntity<ResponseStructure<Object>> findByDriverUsernameContaining(String username) {
         try {
-            List<Salary> salaries = salaryRepository.findByDriverUsernameContaining(username);
+            List<Salary> salaries = salaryDao.findByDriverUsernameContaining(username);
             if (salaries.isEmpty()) {
                 logger.warn("No salary records found for driver name : {}", username);
                 return ResponseStructure.errorResponse(null, 404, "No salary records found for the given driver name.");
