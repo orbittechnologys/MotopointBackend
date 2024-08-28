@@ -19,6 +19,6 @@ jobs:
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
     - name: connect and pull
-      run: sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}  "sudo chown -R jdlearn:jdlearn /home/MotopointBackend && cd ${{ secrets.WORK_DIR }} && sudo git checkout ${{ secrets.MAIN_BRANCH }} && sudo bash backend.sh && exit"
+      run: sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}  "sudo chown -R jdlearn:jdlearn /home/MotopointBackend && cd ${{ secrets.WORK_DIR }} && sudo git checkout ${{ secrets.MAIN_BRANCH }} && cd /home/ && sudo bash backend.sh && exit"
     - name: cleanup
       run: rm -rf ~/.ssh
