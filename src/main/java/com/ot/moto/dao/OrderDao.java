@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -67,5 +68,13 @@ public class OrderDao {
 
     public List<Object[]> findDriverWithHighestTotalOrders() {
         return ordersRepository.findDriverWithHighestTotalOrders();
+    }
+
+    public long getTotalOrdersForCurrentMonthByDriver(Long driverId) {
+        YearMonth currentMonth = YearMonth.now();
+        LocalDate startDate = currentMonth.atDay(1);
+        LocalDate endDate = currentMonth.atEndOfMonth();
+
+        return ordersRepository.findTotalOrdersForCurrentMonthByDriver(driverId, startDate, endDate);
     }
 }

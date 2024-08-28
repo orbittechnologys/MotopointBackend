@@ -96,4 +96,5 @@ public class DriverDao {
         Double sum = driverRepository.sumProfitForAllDrivers();
         return Objects.isNull(sum) ? 0 : sum;
     }
+
 }

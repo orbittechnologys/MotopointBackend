@@ -57,6 +57,8 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
             "FROM Orders o " +
             "GROUP BY o.driver.id, o.driver.username " +
             "ORDER BY SUM(o.totalOrders) DESC")
-    List<Object[]> findDriverWithHighestTotalOrders();
+    public List<Object[]> findDriverWithHighestTotalOrders();
 
+    @Query("SELECT COALESCE(SUM(o.totalOrders), 0) FROM Orders o WHERE o.driver.id = :driverId AND o.date >= :startDate AND o.date <= :endDate")
+    public Long findTotalOrdersForCurrentMonthByDriver(Long driverId, LocalDate startDate, LocalDate endDate);
 }

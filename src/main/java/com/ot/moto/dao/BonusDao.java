@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
@@ -34,4 +35,11 @@ public class BonusDao {
         bonusRepository.delete(bonus);
     }
 
+    public Bonus findTopBySpecialDate(LocalDate specialDate) {
+        return bonusRepository.findTopBySpecialDate(specialDate);
+    }
+
+    public Bonus findTopByDeliveryCountLessThanEqualOrderByDeliveryCountDesc(Long deliveryCount) {
+        return bonusRepository.findTopByDeliveryCountLessThanEqualOrderByDeliveryCountDesc(deliveryCount);
+    }
 }
