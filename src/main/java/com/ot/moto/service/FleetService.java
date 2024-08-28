@@ -193,12 +193,28 @@ public class FleetService {
                 logger.warn("No fleet found with id: {}", assignFleet.getId());
                 return ResponseStructure.errorResponse(null, 404, "Fleet not found with id: " + assignFleet.getId());
             }
-            Driver driver = driverDao.getById(assignFleet.getDriverId());
-            fleet.setDriver(driver);
+
+            // Unassign fleet from current driver if assigned
+            if (fleet.getDriver() != null && !fleet.getDriver().getId().equals(assignFleet.getDriverId())) {
+                Driver currentDriver = fleet.getDriver();
+                currentDriver.setFleet(null); // Unlink the fleet from the current driver
+            }
+
+            Driver newDriver = driverDao.getById(assignFleet.getDriverId());
+            if (newDriver == null) {
+                logger.warn("No driver found with id: {}", assignFleet.getDriverId());
+                return ResponseStructure.errorResponse(null, 404, "Driver not found with id: " + assignFleet.getDriverId());
+            }
+
+            // Assign fleet to the new driver
+            fleet.setDriver(newDriver);
+            newDriver.setFleet(fleet); // Ensure the new driver is aware of the fleet
             fleet.setFleetAssignDate(LocalDate.now());
+
             fleetDao.createFleet(fleet);
-            logger.info("Fleet updated successfully: {}", fleet.getId());
-            return ResponseStructure.successResponse(fleet, "Fleet Assigned successfully on Date " + fleet.getFleetAssignDate());
+
+            logger.info("Fleet assigned successfully: {}", fleet.getId());
+            return ResponseStructure.successResponse(fleet, "Fleet assigned successfully on Date " + fleet.getFleetAssignDate());
         } catch (Exception e) {
             logger.error("Error updating fleet", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());

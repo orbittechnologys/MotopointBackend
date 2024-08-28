@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -46,11 +47,17 @@ public class SalaryDao {
     }
 
     public Double getSumOfSettledSalaries() {
-        return salaryRepository.sumOfSettledSalaries();
+        Double sett = salaryRepository.sumOfSettledSalaries();
+        return Objects.isNull(sett) ? 0 : sett;
     }
 
     public Double getSumOfNotSettledSalaries() {
-        return salaryRepository.sumOfNotSettledSalaries();
+        Double sal = salaryRepository.sumOfNotSettledSalaries();
+        return Objects.isNull(sal) ? 0 : sal;
+    }
+
+    public List<Salary> findByDriverUsernameContaining(String username) {
+        return salaryRepository.findByDriverUsernameContaining(username);
     }
 
     public void saveAll(List<Salary> salaries) {

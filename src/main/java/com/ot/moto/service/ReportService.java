@@ -254,34 +254,6 @@ public class ReportService {
         return salary;
     }
 
-    public ResponseEntity<ResponseStructure<Object>> getAllReport(int page, int size, String field) {
-        try {
-
-            Page<Orders> ordersPage = orderDao.findAll(page, size, field);
-            if (ordersPage.isEmpty()) {
-                logger.warn("No jahez found ");
-                return ResponseStructure.errorResponse(null, 404, "No jahez found");
-            }
-            return ResponseStructure.successResponse(ordersPage, "jahez found");
-        } catch (Exception e) {
-            logger.error("Error fetching jahez", e);
-            return ResponseStructure.errorResponse(null, 500, e.getMessage());
-        }
-    }
-
-    public ResponseEntity<ResponseStructure<Object>> getAllBankstatement(int page, int size, String field) {
-        try {
-            Page<Payment> payments = paymentDao.findAll(page, size, field);
-            if (payments.isEmpty()) {
-                logger.warn("No Bank Statement found.");
-                return ResponseStructure.errorResponse(null, 404, "No BankStatement found");
-            }
-            return ResponseStructure.successResponse(payments, "BankStatement  found");
-        } catch (Exception e) {
-            logger.error("Error fetching BankStatement ", e);
-            return ResponseStructure.errorResponse(null, 500, e.getMessage());
-        }
-    }
 
     public ResponseEntity<ResponseStructure<Object>> uploadBankStatement(Sheet sheet) {
         try {
@@ -527,6 +499,35 @@ public class ReportService {
         } catch (Exception e) {
             logger.error("Error fetching amount for yesterday ({})", yesterday, e);
             return ResponseStructure.errorResponse(null, 500, "Error fetching amount for yesterday: " + e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> getAllReport(int page, int size, String field) {
+        try {
+
+            Page<Orders> ordersPage = orderDao.findAll(page, size, field);
+            if (ordersPage.isEmpty()) {
+                logger.warn("No jahez found ");
+                return ResponseStructure.errorResponse(null, 404, "No jahez found");
+            }
+            return ResponseStructure.successResponse(ordersPage, "jahez found");
+        } catch (Exception e) {
+            logger.error("Error fetching jahez", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> getAllBankstatement(int page, int size, String field) {
+        try {
+            Page<Payment> payments = paymentDao.findAll(page, size, field);
+            if (payments.isEmpty()) {
+                logger.warn("No Bank Statement found.");
+                return ResponseStructure.errorResponse(null, 404, "No BankStatement found");
+            }
+            return ResponseStructure.successResponse(payments, "BankStatement  found");
+        } catch (Exception e) {
+            logger.error("Error fetching BankStatement ", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
 }

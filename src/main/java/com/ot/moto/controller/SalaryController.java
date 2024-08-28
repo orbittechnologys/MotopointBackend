@@ -2,7 +2,6 @@ package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.SettleSalariesReq;
-import com.ot.moto.entity.Salary;
 import com.ot.moto.service.SalaryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,8 +11,6 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/salary")
@@ -73,9 +70,9 @@ public class SalaryController {
     @Operation(summary = "Get vehicleNumber details ", description = "Input is vehicleNumber, returns vehicle and driver Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "vehicleNumber Found"),
             @ApiResponse(responseCode = "404", description = "vehicleNumber Not Found")})
-    @GetMapping("/searchByVehicleNumber")
-    public ResponseEntity<ResponseStructure<Object>> searchByVehicleNumber(@RequestParam String vehicleNumber) {
-        return salaryService.searchByVehicleNumber(vehicleNumber);
+    @GetMapping("/search")
+    public ResponseEntity<ResponseStructure<Object>> findByDriverUsernameContaining(@RequestParam String username) {
+        return salaryService.findByDriverUsernameContaining(username);
     }
 
 

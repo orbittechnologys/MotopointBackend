@@ -16,14 +16,11 @@ public interface SalaryRepository extends JpaRepository<Salary, Long> {
     @Query(value = "SELECT s FROM Salary s WHERE s.bonus = (SELECT MAX(bonus) FROM Salary)")
     public List<Salary> findHighestBonus();
 
-
-    @Query("SELECT s FROM Salary s WHERE s.driver IN (SELECT d FROM Driver d WHERE d.fleet.vehicleNumber = :vehicleNumber)")
-    public List<Salary> findSalariesByVehicleNumber(@Param("vehicleNumber") String vehicleNumber);
-
+    @Query("SELECT s FROM Salary s WHERE s.driver.username LIKE %:driverName%")
+    List<Salary> findByDriverUsernameContaining(@Param("driverName") String driverName);
 
     @Query("SELECT SUM(s.totalEarnings) FROM Salary s WHERE s.status = 'SETTLED'")
     public Double sumOfSettledSalaries();
-
 
     @Query("SELECT SUM(s.totalEarnings) FROM Salary s WHERE s.status = 'NOT_SETTLED'")
     public Double sumOfNotSettledSalaries();

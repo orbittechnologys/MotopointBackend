@@ -49,7 +49,7 @@ public class Salary {
 
     private Double otherCharges;
 
-    private Double bonus;
+    private Double bonus = 0.0;
 
     private Double incentives;
 

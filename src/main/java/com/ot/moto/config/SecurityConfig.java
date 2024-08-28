@@ -137,7 +137,8 @@ public class SecurityConfig {
             "/driver/getAll",
             "/master/create",
             "/fleet/count-assigned-two-wheeler",
-            "/fleet/count-assigned-four-wheeler"
+            "/fleet/count-assigned-four-wheeler",
+            "/salary/search"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create",

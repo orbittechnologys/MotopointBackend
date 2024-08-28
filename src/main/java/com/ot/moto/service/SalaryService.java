@@ -99,17 +99,17 @@ public class SalaryService {
         }
     }
 
-    public ResponseEntity<ResponseStructure<Object>> searchByVehicleNumber(String vehicleNumber) {
+    public ResponseEntity<ResponseStructure<Object>> findByDriverUsernameContaining(String username) {
         try {
-            List<Salary> salaries = salaryRepository.findSalariesByVehicleNumber(vehicleNumber);
+            List<Salary> salaries = salaryRepository.findByDriverUsernameContaining(username);
             if (salaries.isEmpty()) {
-                logger.warn("No salary records found for vehicle number: {}", vehicleNumber);
-                return ResponseStructure.errorResponse(null, 404, "No salary records found for the given vehicle number.");
+                logger.warn("No salary records found for driver name : {}", username);
+                return ResponseStructure.errorResponse(null, 404, "No salary records found for the given driver name.");
             }
-            logger.info("Successfully retrieved salary records for vehicle number: {}", vehicleNumber);
+            logger.info("Successfully retrieved salary records for driver name: {}", username);
             return ResponseStructure.successResponse(salaries, "Salary records found");
         } catch (Exception e) {
-            logger.error("Error fetching salary records for vehicle number: {}", vehicleNumber, e);
+            logger.error("Error fetching salary records for driver name: {}", username, e);
             return ResponseStructure.errorResponse(null, 500, "Error fetching salary records: " + e.getMessage());
         }
     }
