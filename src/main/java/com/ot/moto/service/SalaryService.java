@@ -3,8 +3,8 @@ package com.ot.moto.service;
 import com.ot.moto.dao.DriverDao;
 import com.ot.moto.dao.SalaryDao;
 import com.ot.moto.dto.ResponseStructure;
-import com.ot.moto.dto.request.SettleSalary;
 import com.ot.moto.dto.request.SettleSalariesReq;
+import com.ot.moto.dto.request.SettleSalary;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Salary;
 import com.ot.moto.repository.SalaryRepository;
@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -261,7 +262,7 @@ public class SalaryService {
                     /*Set Driver Salary to Zero When Status is SETTLED*/
                     Driver driver = driverDao.getById(salary.getDriver().getId());
                     driver.setSalaryAmount(0.0);
-                    driver.setBonus(driver.getBonus() + sal.getBonus());
+                    driver.setBonus(Optional.ofNullable(driver.getBonus()).orElse(0.0) + sal.getBonus());
                     driverDao.createDriver(driver);
 
                     settledSalaries.add(salary);
