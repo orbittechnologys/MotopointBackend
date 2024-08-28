@@ -144,7 +144,11 @@ public class SecurityConfig {
             "/bonus/updateDateBonus",
             "/bonus/updateOrderBonus",
             "/bonus/addDateBonus",
-            "/bonus/addOrderBonus"
+            "/bonus/addOrderBonus",
+            "/fleet/getById/{id}",
+            "/fleet/getAll",
+            "/fleet/assignFleet",
+            "/staff/getAll"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create",

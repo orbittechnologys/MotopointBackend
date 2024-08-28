@@ -70,7 +70,7 @@ public class StaffController {
 
 
     @Operation(summary = "Fetch Staff By Name ", description = "returns Staff Object By Name")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "staff Found"),
             @ApiResponse(responseCode = "404", description = "Staff Not Found")})
     @GetMapping(value = "/findByUsernameContaining/{name}")
     public ResponseEntity<ResponseStructure<List<Staff>>> findByUsernameContaining(@PathVariable String name) {

@@ -131,7 +131,7 @@ public class DriverService {
             }
             return ResponseStructure.successResponse(driver, "Driver found");
         } catch (Exception e) {
-            logger.error("Error Creating driver", e);
+            logger.error("Error fetching driver", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
@@ -284,12 +284,12 @@ public class DriverService {
 
             Page<Driver> driverPage = driverDao.findAll(page, size, field);
             if (driverPage.isEmpty()) {
-                logger.warn("No Admin found.");
+                logger.warn("No Driver found.");
                 return ResponseStructure.errorResponse(null, 404, "No Driver found");
             }
-            return ResponseStructure.successResponse(driverPage, "Driver found");
+            return ResponseStructure.successResponse(driverPage, "All Driver found");
         } catch (Exception e) {
-            logger.error("Error fetching admin", e);
+            logger.error("Error fetching Driver", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }

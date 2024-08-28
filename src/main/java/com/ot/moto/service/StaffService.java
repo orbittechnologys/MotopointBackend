@@ -180,9 +180,9 @@ public class StaffService {
             Page<Staff> staffPage = staffDao.findAll(page, size, field);
             if (staffPage.isEmpty()) {
                 logger.warn("No Staff found.");
-                return ResponseStructure.errorResponse(null, 404, "No Driver found");
+                return ResponseStructure.errorResponse(null, 404, "No Staff found");
             }
-            return ResponseStructure.successResponse(staffPage, "Driver found");
+            return ResponseStructure.successResponse(staffPage, "All Staff found");
         } catch (Exception e) {
             logger.error("Error fetching Staff", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
@@ -212,16 +212,21 @@ public class StaffService {
     public ResponseEntity<ResponseStructure<List<Staff>>> findByUsernameContaining(String name) {
         ResponseStructure<List<Staff>> responseStructure = new ResponseStructure<>();
 
-        List<Staff> driverList = staffDao.findByUsernameContaining(name);
-        if (driverList.isEmpty()) {
+        logger.info("Searching for staff with name: {}", name);
+
+        List<Staff> staffList = staffDao.findByUsernameContaining(name);
+
+        if (staffList.isEmpty()) {
+            logger.warn("No staff found with the name: {}", name);
             responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
-            responseStructure.setMessage("Driver Not Found With NAME  ");
+            responseStructure.setMessage("No staff found with the name: " + name);
             responseStructure.setData(null);
             return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
         } else {
+            logger.info("Staff found with the name: {}", name);
             responseStructure.setStatus(HttpStatus.OK.value());
-            responseStructure.setMessage("Driver Found With NAME ");
-            responseStructure.setData(driverList);
+            responseStructure.setMessage("Staff found with the name: " + name);
+            responseStructure.setData(staffList);
             return new ResponseEntity<>(responseStructure, HttpStatus.OK);
         }
     }

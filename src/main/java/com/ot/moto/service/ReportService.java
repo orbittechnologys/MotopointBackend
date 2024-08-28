@@ -2,6 +2,8 @@ package com.ot.moto.service;
 
 import com.ot.moto.dao.*;
 import com.ot.moto.dto.ResponseStructure;
+import com.ot.moto.dto.request.AddBonusDate;
+import com.ot.moto.dto.request.AddBonusOrders;
 import com.ot.moto.entity.*;
 import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.PaymentRepository;
@@ -253,6 +255,101 @@ public class ReportService {
         salary = salaryDao.saveSalary(salary);
         return salary;
     }
+
+//
+//    public ResponseEntity<ResponseStructure<Object>> uploadJahezReport(Sheet sheet) {
+//        try {
+//            int rowStart = 1;
+//            int rowEnd = sheet.getLastRowNum();
+//            List<Orders> ordersList = new ArrayList<>();
+//            for (int i = rowStart; i <= rowEnd; i++) {
+//                Row row = sheet.getRow(i);
+//
+//                if (row == null) {
+//                    logger.warn("Skipping null row at index: " + i);
+//                    continue;
+//                }
+//
+//                // Check if the cell is empty before parsing
+//                Cell dateCell = row.getCell(0);
+//                if (dateCell == null || dateCell.toString().trim().isEmpty()) {
+//                    logger.warn("Empty date cell at row index: " + i);
+//                    continue; // Skip this row if the date is missing
+//                }
+//
+//                String cellDate = dateCell.toString().trim();
+//                String cellDriverName = row.getCell(1).toString().trim();
+//                String cellNoOfS1 = row.getCell(2).toString().trim();
+//                String cellNoOfS2 = row.getCell(3).toString().trim();
+//                String cellNoOfS3 = row.getCell(4).toString().trim();
+//                String cellNoOfS4 = row.getCell(5).toString().trim();
+//                String cellNoOfS5 = row.getCell(6).toString().trim();
+//                String cellDeliveries = row.getCell(7).toString().trim();
+//                String cellCodAmount = row.getCell(8).toString().trim();
+//                String cellCredit = row.getCell(9).toString().trim();
+//                String cellDebit = row.getCell(10).toString().trim();
+//
+//                try {
+//                    LocalDate cellLocalDate = LocalDate.parse(cellDate, formatter);
+//                    Orders orders = orderDao.checkOrderValid(cellDriverName, cellLocalDate);
+//                    if (Objects.nonNull(orders)) {
+//                        logger.info("Entry not valid for: " + cellDriverName + ", " + cellDate);
+//                        continue;
+//                    }
+//                    orders = buildOrdersFromCellData(cellLocalDate, cellDriverName, StringUtil.getLong(cellNoOfS1),
+//                            StringUtil.getLong(cellNoOfS2), StringUtil.getLong(cellNoOfS3), StringUtil.getLong(cellNoOfS4),
+//                            StringUtil.getLong(cellNoOfS5), StringUtil.getLong(cellDeliveries), Double.parseDouble(cellCodAmount),
+//                            Double.parseDouble(cellCredit), Double.parseDouble(cellDebit));
+//                    if (Objects.nonNull(orders)) {
+//                        logger.info("Saving order: " + orders.getDriverName() + ", " + orders.getDate().toString());
+//                        ordersList.add(orders);
+//
+//                        // Calculate and add bonuses
+//                        addBonusBasedOnDeliveries(orders);
+//                        addBonusForSpecialDate(orders);
+//                    }
+//                } catch (Exception e) {
+//                    logger.error("Error processing row at index: " + i + " with date: " + cellDate, e);
+//                    // Optionally continue processing other rows even if this one fails
+//                    continue;
+//                }
+//            }
+//
+//            orderDao.createOrders(ordersList);
+//
+//            return ResponseStructure.successResponse(null, "Successfully Parsed");
+//
+//        } catch (Exception e) {
+//            logger.error("Error parsing Excel jahez", e);
+//            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+//        }
+//    }
+//
+//    private void addBonusBasedOnDeliveries(Orders orders) {
+//        long totalDeliveries = orders.getTotalOrders();
+//        if (totalDeliveries >= 200) {
+//            addBonusOrders(new AddBonusOrders(totalDeliveries, 100.0));
+//        } else if (totalDeliveries >= 100) {
+//            addBonusOrders(new AddBonusOrders(totalDeliveries, 30.0));
+//        }
+//    }
+//
+//    private void addBonusForSpecialDate(Orders orders) {
+//        // Assuming you have a way to determine if the date is a special date
+//        LocalDate orderDate = orders.getDate();
+//        boolean isSpecialDate = checkIfSpecialDate(orderDate);
+//        if (isSpecialDate) {
+//            addBonusDate(new AddBonusDate(orderDate, 10.0));
+//        }
+//    }
+//
+//    // Example method to check if the date is a special date
+//    private boolean checkIfSpecialDate(LocalDate date) {
+//        // Implement logic to determine if the date is a special date (e.g., holiday)
+//        return false; // Replace with actual implementation
+//    }
+
+
 
 
     public ResponseEntity<ResponseStructure<Object>> uploadBankStatement(Sheet sheet) {
