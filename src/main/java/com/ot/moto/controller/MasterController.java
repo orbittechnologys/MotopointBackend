@@ -59,7 +59,7 @@ public class MasterController {
     })
     @DeleteMapping("/delete")
     public ResponseEntity<ResponseStructure<Object>> delete(@RequestParam Long masterId) {
-        return masterService.deleteAdmin(masterId);
+        return masterService.deleteMasterById(masterId);
     }
 
     @Operation(summary = "Update Master", description = "Updates an existing Master entity by its ID and returns the updated object")

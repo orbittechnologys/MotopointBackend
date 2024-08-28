@@ -90,7 +90,7 @@ public class MasterService {
         }
     }
 
-    public ResponseEntity<ResponseStructure<Object>> deleteAdmin(Long masterId) {
+    public ResponseEntity<ResponseStructure<Object>> deleteMasterById(Long masterId) {
         try {
 
             Master master = masterDao.getMasterById(masterId);

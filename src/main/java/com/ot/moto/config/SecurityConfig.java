@@ -138,7 +138,13 @@ public class SecurityConfig {
             "/master/create",
             "/fleet/count-assigned-two-wheeler",
             "/fleet/count-assigned-four-wheeler",
-            "/salary/search"
+            "/salary/search",
+            "/bonus/delete/{id}",
+            "/bonus/getAll",
+            "/bonus/updateDateBonus",
+            "/bonus/updateOrderBonus",
+            "/bonus/addDateBonus",
+            "/bonus/addOrderBonus"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create",
