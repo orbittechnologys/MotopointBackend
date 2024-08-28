@@ -231,4 +231,60 @@ public class FleetService {
             return new ResponseEntity<>(responseStructure, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+    public ResponseEntity<ResponseStructure<Long>> countAssignedTwoWheeler() {
+        ResponseStructure<Long> responseStructure = new ResponseStructure<>();
+        try {
+            long count = fleetDao.countAssignedTwoWheeler();
+
+            if (count == 0) {
+                logger.warn("No assigned TWO_WHEELER fleets found");
+                responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
+                responseStructure.setMessage("No assigned TWO_WHEELER fleets found");
+                responseStructure.setData(count);
+                return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
+            }
+
+            logger.info("Count of assigned TWO_WHEELER fleets retrieved successfully");
+            responseStructure.setStatus(HttpStatus.OK.value());
+            responseStructure.setMessage("Count retrieved successfully");
+            responseStructure.setData(count);
+            return new ResponseEntity<>(responseStructure, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error counting assigned TWO_WHEELER fleets", e);
+            responseStructure.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            responseStructure.setMessage(e.getMessage());
+            responseStructure.setData(null);
+            return new ResponseEntity<>(responseStructure, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Long>> countAssignedFourWheeler() {
+        ResponseStructure<Long> responseStructure = new ResponseStructure<>();
+        try {
+            long count = fleetDao.countAssignedFourWheeler();
+
+            if (count == 0) {
+                logger.warn("No assigned FOUR_WHEELER fleets found");
+                responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
+                responseStructure.setMessage("No assigned FOUR_WHEELER fleets found");
+                responseStructure.setData(count);
+                return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
+            }
+
+            logger.info("Count of assigned FOUR_WHEELER fleets retrieved successfully");
+            responseStructure.setStatus(HttpStatus.OK.value());
+            responseStructure.setMessage("Count retrieved successfully");
+            responseStructure.setData(count);
+            return new ResponseEntity<>(responseStructure, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error counting assigned FOUR_WHEELER fleets", e);
+            responseStructure.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            responseStructure.setMessage(e.getMessage());
+            responseStructure.setData(null);
+            return new ResponseEntity<>(responseStructure, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

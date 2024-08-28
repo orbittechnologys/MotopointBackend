@@ -134,4 +134,26 @@ public class FleetController {
             @RequestParam String vehicleNumberSubstring) {
         return fleetService.searchFleetByVehicleNumber(vehicleNumberSubstring);
     }
+
+    @Operation(summary = "Count Assigned Two-Wheeler Fleets", description = "Counts the number of assigned TWO_WHEELER fleets and returns the count.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Count retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "No assigned TWO_WHEELER fleets found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/count-assigned-two-wheeler")
+    public ResponseEntity<ResponseStructure<Long>> countAssignedTwoWheeler() {
+        return fleetService.countAssignedTwoWheeler();
+    }
+
+    @Operation(summary = "Count Assigned Four-Wheeler Fleets", description = "Counts the number of assigned FOUR_WHEELER fleets and returns the count.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Count retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "No assigned FOUR_WHEELER fleets found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/count-assigned-four-wheeler")
+    public ResponseEntity<ResponseStructure<Long>> countAssignedFourWheeler() {
+        return fleetService.countAssignedFourWheeler();
+    }
 }

@@ -8,8 +8,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
+import org.springframework.validation.ObjectError;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -40,18 +42,31 @@ public class FleetDao {
     }
 
     public long getSelfOwnedFleetCount(Fleet.OWN_TYPE selfOwned) {
-        return fleetRepository.countByOwnType(Fleet.OWN_TYPE.SELF_OWNED);
+        long self = fleetRepository.countByOwnType(Fleet.OWN_TYPE.SELF_OWNED);
+        return Objects.isNull(self) ? 0 : self;
     }
 
     public long getMotoPointFleetCount(Fleet.OWN_TYPE motoPoint) {
-        return fleetRepository.countByOwnType(Fleet.OWN_TYPE.MOTO_POINT);
+        long moto = fleetRepository.countByOwnType(Fleet.OWN_TYPE.MOTO_POINT);
+        return Objects.isNull(moto) ? 0 : moto;
     }
 
     public long countByVehicleType(Fleet.VEHICLE_TYPE vehicleType) {
-        return fleetRepository.countByVehicleType(vehicleType);
+        long countV = fleetRepository.countByVehicleType(vehicleType);
+        return Objects.isNull(countV) ? 0 : countV;
     }
 
     public List<Fleet> findFleetsByVehicleNumber(String substring) {
         return fleetRepository.findByVehicleNumberContaining(substring);
+    }
+
+    public long countAssignedTwoWheeler() {
+        long countA = fleetRepository.countAssignedTwoWheeler();
+        return Objects.isNull(countA) ? 0 : countA;
+    }
+
+    public long countAssignedFourWheeler() {
+        long countB = fleetRepository.countAssignedFourWheeler();
+        return Objects.isNull(countB) ? 0 : countB;
     }
 }

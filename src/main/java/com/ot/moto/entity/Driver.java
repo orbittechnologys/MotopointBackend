@@ -10,6 +10,7 @@ import java.util.List;
 @Entity
 @Data
 public class Driver extends User {
+
     {
         super.setRole("ROLE_DRIVER");
     }
@@ -76,15 +77,17 @@ public class Driver extends User {
 
     private String passbookImageUrl;
 
-    private Double payToJahez;
+    private Double annualVisaCharges;
 
-    private Double codAmount;
+    private Double payToJahez = 0.0;
 
-    private Double bonus;
+    private Double codAmount = 0.0;
 
-    private Double paidByTam;
+    private Double bonus = 0.0;
 
-    private Double profit;
+    private Double paidByTam = 0.0;
+
+    private Double profit = 0.0;
 
     @OneToOne(mappedBy = "driver")
     @JsonBackReference("fleet")

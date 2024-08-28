@@ -61,53 +61,6 @@ public class ReportService {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
 
 
-    public ResponseEntity<ResponseStructure<Object>> getSumForCurrentMonth() {
-        LocalDate now = LocalDate.now();
-        LocalDate startDate = now.withDayOfMonth(1);
-        LocalDate endDate = now.withDayOfMonth(now.lengthOfMonth());
-
-        logger.info("Fetching total sum for current month from {} to {}", startDate, endDate);
-
-        try {
-            Double sum = paymentDao.getSumOfCurrentMonth(startDate, endDate);
-            logger.info("Total sum for current month from {} to {}: {}", startDate, endDate, sum);
-            return ResponseStructure.successResponse(sum, "Total sum for current month retrieved successfully");
-        } catch (Exception e) {
-            logger.error("Error fetching sum for current month from {} to {}", startDate, endDate, e);
-            return ResponseStructure.errorResponse(null, 500, "Error fetching sum for current month: " + e.getMessage());
-        }
-    }
-
-    public ResponseEntity<ResponseStructure<Object>> getArrearsForToday() {
-        LocalDate today = LocalDate.now();
-
-        logger.info("Fetching total arrears for today ({})", today);
-
-        try {
-            Double arrearsSum = orderDao.getArrearsForToday();
-            logger.info("Total arrears for today ({}): {}", today, arrearsSum);
-            return ResponseStructure.successResponse(arrearsSum, "Total arrears for today retrieved successfully");
-        } catch (Exception e) {
-            logger.error("Error fetching arrears for today ({})", today, e);
-            return ResponseStructure.errorResponse(null, 500, "Error fetching arrears for today: " + e.getMessage());
-        }
-    }
-
-    public ResponseEntity<ResponseStructure<Object>> getSumAmountForYesterday() {
-        LocalDate yesterday = LocalDate.now().minusDays(1);
-
-        logger.info("Fetching total amount for yesterday ({})", yesterday);
-
-        try {
-            Double amountSum = paymentDao.getSumAmountForYesterday();
-            logger.info("Total amount for yesterday ({}): {}", yesterday, amountSum);
-            return ResponseStructure.successResponse(amountSum, "Total amount for yesterday retrieved successfully");
-        } catch (Exception e) {
-            logger.error("Error fetching amount for yesterday ({})", yesterday, e);
-            return ResponseStructure.errorResponse(null, 500, "Error fetching amount for yesterday: " + e.getMessage());
-        }
-    }
-
     public ResponseEntity<ResponseStructure<Object>> uploadJahezReport(Sheet sheet) {
         try {
             int rowStart = 1;
@@ -529,4 +482,51 @@ public class ReportService {
         }
     }
 
+
+    public ResponseEntity<ResponseStructure<Object>> getSumForCurrentMonth() {
+        LocalDate now = LocalDate.now();
+        LocalDate startDate = now.withDayOfMonth(1);
+        LocalDate endDate = now.withDayOfMonth(now.lengthOfMonth());
+
+        logger.info("Fetching total sum for current month from {} to {}", startDate, endDate);
+
+        try {
+            Double sum = paymentDao.getSumOfCurrentMonth(startDate, endDate);
+            logger.info("Total sum for current month from {} to {}: {}", startDate, endDate, sum);
+            return ResponseStructure.successResponse(sum, "Total sum for current month retrieved successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching sum for current month from {} to {}", startDate, endDate, e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching sum for current month: " + e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> getArrearsForToday() {
+        LocalDate today = LocalDate.now();
+
+        logger.info("Fetching total arrears for today ({})", today);
+
+        try {
+            Double arrearsSum = orderDao.getArrearsForToday();
+            logger.info("Total arrears for today ({}): {}", today, arrearsSum);
+            return ResponseStructure.successResponse(arrearsSum, "Total arrears for today retrieved successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching arrears for today ({})", today, e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching arrears for today: " + e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> getSumAmountForYesterday() {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+
+        logger.info("Fetching total amount for yesterday ({})", yesterday);
+
+        try {
+            Double amountSum = paymentDao.getSumAmountForYesterday();
+            logger.info("Total amount for yesterday ({}): {}", yesterday, amountSum);
+            return ResponseStructure.successResponse(amountSum, "Total amount for yesterday retrieved successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching amount for yesterday ({})", yesterday, e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching amount for yesterday: " + e.getMessage());
+        }
+    }
 }

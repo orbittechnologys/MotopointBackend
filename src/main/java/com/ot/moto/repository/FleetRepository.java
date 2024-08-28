@@ -18,4 +18,10 @@ public interface FleetRepository extends JpaRepository<Fleet, Long> {
     public long countByVehicleType(@Param("vehicleType") Fleet.VEHICLE_TYPE vehicleType);
 
     public List<Fleet> findByVehicleNumberContaining(String substring);
+
+    @Query("SELECT COUNT(f) FROM Fleet f WHERE f.vehicleType = com.ot.moto.entity.Fleet.VEHICLE_TYPE.TWO_WHEELER AND f.driver IS NOT NULL")
+    public long countAssignedTwoWheeler();
+
+    @Query("SELECT COUNT(f) FROM Fleet f WHERE f.vehicleType = com.ot.moto.entity.Fleet.VEHICLE_TYPE.FOUR_WHEELER AND f.driver IS NOT NULL")
+    public long countAssignedFourWheeler();
 }

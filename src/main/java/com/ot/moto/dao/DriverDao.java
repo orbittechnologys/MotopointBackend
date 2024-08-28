@@ -37,7 +37,8 @@ public class DriverDao {
     }
 
     public long countFlexiVisa() {
-        return driverRepository.countFlexiVisa();
+        long countFl = driverRepository.countFlexiVisa();
+        return Objects.isNull(countFl) ? 0 : countFl ;
     }
 
     public long countOtherVisaTypes() {
@@ -45,15 +46,18 @@ public class DriverDao {
     }
 
     public long countTwoWheelerRiders() {
-        return driverRepository.countTwoWheelerRiders();
+        long countT = driverRepository.countTwoWheelerRiders();
+        return Objects.isNull(countT) ? 0 : countT ;
     }
 
     public long countFourWheelerDrivers() {
-        return driverRepository.countFourWheelerDrivers();
+        long countF = driverRepository.countFourWheelerDrivers();
+        return Objects.isNull(countF) ? 0 : countF ;
     }
 
     public long countTotalDrivers() {
-        return driverRepository.countTotalDrivers();
+        long countD = driverRepository.countTotalDrivers();
+        return Objects.isNull(countD) ? 0 : countD ;
     }
 
     public Driver findByPhoneNumber(String phoneNumber) {

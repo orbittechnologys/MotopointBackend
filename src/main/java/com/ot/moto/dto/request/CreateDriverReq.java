@@ -79,4 +79,6 @@ public class CreateDriverReq {
     private String bankMobilePayNumber;
 
     private String passbookImageUrl;
+
+    private Double annualVisaCharges;
 }
