@@ -362,13 +362,13 @@ public class DriverService {
             if (driverList.isEmpty()) {
                 logger.warn("No drivers found with username containing: {}", name);
                 responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
-                responseStructure.setMessage("Driver Not Found With NAME");
+                responseStructure.setMessage("Driver Not Found With NAME ");
                 responseStructure.setData(null);
                 return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
             } else {
                 logger.info("Found {} drivers with username containing: {}", driverList.size(), name);
                 responseStructure.setStatus(HttpStatus.OK.value());
-                responseStructure.setMessage("Driver Found With NAME");
+                responseStructure.setMessage("Driver Found With NAME ");
                 responseStructure.setData(driverList);
                 return new ResponseEntity<>(responseStructure, HttpStatus.OK);
             }
