@@ -60,7 +60,7 @@ public class DriverDao {
         return Objects.isNull(countD) ? 0 : countD ;
     }
 
-    public Driver findByPhoneNumber(String phoneNumber) {
+    public Driver findByPhoneNumber(Long phoneNumber) {
         return driverRepository.findByPhone(phoneNumber);
     }
 

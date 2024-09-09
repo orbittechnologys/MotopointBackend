@@ -11,7 +11,7 @@ public class CreateDriverReq {
 
     private String email;
 
-    private String phone;
+    private Long phone;
 
     private String password;
 
@@ -45,7 +45,7 @@ public class CreateDriverReq {
 
     private String passportNumber;
 
-    private String cprNumber;
+    private Long cprNumber;
 
     private String vehicleType;
 

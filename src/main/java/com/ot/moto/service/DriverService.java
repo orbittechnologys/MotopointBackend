@@ -97,7 +97,7 @@ public class DriverService {
         driver.setAddress(request.getAddress());
         driver.setReferenceLocation(request.getReferenceLocation());
         driver.setVisaType(request.getVisaType());
-        driver.setVisaProcurement(request.getVisaProcurement());
+//        driver.setVisaProcurement(request.getVisaProcurement());
         driver.setNationality(request.getNationality());
         driver.setPassportNumber(request.getPassportNumber());
         driver.setCprNumber(request.getCprNumber());
@@ -183,7 +183,7 @@ public class DriverService {
         if (!StringUtil.isEmpty(request.getEmail())) {
             driver.setEmail(request.getEmail());
         }
-        if (!StringUtil.isEmpty(request.getPhone())) {
+        if (request.getPhone() != null) {
             driver.setPhone(request.getPhone());
         }
         if (!StringUtil.isEmpty(request.getPassword())) {
@@ -212,9 +212,9 @@ public class DriverService {
         if (!StringUtil.isEmpty(request.getVisaType())) {
             driver.setVisaType(request.getVisaType());
         }
-        if (!StringUtil.isEmpty(request.getVisaProcurement())) {
-            driver.setVisaProcurement(request.getVisaProcurement());
-        }
+//        if (!StringUtil.isEmpty(request.getVisaProcurement())) {
+//            driver.setVisaProcurement(request.getVisaProcurement());
+//        }
         if (!StringUtil.isEmpty(request.getNationality())) {
             driver.setNationality(request.getNationality());
         }
@@ -222,7 +222,7 @@ public class DriverService {
             driver.setPassportNumber(request.getPassportNumber());
         }
         if (!StringUtil.isEmpty(request.getCprNumber())) {
-            driver.setCprNumber(request.getCprNumber());
+            driver.setCprNumber(Long.parseLong(request.getCprNumber()));
         }
         if (!StringUtil.isEmpty(request.getVehicleType())) {
             driver.setVehicleType(request.getVehicleType());
@@ -275,7 +275,6 @@ public class DriverService {
         if (!StringUtil.isEmpty(request.getPassbookImageUrl())) {
             driver.setPassbookImageUrl(request.getPassbookImageUrl());
         }
-
         return driver;
     }
 
@@ -410,10 +409,10 @@ public class DriverService {
                         driver.getAddress(),
                         driver.getReferenceLocation(),
                         driver.getVisaType(),
-                        driver.getVisaProcurement(),
+//                        driver.getVisaProcurement(),
                         driver.getNationality(),
                         driver.getPassportNumber(),
-                        driver.getCprNumber(),
+                        String.valueOf(driver.getCprNumber()),
                         driver.getVehicleType(),
                         driver.getLicenceType(),
                         driver.getLicenceNumber(),

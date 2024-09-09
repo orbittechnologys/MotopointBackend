@@ -29,7 +29,7 @@ public class UserDao {
         return user.orElse(null);
     }
 
-    public boolean checkUserExists(String email, String phone) {
+    public boolean checkUserExists(String email, Long phone) {
         Optional<User> userByEmail = userRepository.findByEmail(email);
         if (userByEmail.isPresent()) {
             return true;
@@ -39,7 +39,7 @@ public class UserDao {
         return userByPhone.isPresent();
     }
 
-    public Optional<User> getUser(String email, String phone) {
+    public Optional<User> getUser(String email, Long phone) {
         Optional<User> userByEmail = userRepository.findByEmail(email);
         if (userByEmail.isPresent()) {
             return userByEmail;
@@ -49,7 +49,7 @@ public class UserDao {
         return userByPhone;
     }
 
-    public Optional<User> getUserByPhone(String phone) {
+    public Optional<User> getUserByPhone(Long phone) {
         Optional<User> userByPhone = userRepository.findByPhone(phone);
         return userByPhone;
     }

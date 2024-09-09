@@ -72,7 +72,7 @@ public class AdminService {
         if (!StringUtil.isEmpty(request.getEmail())) {
             admin.setEmail(request.getEmail());
         }
-        if (!StringUtil.isEmpty(request.getPhone())) {
+        if (request.getPhone() != null) {
             admin.setPhone(request.getPhone());
         }
         if (!StringUtil.isEmpty(request.getFirstName())) {

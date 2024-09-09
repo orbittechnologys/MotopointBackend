@@ -108,7 +108,7 @@ public class StaffService {
         if (!StringUtil.isEmpty(request.getEmail())) {
             staff.setEmail(request.getEmail());
         }
-        if (!StringUtil.isEmpty(request.getPhone())) {
+        if (request.getPhone() != null) {
             staff.setPhone(request.getPhone());
         }
         if (!StringUtil.isEmpty(request.getPassword())) {

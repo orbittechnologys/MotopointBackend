@@ -11,7 +11,7 @@ public class UpdateStaffReq {
 
     private String email;
 
-    private String phone;
+    private Long phone;
 
     private String password;
 

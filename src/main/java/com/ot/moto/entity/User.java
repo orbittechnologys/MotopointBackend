@@ -26,8 +26,8 @@ public class User {
 
     private String email;
 
-    @Column(unique = true)
-    private String phone;
+    @Column(unique = true,length = 8) // added on 9th sept
+    private long phone;
 
     private String password;
 

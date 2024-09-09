@@ -13,7 +13,7 @@ public class UpdateDriverReq {
 
     private String email;
 
-    private String phone;
+    private Long phone;
 
     private String password;
 
@@ -24,7 +24,6 @@ public class UpdateDriverReq {
     private String profilePic;
 
     private LocalDate joiningDate;
-
 
     private LocalDate visaExpiryDate;
 

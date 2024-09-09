@@ -148,17 +148,21 @@ public class SecurityConfig {
             "/fleet/getById/{id}",
             "/fleet/getAll",
             "/fleet/assignFleet",
-            "/staff/getAll"
+            "/staff/getAll",
+            "assets/saveAllForDriver/{driverId}",
+            "assets/findById/{id}",
+            "assets/getAll"
+
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create",
-            "/user/{userId}/status"};
+            "/user/{userId}/status" };
 
     private static final String[] DRIVER_WHITELIST = {};
 
     private static final String[] STAFF_WHITELIST = {};
 
-    private static final String[] ADMIN_STAFF_WHITELIST = {"/driver/create", "/driver/update", "/fleet/create", "/fleet/getById/{id}", "/fleet/getAll", "/fleet/update", "/driver/details", "/staff/update"};
+    private static final String[] ADMIN_STAFF_WHITELIST = {"/driver/create", "/driver/update", "/fleet/create", "/fleet/getById/{id}", "/fleet/getAll", "/fleet/update", "/driver/details", "/staff/update" };
 
     @Bean
     public PasswordEncoder passwordEncoder() {

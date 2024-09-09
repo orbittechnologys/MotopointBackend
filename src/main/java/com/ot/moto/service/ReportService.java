@@ -305,7 +305,7 @@ public class ReportService {
                 String dateStr = row.getCell(0).toString();
                 LocalDate date = LocalDate.parse(dateStr, formatter);
 
-                String phoneNumber = extractPhoneNumber(description);
+                Long phoneNumber = Long.valueOf(extractPhoneNumber(description));
                 logger.info("Extracted phone number: " + phoneNumber);
 
                 Driver driver = driverDao.findByPhoneNumber(phoneNumber);
@@ -460,7 +460,7 @@ public class ReportService {
                 row.createCell(3).setCellValue(payment.getType());
                 row.createCell(4).setCellValue(payment.getDate() != null ? payment.getDate().format(formatter) : "");
                 row.createCell(5).setCellValue(payment.getDriver() != null ? payment.getDriver().getUsername() : "");
-                row.createCell(6).setCellValue(payment.getDriver() != null ? payment.getDriver().getPhone() : "");
+                row.createCell(6).setCellValue(payment.getDriver() != null ? String.valueOf(payment.getDriver().getPhone()) : "");  // Fixed line
             }
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -484,7 +484,6 @@ public class ReportService {
             return ResponseEntity.internalServerError().build();
         }
     }
-
 
     public ResponseEntity<ResponseStructure<Object>> getSumForCurrentMonth() {
         LocalDate now = LocalDate.now();
@@ -562,3 +561,58 @@ public class ReportService {
         }
     }
 }
+
+
+
+//    public ResponseEntity<InputStreamResource> generateExcelForPayments() {
+//        try {
+//            List<Payment> paymentsList = paymentRepository.findAll();
+//            if (paymentsList.isEmpty()) {
+//                return ResponseEntity.notFound().build();
+//            }
+//
+//            XSSFWorkbook workbook = new XSSFWorkbook();
+//            Sheet sheet = workbook.createSheet("Benefit Reports");
+//
+//            Row headerRow = sheet.createRow(0);
+//            String[] headers = {
+//                    "ID", "Amount", "Description", "Type", "Date", "Driver Name", "Driver PhoneNumber"
+//            };
+//            for (int i = 0; i < headers.length; i++) {
+//                headerRow.createCell(i).setCellValue(headers[i]);
+//            }
+//
+//            int rowNum = 1;
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//            for (Payment payment : paymentsList) {
+//                Row row = sheet.createRow(rowNum++);
+//                row.createCell(0).setCellValue(payment.getId());
+//                row.createCell(1).setCellValue(payment.getAmount());
+//                row.createCell(2).setCellValue(payment.getDescription());
+//                row.createCell(3).setCellValue(payment.getType());
+//                row.createCell(4).setCellValue(payment.getDate() != null ? payment.getDate().format(formatter) : "");
+//                row.createCell(5).setCellValue(payment.getDriver() != null ? payment.getDriver().getUsername() : "");
+//                row.createCell(6).setCellValue(payment.getDriver() != null ? payment.getDriver().getPhone() : "");
+//            }
+//
+//            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//            workbook.write(outputStream);
+//            workbook.close();
+//
+//            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(outputStream.toByteArray());
+//            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+//
+//            HttpHeaders headers1 = new HttpHeaders();
+//            headers1.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=payments.xlsx");
+//            headers1.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+//
+//            return ResponseEntity.ok()
+//                    .headers(headers1)
+//                    .contentLength(outputStream.size())
+//                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+//                    .body(resource);
+//
+//        } catch (IOException e) {
+//            return ResponseEntity.internalServerError().build();
+//        }
+//    }

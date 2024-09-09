@@ -76,8 +76,7 @@ public class TamService {
                     deductAmountPending(tam.getMobileNumber(), tam.getPayInAmount());
                     tamList.add(tam);
 
-                    Driver driver = driverRepository.findByPhone(String.valueOf(tam.getMobileNumber()));
-
+                    Driver driver = driverRepository.findByPhone((tam.getMobileNumber()));
 
                 } else {
                     logger.warn("Invalid or failed to parse row " + i + ", skipping...");
@@ -267,8 +266,8 @@ public class TamService {
         }
     }
 
-    private void deductAmountPending(long mobileNumber, double amount) {
-        Driver driver = driverRepository.findByPhone(String.valueOf(mobileNumber));
+    private void deductAmountPending(Long mobileNumber, double amount) {
+        Driver driver = driverRepository.findByPhone(mobileNumber);
         if (Objects.nonNull(driver)) {
             driver.setPaidByTam(Optional.ofNullable(driver.getPaidByTam()).orElse(0.0) + amount);
             driver.setPayToJahez(driver.getCodAmount() - amount);

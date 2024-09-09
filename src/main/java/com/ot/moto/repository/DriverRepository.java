@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface DriverRepository extends JpaRepository<Driver, Long> {
 
 
-    public Driver findByPhone(String phone);
+    public Driver findByPhone(Long phone);
 
     public List<Driver> findByUsernameContaining(String username);
 

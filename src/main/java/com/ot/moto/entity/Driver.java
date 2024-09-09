@@ -1,10 +1,12 @@
 package com.ot.moto.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -35,13 +37,14 @@ public class Driver extends User {
 
     private String visaType;
 
-    private String visaProcurement;
+//    private String visaProcurement;
 
     private String nationality;
 
     private String passportNumber;
 
-    private String cprNumber;
+    @Column(unique = true, length = 9) //added on 5th sept
+    private Long cprNumber;
 
     private String vehicleType;
 
@@ -96,5 +99,9 @@ public class Driver extends User {
     @OneToMany(mappedBy = "driver")
     @JsonBackReference("driver")
     private List<Orders> orders;
+
+    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("assets")
+    private List<Assets> assets = new ArrayList<>();
 
 }
