@@ -148,7 +148,14 @@ public class SecurityConfig {
             "/fleet/getById/{id}",
             "/fleet/getAll",
             "/fleet/assignFleet",
-            "/staff/getAll"
+            "/staff/getAll",
+            "/visa/getByName",
+            "/visa/getById/{id}",
+            "/visa/getAll",
+            "/visa/update",
+            "/visa/create",
+            "/driver/create"
+
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create",
