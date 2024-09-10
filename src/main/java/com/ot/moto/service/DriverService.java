@@ -1,19 +1,24 @@
 package com.ot.moto.service;
 
 import com.opencsv.CSVWriter;
-import com.ot.moto.dao.DriverDao;
-import com.ot.moto.dao.OrderDao;
-import com.ot.moto.dao.UserDao;
+import com.ot.moto.dao.*;
 import com.ot.moto.dto.ResponseStructure;
+import com.ot.moto.dto.request.AssetRequest;
 import com.ot.moto.dto.request.CreateDriverReq;
 import com.ot.moto.dto.request.UpdateDriverReq;
 import com.ot.moto.dto.response.DriverDetails;
 import com.ot.moto.dto.response.TopDrivers;
+import com.ot.moto.entity.Asset;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.User;
+import com.ot.moto.entity.Visa;
+import com.ot.moto.repository.AssetRepository;
 import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.OrdersRepository;
+import com.ot.moto.repository.VisaRepository;
 import com.ot.moto.util.StringUtil;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -36,8 +41,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 public class DriverService {
@@ -62,18 +71,42 @@ public class DriverService {
     @Autowired
     private DriverRepository driverRepository;
 
+    @Autowired
+    private AssetRepository assetRepository;
+
+    @Autowired
+    private VisaRepository visaRepository;
+
+    @Autowired
+    private VisaDao visaDao;
+
+    @Autowired
+    private AssetsDao assetsDao;
 
     public ResponseEntity<ResponseStructure<Object>> createDriver(CreateDriverReq request) {
         try {
+            // Check for existing user
             if (userDao.checkUserExists(request.getEmail(), request.getPhone())) {
                 logger.warn("Email/ Phone already exists: {}, {}", request.getEmail(), request.getPhone());
                 return ResponseStructure.errorResponse(null, 409, "Email/ Phone already exists");
             }
+
+            // Build the Driver entity from the request
             Driver driver = buildDriverFromRequest(request);
-            driverDao.createDriver(driver);
+
+            // Save the Driver entity first
+            driver = driverRepository.save(driver);
             logger.info("Driver created successfully: {}", driver.getId());
 
-            return ResponseStructure.successResponse(driver, "Driver created successfully");
+            Driver savedDriver = driverDao.getById(driver.getId());
+            if (Objects.isNull(savedDriver)) {
+                logger.warn("No Driver found. Invalid ID:" + driver.getId());
+                return ResponseStructure.errorResponse(null, 404, "Invalid Id:" + driver.getId());
+            }
+
+            createAssetAndVise(savedDriver,request);
+
+            return ResponseStructure.successResponse(savedDriver, "Driver created successfully");
 
         } catch (Exception e) {
             logger.error("Error Creating driver", e);
@@ -81,32 +114,60 @@ public class DriverService {
         }
     }
 
+    private void createAssetAndVise(Driver driver, CreateDriverReq request){
+        // Handle assets after the driver is saved
+        if (request.getAssets() != null) {
+            List<Asset> assets = new ArrayList<>();
+            for (AssetRequest assetRequest : request.getAssets()) {
+                Asset asset = new Asset();
+                asset.setItem(assetRequest.getItem());
+                asset.setQuantity(assetRequest.getQuantity());
+                asset.setLocalDate(assetRequest.getLocalDate());
+                asset.setDriver(driver); // Link the saved driver to the asset
+                assets.add(asset);
+            }
+            assetsDao.saveAll(assets); // Save all assets after the driver is saved
+        }
+
+        Visa visa = visaDao.findById(request.getVisaType());
+        if (visa != null) {
+            driver.setVisa(visa);
+            driverRepository.save(driver);
+        }
+    }
+
     private Driver buildDriverFromRequest(CreateDriverReq request) {
         Driver driver = new Driver();
+
         driver.setEmail(request.getEmail());
         driver.setPhone(request.getPhone());
         driver.setPassword(encoder.encode(request.getPassword()));
         driver.setUsername((request.getFirstName() + " " + request.getLastName()).toUpperCase());
         driver.setProfilePic(request.getProfilePic());
         driver.setJoiningDate(request.getJoiningDate());
-        driver.setAmountPending(request.getAmountPending());
-        driver.setTotalOrders(request.getTotalOrders());
+        driver.setDateOfBirth(request.getDateOfBirth());
+
         driver.setJahezId(request.getJahezId());
-        driver.setVisaExpiryDate(request.getVisaExpiryDate());
-        driver.setSalaryAmount(request.getSalaryAmount());
+        driver.setAmountPending(0.0);
+        driver.setAmountReceived(0.0);
+        driver.setTotalOrders(0L);
+        driver.setCurrentOrders(0L);
+        driver.setSalaryAmount(0.0);
+        driver.setCodAmount(0.0);
+        driver.setBonus(0.0);
+        driver.setPayToJahez(0.0);
+        driver.setPaidByTam(0.0);
+        driver.setProfit(0.0);
         driver.setAddress(request.getAddress());
         driver.setReferenceLocation(request.getReferenceLocation());
-        driver.setVisaType(request.getVisaType());
-        driver.setVisaProcurement(request.getVisaProcurement());
         driver.setNationality(request.getNationality());
         driver.setPassportNumber(request.getPassportNumber());
+        driver.setPassportExpiryDate(request.getPassportExpiryDate());
         driver.setCprNumber(request.getCprNumber());
         driver.setVehicleType(request.getVehicleType());
-        driver.setLicenceType(request.getLicenceType());
-        driver.setLicenceNumber(request.getLicenceNumber());
-        driver.setLicenceExpiryDate(request.getLicenceExpiryDate());
-        driver.setLicensePhotoUrl(request.getLicensePhotoUrl());
-        driver.setRcPhotoUrl(request.getRcPhotoUrl());
+        driver.setVehicleNumber(request.getVehicleNumber());
+        driver.setDlType(request.getDlType());
+        driver.setDlExpiryDate(request.getDlExpiryDate());
         driver.setBankAccountName(request.getBankAccountName());
         driver.setBankName(request.getBankName());
         driver.setBankAccountNumber(request.getBankAccountNumber());
@@ -114,12 +175,93 @@ public class DriverService {
         driver.setBankBranch(request.getBankBranch());
         driver.setBankBranchCode(request.getBankBranchCode());
         driver.setBankSwiftCode(request.getBankSwiftCode());
-        driver.setBankIfsc(request.getBankIfsc());
         driver.setBankAccountCurrency(request.getBankAccountCurrency());
         driver.setBankMobilePayNumber(request.getBankMobilePayNumber());
+        driver.setBankAccountType(request.getBankAccountType());
+        driver.setRemarks(request.getRemarks());
+        driver.setVisaExpiryDate(request.getVisaExpiryDate());
+        // Upload Documents
+        driver.setDlFrontPhotoUrl(request.getDlFrontPhotoUrl());
+        driver.setDlBackPhotoUrl(request.getDlBackPhotoUrl());
+        driver.setRcFrontPhotoUrl(request.getRcFrontPhotoUrl());
+        driver.setRcBackPhotoUrl(request.getRcBackPhotoUrl());
         driver.setPassbookImageUrl(request.getPassbookImageUrl());
+        driver.setPassportFrontUrl(request.getPassportFrontUrl());
+        driver.setPassportBackUrl(request.getPassportBackUrl());
+        driver.setCprFrontImageUrl(request.getCprFrontImageUrl());
+        driver.setCprBackImageUrl(request.getCprBackImageUrl());
+        driver.setCprReaderImageUrl(request.getCprReaderImageUrl());
+        driver.setVisaCopyImageUrl(request.getVisaCopyImageUrl());
+
+        // Calculate driver EMI
+        calculateDriverEMI(driver, request);
 
         return driver;
+    }
+
+    public void calculateDriverEMI(Driver driver, CreateDriverReq request) {
+
+        driver.setVisaAmount(request.getVisaAmount());
+        driver.setVisaAmountStartDate(request.getVisaAmountStartDate());
+        driver.setVisaAmountEndDate(request.getVisaAmountEndDate());
+
+        LocalDate startDate = request.getVisaAmountStartDate();
+        LocalDate endDate = request.getVisaAmountEndDate();
+        Double visaAmount = request.getVisaAmount();
+
+        if (startDate != null && endDate != null && visaAmount != null) {
+            long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+            if (daysBetween > 0) {
+                double emi = visaAmount / daysBetween;
+                driver.setVisaAmountEmi(emi);
+            } else {
+                throw new RuntimeException("Visa start date must be before end date.");
+            }
+        } else {
+            driver.setVisaAmountEmi(null);
+        }
+
+        // Handle Bike Rent EMI calculation
+        driver.setBikeRentAmount(request.getBikeRentAmount());
+        driver.setBikeRentAmountStartDate(request.getBikeRentAmountStartDate());
+        driver.setBikeRentAmountEndDate(request.getBikeRentAmountEndDate());
+
+        LocalDate bikeStartDate = request.getBikeRentAmountStartDate();
+        LocalDate bikeEndDate = request.getBikeRentAmountEndDate();
+        Double bikeAmount = request.getBikeRentAmount();
+
+        if (bikeStartDate != null && bikeEndDate != null && bikeAmount != null) {
+            long bikeDays = ChronoUnit.DAYS.between(bikeStartDate, bikeEndDate);
+            if (bikeDays > 0) {
+                double emi = bikeAmount / bikeDays;
+                driver.setBikeRentAmountEmi(emi);
+            } else {
+                throw new RuntimeException("Bike rent start date must be before end date.");
+            }
+        } else {
+            driver.setBikeRentAmountEmi(null);
+        }
+
+        // Handle Other Deductions EMI calculation
+        driver.setOtherDeductionAmount(request.getOtherDeductionAmount());
+        driver.setOtherDeductionAmountStartDate(request.getOtherDeductionAmountStartDate());
+        driver.setOtherDeductionAmountEndDate(request.getOtherDeductionAmountEndDate());
+
+        LocalDate otherStartDate = request.getOtherDeductionAmountStartDate();
+        LocalDate otherEndDate = request.getOtherDeductionAmountEndDate();
+        Double otherDeductionAmount = request.getOtherDeductionAmount();
+
+        if (otherStartDate != null && otherEndDate != null && otherDeductionAmount != null) {
+            long otherDeductionDays = ChronoUnit.DAYS.between(otherStartDate, otherEndDate);
+            if (otherDeductionDays > 0) {
+                double emi = otherDeductionAmount / otherDeductionDays;
+                driver.setOtherDeductionsAmountEmi(emi);
+            } else {
+                throw new RuntimeException("Other deductions start date must be before end date.");
+            }
+        } else {
+            driver.setOtherDeductionsAmountEmi(null);
+        }
     }
 
     public ResponseEntity<ResponseStructure<Object>> getDriver(Long id) {
@@ -136,7 +278,7 @@ public class DriverService {
         }
     }
 
-    public ResponseEntity<ResponseStructure<Object>> updateDriver(UpdateDriverReq request) {
+/*    public ResponseEntity<ResponseStructure<Object>> updateDriver(UpdateDriverReq request) {
         try {
             Driver driver = fetchDriver(request.getId());
             if (Objects.isNull(driver)) {
@@ -277,7 +419,7 @@ public class DriverService {
         }
 
         return driver;
-    }
+    }*/
 
     public ResponseEntity<ResponseStructure<Object>> getAllDriver(int page, int size, String field) {
         try {
@@ -298,9 +440,9 @@ public class DriverService {
 
         long totalDrivers = driverDao.countTotalDrivers();
 
-        long flexiCount = driverDao.countFlexiVisa();
+//        long flexiCount = driverDao.countFlexiVisa();
 
-        long otherVisaTypesCount = driverDao.countOtherVisaTypes();
+        /*  long otherVisaTypesCount = driverDao.countOtherVisaTypes();*/
 
         long ridersCount = driverDao.countTwoWheelerRiders();
 
@@ -310,12 +452,12 @@ public class DriverService {
         logger.info("Fetching attendance count for {}", yesterday);
         long attendanceCount = ordersRepository.countDriversWithOrdersOnDate(yesterday);
 
-        long visaTypeCount = flexiCount + otherVisaTypesCount;
+//        long visaTypeCount = flexiCount + otherVisaTypesCount;
 
         logger.info("Returning DriverDetails with totalDrivers: {}, attendance: {}, riders: {}, drivers: {}, visaType: {}, flexi: {}",
-                totalDrivers, attendanceCount, ridersCount, driversCount, visaTypeCount, flexiCount);
+                totalDrivers, attendanceCount, ridersCount, driversCount);/*, *//*visaTypeCount, flexiCount*/
 
-        return new DriverDetails(totalDrivers, attendanceCount, ridersCount, driversCount, visaTypeCount, flexiCount);
+        return new DriverDetails(totalDrivers, attendanceCount, ridersCount, driversCount);/*, visaTypeCount, flexiCount);*/
     }
 
     public ResponseEntity<ResponseStructure<Object>> deleteDriver(Long driverId) {
@@ -388,12 +530,16 @@ public class DriverService {
             StringWriter writer = new StringWriter();
             CSVWriter csvWriter = new CSVWriter(writer);
 
-            String[] header = {"Driver ID", "Amount Pending", "Amount Received", "Total Orders", "Current Orders", "Jahez ID",
-                    "Visa Expiry Date", "Salary Amount", "Address", "Reference Location", "Visa Type", "Visa Procurement",
-                    "Nationality", "Passport Number", "CPR Number", "Vehicle Type", "Licence Type", "Licence Number",
-                    "Licence Expiry Date", "License Photo URL", "RC Photo URL", "Bank Account Name", "Bank Name",
-                    "Bank Account Number", "Bank IBAN Number", "Bank Branch", "Bank Branch Code", "Bank Swift Code",
-                    "Bank IFSC", "Bank Account Currency", "Bank Mobile Pay Number", "Passbook Image URL"};
+            String[] header = {
+                    "Driver ID", "Amount Pending", "Amount Received", "Total Orders", "Current Orders", "Jahez ID",
+                    "Visa Expiry Date", "Salary Amount", "Address", "Reference Location", "Nationality", "Passport Number",
+                    "CPR Number", "Vehicle Type", "DL Type", "DL Expiry Date", "DL Front Photo URL", "DL Back Photo URL",
+                    "RC Front Photo URL", "RC Back Photo URL", "Bank Account Name", "Bank Name", "Bank Account Number",
+                    "Bank IBAN Number", "Bank Branch", "Bank Branch Code", "Bank Swift Code", "Bank Account Currency",
+                    "Bank Mobile Pay Number", "Visa Amount", "Visa Amount Start Date", "Visa Amount End Date", "Visa Amount EMI",
+                    "Bike Rent Amount", "Bike Rent Start Date", "Bike Rent End Date", "Bike Rent EMI", "Other Deduction Amount",
+                    "Other Deduction Start Date", "Other Deduction End Date", "Other Deductions EMI", "Remarks"
+            };
 
             csvWriter.writeNext(header);
 
@@ -409,17 +555,16 @@ public class DriverService {
                         String.valueOf(driver.getSalaryAmount()),
                         driver.getAddress(),
                         driver.getReferenceLocation(),
-                        driver.getVisaType(),
-                        driver.getVisaProcurement(),
                         driver.getNationality(),
                         driver.getPassportNumber(),
                         driver.getCprNumber(),
                         driver.getVehicleType(),
-                        driver.getLicenceType(),
-                        driver.getLicenceNumber(),
-                        driver.getLicenceExpiryDate(),
-                        driver.getLicensePhotoUrl(),
-                        driver.getRcPhotoUrl(),
+                        driver.getDlType(),
+                        driver.getDlExpiryDate() != null ? driver.getDlExpiryDate().toString() : "",
+                        driver.getDlFrontPhotoUrl(),
+                        driver.getDlBackPhotoUrl(),
+                        driver.getRcFrontPhotoUrl(),
+                        driver.getRcBackPhotoUrl(),
                         driver.getBankAccountName(),
                         driver.getBankName(),
                         driver.getBankAccountNumber(),
@@ -427,10 +572,21 @@ public class DriverService {
                         driver.getBankBranch(),
                         driver.getBankBranchCode(),
                         driver.getBankSwiftCode(),
-                        driver.getBankIfsc(),
                         driver.getBankAccountCurrency(),
                         driver.getBankMobilePayNumber(),
-                        driver.getPassbookImageUrl()
+                        driver.getVisaAmount() != null ? String.valueOf(driver.getVisaAmount()) : "",
+                        driver.getVisaAmountStartDate() != null ? driver.getVisaAmountStartDate().toString() : "",
+                        driver.getVisaAmountEndDate() != null ? driver.getVisaAmountEndDate().toString() : "",
+                        driver.getVisaAmountEmi() != null ? String.valueOf(driver.getVisaAmountEmi()) : "",
+                        driver.getBikeRentAmount() != null ? String.valueOf(driver.getBikeRentAmount()) : "",
+                        driver.getBikeRentAmountStartDate() != null ? driver.getBikeRentAmountStartDate().toString() : "",
+                        driver.getBikeRentAmountEndDate() != null ? driver.getBikeRentAmountEndDate().toString() : "",
+                        driver.getBikeRentAmountEmi() != null ? String.valueOf(driver.getBikeRentAmountEmi()) : "",
+                        driver.getOtherDeductionAmount() != null ? String.valueOf(driver.getOtherDeductionAmount()) : "",
+                        driver.getOtherDeductionAmountStartDate() != null ? driver.getOtherDeductionAmountStartDate().toString() : "",
+                        driver.getOtherDeductionAmountEndDate() != null ? driver.getOtherDeductionAmountEndDate().toString() : "",
+                        driver.getOtherDeductionsAmountEmi() != null ? String.valueOf(driver.getOtherDeductionsAmountEmi()) : "",
+                        driver.getRemarks()
                 };
                 csvWriter.writeNext(data);
             }

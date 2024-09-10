@@ -2,7 +2,6 @@ package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateDriverReq;
-import com.ot.moto.dto.request.UpdateDriverReq;
 import com.ot.moto.dto.response.DriverDetails;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.service.DriverService;
@@ -31,7 +30,7 @@ public class DriverController {
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"),
             @ApiResponse(responseCode = "409", description = "Staff Already Exist")})
     @PostMapping("/create")
-    public ResponseEntity<ResponseStructure<Object>> createStaff(@RequestBody CreateDriverReq req) {
+    public ResponseEntity<ResponseStructure<Object>> createDriver(@RequestBody CreateDriverReq req) {
         return driverService.createDriver(req);
     }
 
@@ -43,14 +42,14 @@ public class DriverController {
         return driverService.getDriver(id);
     }
 
-    @Operation(summary = "Update Driver", description = "Input is Update driver Request, returns Driver Object")
+/*    @Operation(summary = "Update Driver", description = "Input is Update driver Request, returns Driver Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Updated"),
             @ApiResponse(responseCode = "404", description = "Driver Doesn't Exist"),
             @ApiResponse(responseCode = "409", description = "Phone/Email already exists")})
     @PostMapping("/update")
     public ResponseEntity<ResponseStructure<Object>> updateStaff(@RequestBody UpdateDriverReq req) {
         return driverService.updateDriver(req);
-    }
+    }*/
 
     @Operation(summary = "Get all Drivers", description = "returns List of Driver Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),

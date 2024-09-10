@@ -1,14 +1,22 @@
 package com.ot.moto.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Driver extends User {
 
     {
@@ -23,37 +31,43 @@ public class Driver extends User {
 
     private Long currentOrders;
 
+    private Double salaryAmount;
+
+    private Double payToJahez = 0.0;
+
+    private Double codAmount = 0.0;
+
+    private Double bonus = 0.0;
+
+    private Double paidByTam = 0.0;
+
+    private Double profit = 0.0;
+
     private String jahezId;
 
     private LocalDate visaExpiryDate;
-
-    private Double salaryAmount;
 
     private String address;
 
     private String referenceLocation;
 
-    private String visaType;
-
-    private String visaProcurement;
-
     private String nationality;
 
     private String passportNumber;
 
+    private LocalDate passportExpiryDate;
+
+    @Size(min = 9, max = 9, message = "CPR Number must be exactly 9 digits")
+    @Pattern(regexp = "\\d{9}", message = "CPR Number must be exactly 9 digits")
     private String cprNumber;
 
-    private String vehicleType;
+    private String vehicleType;//Frontend Drop down as Owned, Rented, Source Rented
 
-    private String licenceType;
+    private String vehicleNumber; // If Vehicle Type Owned
 
-    private String licenceNumber;
+    private String dlType;//Frontend Drop down as PRIVATE , MOTERCYCLE
 
-    private String licenceExpiryDate;
-
-    private String licensePhotoUrl;
-
-    private String rcPhotoUrl;
+    private LocalDate dlExpiryDate;
 
     private String bankAccountName;
 
@@ -69,25 +83,50 @@ public class Driver extends User {
 
     private String bankSwiftCode;
 
-    private String bankIfsc;
+    private String bankAccountCurrency;//Frontend Drop down as BHD
 
-    private String bankAccountCurrency;
+    private String bankMobilePayNumber;//Frontend Name it as Benefit Pay Number
 
-    private String bankMobilePayNumber;
+    private String bankAccountType;//Frontend Drop Down
+
+    private Double visaAmount;
+    private LocalDate visaAmountStartDate;
+    private LocalDate visaAmountEndDate;
+    private Double visaAmountEmi;
+
+    private Double bikeRentAmount;
+    private LocalDate bikeRentAmountStartDate;
+    private LocalDate bikeRentAmountEndDate;
+    private Double bikeRentAmountEmi;
+
+    private Double otherDeductionAmount;
+    private LocalDate otherDeductionAmountStartDate;
+    private LocalDate otherDeductionAmountEndDate;
+    private Double otherDeductionsAmountEmi;
+
+    private String remarks;
+
+
+    //Document Uploads
+    private String dlFrontPhotoUrl;
+    private String dlBackPhotoUrl;
+
+    private String rcFrontPhotoUrl;
+    private String rcBackPhotoUrl;
 
     private String passbookImageUrl;
 
-    private Double annualVisaCharges;
+    private String passportFrontUrl;
+    private String passportBackUrl;
 
-    private Double payToJahez = 0.0;
+    private String cprFrontImageUrl;
+    private String cprBackImageUrl;
 
-    private Double codAmount = 0.0;
+    private String cprReaderImageUrl;
 
-    private Double bonus = 0.0;
+    private String visaCopyImageUrl;
 
-    private Double paidByTam = 0.0;
 
-    private Double profit = 0.0;
 
     @OneToOne(mappedBy = "driver")
     @JsonBackReference("fleet")
@@ -96,5 +135,14 @@ public class Driver extends User {
     @OneToMany(mappedBy = "driver")
     @JsonBackReference("driver")
     private List<Orders> orders;
+
+    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("assets")
+    private List<Asset> assets;
+
+    @ManyToOne
+    @JoinColumn
+    @JsonManagedReference("visa")
+    private Visa visa;
 
 }

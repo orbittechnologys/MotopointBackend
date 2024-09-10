@@ -3,6 +3,7 @@ package com.ot.moto.dto.request;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class UpdateDriverReq {
@@ -21,38 +22,29 @@ public class UpdateDriverReq {
 
     private String lastName;
 
-    private String profilePic;
-
     private LocalDate joiningDate;
 
-
-    private LocalDate visaExpiryDate;
+    private LocalDate dateOfBirth;
 
     private String address;
 
     private String referenceLocation;
 
-    private String visaType;
-
-    private String visaProcurement;
-
     private String nationality;
 
     private String passportNumber;
+
+    private LocalDate passportExpiryDate;
 
     private String cprNumber;
 
     private String vehicleType;
 
-    private String licenceType;
+    private String vehicleNumber;
 
-    private String licenceNumber;
+    private String dlType;
 
-    private String licenceExpiryDate;
-
-    private String licensePhotoUrl;
-
-    private String rcPhotoUrl;
+    private LocalDate dlExpiryDate;
 
     private String bankAccountName;
 
@@ -63,15 +55,42 @@ public class UpdateDriverReq {
     private String bankIbanNumber;
 
     private String bankBranch;
+
     private String bankBranchCode;
 
     private String bankSwiftCode;
-
-    private String bankIfsc;
 
     private String bankAccountCurrency;
 
     private String bankMobilePayNumber;
 
+    private String bankAccountType;
+
+
+    //uploads
+    private String profilePic;
+
     private String passbookImageUrl;
+
+    private String dlFrontPhotoUrl;
+    private String dlBackPhotoUrl;
+
+    private String rcFrontPhotoUrl;
+    private String rcBackPhotoUrl;
+
+    private String passportFrontUrl;
+    private String passportBackUrl;
+
+    private String cprFrontImageUrl;
+    private String cprBackImageUrl;
+
+    private String cprReaderImageUrl;
+
+    private String visaCopyImageUrl;
+
+
+    //visa & asset
+    private List<AssetRequest> assets;
+
+    private VisaRequest visa;
 }

@@ -36,15 +36,15 @@ public class DriverDao {
         return driverOptional.orElse(null);
     }
 
-    public long countFlexiVisa() {
+ /*   public long countFlexiVisa() {
         long countFl = driverRepository.countFlexiVisa();
         return Objects.isNull(countFl) ? 0 : countFl ;
-    }
+    }*/
 
-    public long countOtherVisaTypes() {
+  /*  public long countOtherVisaTypes() {
         return driverRepository.countOtherVisaTypes();
     }
-
+*/
     public long countTwoWheelerRiders() {
         long countT = driverRepository.countTwoWheelerRiders();
         return Objects.isNull(countT) ? 0 : countT ;

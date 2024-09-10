@@ -1,6 +1,8 @@
 package com.ot.moto.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,6 +29,8 @@ public class User {
     private String email;
 
     @Column(unique = true)
+    @Size(min = 8, max = 8, message = "Phone number must be exactly 8 digits")
+    @Pattern(regexp = "\\d{8}", message = "Phone number must be exactly 8 digits")
     private String phone;
 
     private String password;
@@ -34,6 +38,8 @@ public class User {
     private String profilePic;
 
     private LocalDate joiningDate;
+
+    private LocalDate dateOfBirth;
 
     private String otp;
 
