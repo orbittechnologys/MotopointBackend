@@ -4,6 +4,7 @@ import com.opencsv.CSVWriter;
 import com.ot.moto.dao.*;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.AssetRequest;
+import com.ot.moto.dto.request.AssetUpdateReq;
 import com.ot.moto.dto.request.CreateDriverReq;
 import com.ot.moto.dto.request.UpdateDriverReq;
 import com.ot.moto.dto.response.DriverDetails;
@@ -17,13 +18,6 @@ import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.OrdersRepository;
 import com.ot.moto.repository.VisaRepository;
 import com.ot.moto.util.StringUtil;
-import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +39,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.List;
-import java.util.stream.Collectors;
-
 
 @Service
 public class DriverService {
@@ -104,7 +96,7 @@ public class DriverService {
                 return ResponseStructure.errorResponse(null, 404, "Invalid Id:" + driver.getId());
             }
 
-            createAssetAndVise(savedDriver,request);
+            createAssetAndVise(savedDriver, request);
 
             return ResponseStructure.successResponse(savedDriver, "Driver created successfully");
 
@@ -114,7 +106,7 @@ public class DriverService {
         }
     }
 
-    private void createAssetAndVise(Driver driver, CreateDriverReq request){
+    private void createAssetAndVise(Driver driver, CreateDriverReq request) {
         // Handle assets after the driver is saved
         if (request.getAssets() != null) {
             List<Asset> assets = new ArrayList<>();
@@ -264,6 +256,7 @@ public class DriverService {
         }
     }
 
+
     public ResponseEntity<ResponseStructure<Object>> getDriver(Long id) {
         try {
             Driver driver = driverDao.getById(id);
@@ -277,149 +270,6 @@ public class DriverService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
-
-/*    public ResponseEntity<ResponseStructure<Object>> updateDriver(UpdateDriverReq request) {
-        try {
-            Driver driver = fetchDriver(request.getId());
-            if (Objects.isNull(driver)) {
-                logger.warn("No driver found with id:" + request.getId());
-                return ResponseStructure.errorResponse(null, 404, "Driver not found with id:" + request.getId());
-            }
-            Optional<User> userEmail = userDao.getUserByEmail(request.getEmail());
-
-            if (userEmail.isPresent() && !userEmail.get().getId().equals(request.getId())) {
-                logger.warn("Email already exists: {}", request.getEmail());
-                return ResponseStructure.errorResponse(null, 409, "Email already exists");
-            }
-
-            Optional<User> userPhone = userDao.getUserByPhone(request.getPhone());
-
-            if (userPhone.isPresent() && !userPhone.get().getId().equals(request.getId())) {
-                logger.warn("Phone already exists: {}", request.getPhone());
-                return ResponseStructure.errorResponse(null, 409, "Phone already exists");
-            }
-
-            driver = updateDriverFromRequest(request, driver);
-            driverDao.createDriver(driver);
-
-            logger.info("Driver updated successfully: {}", driver.getId());
-
-            return ResponseStructure.successResponse(driver, "Driver updated successfully");
-
-        } catch (Exception e) {
-            logger.error("Error updating driver", e);
-            return ResponseStructure.errorResponse(null, 500, e.getMessage());
-        }
-    }
-
-    private Driver fetchDriver(Long id) {
-        Driver driver = driverDao.getById(id);
-        if (Objects.isNull(driver)) {
-            logger.warn("No Driver found. Invalid ID:" + id);
-            return null;
-        }
-        return driver;
-    }
-
-    private Driver updateDriverFromRequest(UpdateDriverReq request, Driver driver) {
-        if (!StringUtil.isEmpty(request.getEmail())) {
-            driver.setEmail(request.getEmail());
-        }
-        if (!StringUtil.isEmpty(request.getPhone())) {
-            driver.setPhone(request.getPhone());
-        }
-        if (!StringUtil.isEmpty(request.getPassword())) {
-            driver.setPassword(encoder.encode(request.getPassword()));
-        }
-        if (!StringUtil.isEmpty(request.getFirstName()) || !StringUtil.isEmpty(request.getLastName())) {
-            driver.setUsername((request.getFirstName() + " " + request.getLastName()).toUpperCase());
-        }
-        if (!StringUtil.isEmpty(request.getProfilePic())) {
-            driver.setProfilePic(request.getProfilePic());
-        }
-
-        if (!StringUtil.isEmpty(request.getJahezId())) {
-            driver.setJahezId(request.getJahezId());
-        }
-        if (request.getVisaExpiryDate() != null) {
-            driver.setVisaExpiryDate(request.getVisaExpiryDate());
-        }
-
-        if (!StringUtil.isEmpty(request.getAddress())) {
-            driver.setAddress(request.getAddress());
-        }
-        if (!StringUtil.isEmpty(request.getReferenceLocation())) {
-            driver.setReferenceLocation(request.getReferenceLocation());
-        }
-        if (!StringUtil.isEmpty(request.getVisaType())) {
-            driver.setVisaType(request.getVisaType());
-        }
-        if (!StringUtil.isEmpty(request.getVisaProcurement())) {
-            driver.setVisaProcurement(request.getVisaProcurement());
-        }
-        if (!StringUtil.isEmpty(request.getNationality())) {
-            driver.setNationality(request.getNationality());
-        }
-        if (!StringUtil.isEmpty(request.getPassportNumber())) {
-            driver.setPassportNumber(request.getPassportNumber());
-        }
-        if (!StringUtil.isEmpty(request.getCprNumber())) {
-            driver.setCprNumber(request.getCprNumber());
-        }
-        if (!StringUtil.isEmpty(request.getVehicleType())) {
-            driver.setVehicleType(request.getVehicleType());
-        }
-        if (!StringUtil.isEmpty(request.getLicenceType())) {
-            driver.setLicenceType(request.getLicenceType());
-        }
-        if (!StringUtil.isEmpty(request.getLicenceNumber())) {
-            driver.setLicenceNumber(request.getLicenceNumber());
-        }
-        if (!StringUtil.isEmpty(request.getLicenceExpiryDate())) {
-            driver.setLicenceExpiryDate(request.getLicenceExpiryDate());
-        }
-        if (!StringUtil.isEmpty(request.getLicensePhotoUrl())) {
-            driver.setLicensePhotoUrl(request.getLicensePhotoUrl());
-        }
-        if (!StringUtil.isEmpty(request.getRcPhotoUrl())) {
-            driver.setRcPhotoUrl(request.getRcPhotoUrl());
-        }
-        if (!StringUtil.isEmpty(request.getBankAccountName())) {
-            driver.setBankAccountName(request.getBankAccountName());
-        }
-        if (!StringUtil.isEmpty(request.getBankName())) {
-            driver.setBankName(request.getBankName());
-        }
-        if (!StringUtil.isEmpty(request.getBankAccountNumber())) {
-            driver.setBankAccountNumber(request.getBankAccountNumber());
-        }
-        if (!StringUtil.isEmpty(request.getBankIbanNumber())) {
-            driver.setBankIbanNumber(request.getBankIbanNumber());
-        }
-        if (!StringUtil.isEmpty(request.getBankBranch())) {
-            driver.setBankBranch(request.getBankBranch());
-        }
-        if (!StringUtil.isEmpty(request.getBankBranchCode())) {
-            driver.setBankBranchCode(request.getBankBranchCode());
-        }
-        if (!StringUtil.isEmpty(request.getBankSwiftCode())) {
-            driver.setBankSwiftCode(request.getBankSwiftCode());
-        }
-        if (!StringUtil.isEmpty(request.getBankIfsc())) {
-            driver.setBankIfsc(request.getBankIfsc());
-        }
-        if (!StringUtil.isEmpty(request.getBankAccountCurrency())) {
-            driver.setBankAccountCurrency(request.getBankAccountCurrency());
-        }
-        if (!StringUtil.isEmpty(request.getBankMobilePayNumber())) {
-            driver.setBankMobilePayNumber(request.getBankMobilePayNumber());
-        }
-        if (!StringUtil.isEmpty(request.getPassbookImageUrl())) {
-            driver.setPassbookImageUrl(request.getPassbookImageUrl());
-        }
-
-        return driver;
-    }*/
 
     public ResponseEntity<ResponseStructure<Object>> getAllDriver(int page, int size, String field) {
         try {
@@ -730,6 +580,349 @@ public class DriverService {
 
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> countDriversWithFlexiVisa() {
+        try {
+            Long count = driverDao.countFlexiVisa();
+            Long result = (count == null) ? 0L : count;
+
+            logger.info("Successfully retrieved Flexi visa driver count: {}", result);
+            return ResponseStructure.successResponse(result, "Driver count retrieved successfully.");
+        } catch (Exception e) {
+            logger.error("Error while fetching Flexi visa driver count.", e);
+            return ResponseStructure.errorResponse(null, 500, "Internal server error.");
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> countCrVisa() {
+        try {
+            Long count = driverDao.countCrVisa();
+            Long result = (count == null) ? 0L : count;
+
+            logger.info("Successfully retrieved CR visa driver count: {}", result);
+            return ResponseStructure.successResponse(result, "Driver count retrieved successfully.");
+        } catch (Exception e) {
+            logger.error("Error while fetching CR visa driver count.", e);
+            return ResponseStructure.errorResponse(null, 500, "Internal server error.");
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> countComapnyVisa() {
+        try {
+            Long count = driverDao.countCompanyVisa();
+            Long result = (count == null) ? 0L : count;
+
+            logger.info("Successfully retrieved Company visa driver count: {}", result);
+            return ResponseStructure.successResponse(result, "Driver count retrieved successfully.");
+        } catch (Exception e) {
+            logger.error("Error while fetching Company visa driver count.", e);
+            return ResponseStructure.errorResponse(null, 500, "Internal server error.");
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> countOtherVisa() {
+        try {
+            Long count = driverDao.countOtherVisa();
+            Long result = (count == null) ? 0L : count;
+
+            logger.info("Successfully retrieved Other visa driver count: {}", result);
+            return ResponseStructure.successResponse(result, "Driver count retrieved successfully.");
+        } catch (Exception e) {
+            logger.error("Error while fetching Other visa driver count.", e);
+            return ResponseStructure.errorResponse(null, 500, "Internal server error.");
+        }
+    }
+
+
+    public ResponseEntity<ResponseStructure<Object>> updateDriver(UpdateDriverReq request) {
+        try {
+            Driver driver = fetchDriver(request.getId());
+            if (Objects.isNull(driver)) {
+                logger.warn("No driver found with id: {}", request.getId());
+                return ResponseStructure.errorResponse(null, 404, "Driver not found with id: " + request.getId());
+            }
+
+            Optional<User> userEmail = userDao.getUserByEmail(request.getEmail());
+            if (userEmail.isPresent() && !userEmail.get().getId().equals(request.getId())) {
+                logger.warn("Email already exists: {}", request.getEmail());
+                return ResponseStructure.errorResponse(null, 409, "Email already exists");
+            }
+
+            Optional<User> userPhone = userDao.getUserByPhone(request.getPhone());
+            if (userPhone.isPresent() && !userPhone.get().getId().equals(request.getId())) {
+                logger.warn("Phone already exists: {}", request.getPhone());
+                return ResponseStructure.errorResponse(null, 409, "Phone already exists");
+            }
+
+            driver = updateDriverFromRequest(request, driver);
+            driverRepository.save(driver);
+
+            if (request.getAssets() != null) {
+                updateDriverAssets(driver, request.getAssets());
+            }
+
+            if (request.getVisaType() != null) {
+                Visa visa = visaDao.findById(request.getVisaType());
+                if (visa != null) {
+                    driver.setVisa(visa);
+                }
+            }
+
+            calculateDriverEMI(driver, request);
+
+            logger.info("Driver updated successfully: {}", driver.getId());
+
+            return ResponseStructure.successResponse(driver, "Driver updated successfully");
+
+        } catch (Exception e) {
+            logger.error("Error updating driver", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+    private Driver fetchDriver(Long id) {
+        Driver driver = driverDao.getById(id);
+        if (Objects.isNull(driver)) {
+            logger.warn("No Driver found. Invalid ID:" + id);
+            return null;
+        }
+        return driver;
+    }
+
+    private Driver updateDriverFromRequest(UpdateDriverReq request, Driver driver) {
+        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+            driver.setEmail(request.getEmail());
+        }
+        if (request.getPhone() != null && !request.getPhone().isEmpty()) {
+            driver.setPhone(request.getPhone());
+        }
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            driver.setPassword(encoder.encode(request.getPassword()));
+        }
+        if (request.getFirstName() != null && !request.getFirstName().isEmpty() || request.getLastName() != null && !request.getLastName().isEmpty()) {
+            driver.setUsername((request.getFirstName() + " " + request.getLastName()).toUpperCase());
+        }
+        if (request.getProfilePic() != null && !request.getProfilePic().isEmpty()) {
+            driver.setProfilePic(request.getProfilePic());
+        }
+
+        // Update date fields only if provided
+        if (request.getJoiningDate() != null) {
+            driver.setJoiningDate(request.getJoiningDate());
+        }
+        if (request.getDateOfBirth() != null) {
+            driver.setDateOfBirth(request.getDateOfBirth());
+        }
+
+        // Update other fields only if provided
+        if (request.getJahezId() != null && !request.getJahezId().isEmpty()) {
+            driver.setJahezId(request.getJahezId());
+        }
+        if (request.getVisaExpiryDate() != null) {
+            driver.setVisaExpiryDate(request.getVisaExpiryDate());
+        }
+        if (request.getAddress() != null && !request.getAddress().isEmpty()) {
+            driver.setAddress(request.getAddress());
+        }
+        if (request.getReferenceLocation() != null && !request.getReferenceLocation().isEmpty()) {
+            driver.setReferenceLocation(request.getReferenceLocation());
+        }
+        if (request.getNationality() != null && !request.getNationality().isEmpty()) {
+            driver.setNationality(request.getNationality());
+        }
+        if (request.getPassportNumber() != null && !request.getPassportNumber().isEmpty()) {
+            driver.setPassportNumber(request.getPassportNumber());
+        }
+        if (request.getPassportExpiryDate() != null) {
+            driver.setPassportExpiryDate(request.getPassportExpiryDate());
+        }
+        if (request.getCprNumber() != null && !request.getCprNumber().isEmpty()) {
+            driver.setCprNumber(request.getCprNumber());
+        }
+        if (request.getVehicleType() != null && !request.getVehicleType().isEmpty()) {
+            driver.setVehicleType(request.getVehicleType());
+        }
+        if (request.getVehicleNumber() != null && !request.getVehicleNumber().isEmpty()) {
+            driver.setVehicleNumber(request.getVehicleNumber());
+        }
+        if (request.getDlType() != null && !request.getDlType().isEmpty()) {
+            driver.setDlType(request.getDlType());
+        }
+        if (request.getDlExpiryDate() != null) {
+            driver.setDlExpiryDate(request.getDlExpiryDate());
+        }
+        if (request.getBankAccountName() != null && !request.getBankAccountName().isEmpty()) {
+            driver.setBankAccountName(request.getBankAccountName());
+        }
+        if (request.getBankName() != null && !request.getBankName().isEmpty()) {
+            driver.setBankName(request.getBankName());
+        }
+        if (request.getBankAccountNumber() != null && !request.getBankAccountNumber().isEmpty()) {
+            driver.setBankAccountNumber(request.getBankAccountNumber());
+        }
+        if (request.getBankIbanNumber() != null && !request.getBankIbanNumber().isEmpty()) {
+            driver.setBankIbanNumber(request.getBankIbanNumber());
+        }
+        if (request.getBankBranch() != null && !request.getBankBranch().isEmpty()) {
+            driver.setBankBranch(request.getBankBranch());
+        }
+        if (request.getBankBranchCode() != null && !request.getBankBranchCode().isEmpty()) {
+            driver.setBankBranchCode(request.getBankBranchCode());
+        }
+        if (request.getBankSwiftCode() != null && !request.getBankSwiftCode().isEmpty()) {
+            driver.setBankSwiftCode(request.getBankSwiftCode());
+        }
+        if (request.getBankAccountCurrency() != null && !request.getBankAccountCurrency().isEmpty()) {
+            driver.setBankAccountCurrency(request.getBankAccountCurrency());
+        }
+        if (request.getBankMobilePayNumber() != null && !request.getBankMobilePayNumber().isEmpty()) {
+            driver.setBankMobilePayNumber(request.getBankMobilePayNumber());
+        }
+        if (request.getBankAccountType() != null && !request.getBankAccountType().isEmpty()) {
+            driver.setBankAccountType(request.getBankAccountType());
+        }
+
+        // Update document URLs
+        if (request.getDlFrontPhotoUrl() != null && !request.getDlFrontPhotoUrl().isEmpty()) {
+            driver.setDlFrontPhotoUrl(request.getDlFrontPhotoUrl());
+        }
+        if (request.getDlBackPhotoUrl() != null && !request.getDlBackPhotoUrl().isEmpty()) {
+            driver.setDlBackPhotoUrl(request.getDlBackPhotoUrl());
+        }
+        if (request.getRcFrontPhotoUrl() != null && !request.getRcFrontPhotoUrl().isEmpty()) {
+            driver.setRcFrontPhotoUrl(request.getRcFrontPhotoUrl());
+        }
+        if (request.getRcBackPhotoUrl() != null && !request.getRcBackPhotoUrl().isEmpty()) {
+            driver.setRcBackPhotoUrl(request.getRcBackPhotoUrl());
+        }
+        if (request.getPassbookImageUrl() != null && !request.getPassbookImageUrl().isEmpty()) {
+            driver.setPassbookImageUrl(request.getPassbookImageUrl());
+        }
+        if (request.getPassportFrontUrl() != null && !request.getPassportFrontUrl().isEmpty()) {
+            driver.setPassportFrontUrl(request.getPassportFrontUrl());
+        }
+        if (request.getPassportBackUrl() != null && !request.getPassportBackUrl().isEmpty()) {
+            driver.setPassportBackUrl(request.getPassportBackUrl());
+        }
+        if (request.getCprFrontImageUrl() != null && !request.getCprFrontImageUrl().isEmpty()) {
+            driver.setCprFrontImageUrl(request.getCprFrontImageUrl());
+        }
+        if (request.getCprBackImageUrl() != null && !request.getCprBackImageUrl().isEmpty()) {
+            driver.setCprBackImageUrl(request.getCprBackImageUrl());
+        }
+        if (request.getCprReaderImageUrl() != null && !request.getCprReaderImageUrl().isEmpty()) {
+            driver.setCprReaderImageUrl(request.getCprReaderImageUrl());
+        }
+        if (request.getVisaCopyImageUrl() != null && !request.getVisaCopyImageUrl().isEmpty()) {
+            driver.setVisaCopyImageUrl(request.getVisaCopyImageUrl());
+        }
+
+        return driver;
+    }
+
+
+    private void updateDriverAssets(Driver driver, List<AssetUpdateReq> assetUpdateReqs) {
+        // Fetch existing assets for the driver
+        List<Asset> existingAssets = assetsDao.findByDriver(driver);
+
+        // Collect asset IDs to keep from the incoming requests
+        Set<Long> assetIdsToKeep = assetUpdateReqs.stream()
+                .map(AssetUpdateReq::getId) // Use AssetUpdateReq to get ID
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        // Remove assets that are no longer in the request
+        existingAssets.removeIf(asset -> !assetIdsToKeep.contains(asset.getId()));
+        if (!existingAssets.isEmpty()) {
+            assetsDao.deleteAll(existingAssets);
+        }
+
+        // Add or update assets based on the incoming requests
+        for (AssetUpdateReq assetUpdateReq : assetUpdateReqs) {
+            Asset asset;
+            if (assetUpdateReq.getId() != null) {
+                asset = assetsDao.findById(assetUpdateReq.getId());
+                if (asset == null) {
+                    asset = new Asset(); // Create a new asset if not found
+                }
+            } else {
+                asset = new Asset(); // Create a new asset if no ID is provided
+            }
+
+            // Update asset details from the request
+            asset.setItem(assetUpdateReq.getItem());
+            asset.setQuantity(assetUpdateReq.getQuantity());
+            asset.setLocalDate(assetUpdateReq.getLocalDate());
+            asset.setDriver(driver);
+
+            // Save or update the asset
+            assetsDao.save(asset);
+        }
+    }
+
+    private void calculateDriverEMI(Driver driver, UpdateDriverReq request) {
+        driver.setVisaAmount(request.getVisaAmount());
+        driver.setVisaAmountStartDate(request.getVisaAmountStartDate());
+        driver.setVisaAmountEndDate(request.getVisaAmountEndDate());
+
+        LocalDate visaStartDate = request.getVisaAmountStartDate();
+        LocalDate visaEndDate = request.getVisaAmountEndDate();
+        Double visaAmount = request.getVisaAmount();
+
+        if (visaStartDate != null && visaEndDate != null && visaAmount != null) {
+            long daysBetween = ChronoUnit.DAYS.between(visaStartDate, visaEndDate);
+            if (daysBetween > 0) {
+                double emi = visaAmount / daysBetween;
+                driver.setVisaAmountEmi(emi);
+            } else {
+                throw new RuntimeException("Visa start date must be before end date.");
+            }
+        } else {
+            driver.setVisaAmountEmi(null);
+        }
+
+        // Bike Rent EMI Calculation
+        driver.setBikeRentAmount(request.getBikeRentAmount());
+        driver.setBikeRentAmountStartDate(request.getBikeRentAmountStartDate());
+        driver.setBikeRentAmountEndDate(request.getBikeRentAmountEndDate());
+
+        LocalDate bikeStartDate = request.getBikeRentAmountStartDate();
+        LocalDate bikeEndDate = request.getBikeRentAmountEndDate();
+        Double bikeAmount = request.getBikeRentAmount();
+
+        if (bikeStartDate != null && bikeEndDate != null && bikeAmount != null) {
+            long bikeDays = ChronoUnit.DAYS.between(bikeStartDate, bikeEndDate);
+            if (bikeDays > 0) {
+                double emi = bikeAmount / bikeDays;
+                driver.setBikeRentAmountEmi(emi);
+            } else {
+                throw new RuntimeException("Bike rent start date must be before end date.");
+            }
+        } else {
+            driver.setBikeRentAmountEmi(null);
+        }
+
+        // Other Deductions EMI Calculation
+        driver.setOtherDeductionAmount(request.getOtherDeductionAmount());
+        driver.setOtherDeductionAmountStartDate(request.getOtherDeductionAmountStartDate());
+        driver.setOtherDeductionAmountEndDate(request.getOtherDeductionAmountEndDate());
+
+        LocalDate otherStartDate = request.getOtherDeductionAmountStartDate();
+        LocalDate otherEndDate = request.getOtherDeductionAmountEndDate();
+        Double otherDeductionAmount = request.getOtherDeductionAmount();
+
+        if (otherStartDate != null && otherEndDate != null && otherDeductionAmount != null) {
+            long otherDeductionDays = ChronoUnit.DAYS.between(otherStartDate, otherEndDate);
+            if (otherDeductionDays > 0) {
+                double emi = otherDeductionAmount / otherDeductionDays;
+                driver.setOtherDeductionsAmountEmi(emi);
+            } else {
+                throw new RuntimeException("Other deductions start date must be before end date.");
+            }
+        } else {
+            driver.setOtherDeductionsAmountEmi(null);
         }
     }
 }

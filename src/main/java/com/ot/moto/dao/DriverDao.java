@@ -36,28 +36,39 @@ public class DriverDao {
         return driverOptional.orElse(null);
     }
 
- /*   public long countFlexiVisa() {
-        long countFl = driverRepository.countFlexiVisa();
-        return Objects.isNull(countFl) ? 0 : countFl ;
-    }*/
-
-  /*  public long countOtherVisaTypes() {
-        return driverRepository.countOtherVisaTypes();
+    public long countFlexiVisa() {
+        Long countFl = driverRepository.countDriversWithFlexiVisa();
+        return countFl != null ? countFl : 0;
     }
-*/
+
+    public long countCompanyVisa() {
+        Long countFl = driverRepository.countDriversWithCompanyVisa();
+        return countFl != null ? countFl : 0;
+    }
+
+    public long countCrVisa() {
+        Long countFl = driverRepository.countDriversWithCrVisa();
+        return countFl != null ? countFl : 0;
+    }
+
+    public long countOtherVisa() {
+        Long countFl = driverRepository.countDriversWithOtherVisa();
+        return countFl != null ? countFl : 0;
+    }
+
     public long countTwoWheelerRiders() {
         long countT = driverRepository.countTwoWheelerRiders();
-        return Objects.isNull(countT) ? 0 : countT ;
+        return Objects.isNull(countT) ? 0 : countT;
     }
 
     public long countFourWheelerDrivers() {
         long countF = driverRepository.countFourWheelerDrivers();
-        return Objects.isNull(countF) ? 0 : countF ;
+        return Objects.isNull(countF) ? 0 : countF;
     }
 
     public long countTotalDrivers() {
         long countD = driverRepository.countTotalDrivers();
-        return Objects.isNull(countD) ? 0 : countD ;
+        return Objects.isNull(countD) ? 0 : countD;
     }
 
     public Driver findByPhoneNumber(String phoneNumber) {
@@ -96,5 +107,4 @@ public class DriverDao {
         Double sum = driverRepository.sumProfitForAllDrivers();
         return Objects.isNull(sum) ? 0 : sum;
     }
-
 }

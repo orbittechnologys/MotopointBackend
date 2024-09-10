@@ -45,6 +45,8 @@ public class Fleet {
 
     private String model;
 
+    private LocalDate dateOfPurchase;
+
     @OneToOne
     @JoinColumn
     @JsonManagedReference("fleet")

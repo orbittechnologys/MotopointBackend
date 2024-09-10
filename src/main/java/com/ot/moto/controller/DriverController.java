@@ -2,6 +2,7 @@ package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateDriverReq;
+import com.ot.moto.dto.request.UpdateDriverReq;
 import com.ot.moto.dto.response.DriverDetails;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.service.DriverService;
@@ -42,14 +43,14 @@ public class DriverController {
         return driverService.getDriver(id);
     }
 
-/*    @Operation(summary = "Update Driver", description = "Input is Update driver Request, returns Driver Object")
+    @Operation(summary = "Update Driver", description = "Input is Update driver Request, returns Driver Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Updated"),
             @ApiResponse(responseCode = "404", description = "Driver Doesn't Exist"),
             @ApiResponse(responseCode = "409", description = "Phone/Email already exists")})
     @PostMapping("/update")
-    public ResponseEntity<ResponseStructure<Object>> updateStaff(@RequestBody UpdateDriverReq req) {
+    public ResponseEntity<ResponseStructure<Object>> updateDriver(@RequestBody UpdateDriverReq req) {
         return driverService.updateDriver(req);
-    }*/
+    }
 
     @Operation(summary = "Get all Drivers", description = "returns List of Driver Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
@@ -144,5 +145,37 @@ public class DriverController {
     @GetMapping("/summary/download-csv")
     public ResponseEntity<InputStreamResource> generateCsvForDriversForSummary() {
         return driverService.generateCsvForDriversForSummary();
+    }
+
+    @Operation(summary = "flexi Visa summary ", description = "returns flexi visa count")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Flexi visa count  "),
+            @ApiResponse(responseCode = "404", description = "Flexi visa not found")})
+    @GetMapping("/visa/CountFlexi")
+    public ResponseEntity<ResponseStructure<Object>> countDriversWithFlexiVisa() {
+        return driverService.countDriversWithFlexiVisa();
+    }
+
+    @Operation(summary = "CR Visa summary ", description = "returns CR visa count")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Flexi visa count  "),
+            @ApiResponse(responseCode = "404", description = "CR visa not found")})
+    @GetMapping("/visa/countCr")
+    public ResponseEntity<ResponseStructure<Object>> countDriversWithCrVisa() {
+        return driverService.countCrVisa();
+    }
+
+    @Operation(summary = "Company Visa summary ", description = "returns Company visa count")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Company visa count  "),
+            @ApiResponse(responseCode = "404", description = "Company visa not found")})
+    @GetMapping("/visa/countCompany")
+    public ResponseEntity<ResponseStructure<Object>> countDriversWithCompanyVisa() {
+        return driverService.countComapnyVisa();
+    }
+
+    @Operation(summary = "Other Visa summary ", description = "returns Other visa count")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Other visa count  "),
+            @ApiResponse(responseCode = "404", description = "Other visa not found")})
+    @GetMapping("/visa/countOther")
+    public ResponseEntity<ResponseStructure<Object>> countDriversWithOtherVisa() {
+        return driverService.countOtherVisa();
     }
 }

@@ -154,7 +154,18 @@ public class SecurityConfig {
             "/visa/getAll",
             "/visa/update",
             "/visa/create",
-            "/driver/create"
+            "/driver/create",
+            "/driver/flexi",
+            "/driver/cr",
+            "/driver/company",
+            "/driver/other",
+            "/driver/update",
+            "/driver/visa/CountFlexi",
+            "/driver/visa/countCr",
+            "/driver/visa/countCompany",
+            "/driver/visa/countOther",
+            "/driver/update"
+
 
     };
 

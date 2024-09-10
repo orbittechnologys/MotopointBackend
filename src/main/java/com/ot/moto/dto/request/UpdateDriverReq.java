@@ -88,9 +88,24 @@ public class UpdateDriverReq {
 
     private String visaCopyImageUrl;
 
+    private Double visaAmount;
+    private LocalDate visaAmountStartDate;
+    private LocalDate visaAmountEndDate;
+
+    private Double bikeRentAmount;
+    private LocalDate bikeRentAmountStartDate;
+    private LocalDate bikeRentAmountEndDate;
+
+    private Double otherDeductionAmount;
+    private LocalDate otherDeductionAmountStartDate;
+    private LocalDate otherDeductionAmountEndDate;
+
+    private String remarks;
+
+    private LocalDate visaExpiryDate;
 
     //visa & asset
-    private List<AssetRequest> assets;
+    private List<AssetUpdateReq> assets;
 
-    private VisaRequest visa;
+    private Long visaType;
 }

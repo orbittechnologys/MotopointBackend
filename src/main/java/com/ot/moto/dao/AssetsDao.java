@@ -1,6 +1,7 @@
 package com.ot.moto.dao;
 
 import com.ot.moto.entity.Asset;
+import com.ot.moto.entity.Driver;
 import com.ot.moto.repository.AssetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -29,5 +30,17 @@ public class AssetsDao {
 
     public List<Asset> findByNameContaining(String item) {
         return assetRepository.findByItemContaining(item);
+    }
+
+    public void deleteAll(List<Asset> existingAssets) {
+        assetRepository.deleteAll();
+    }
+
+    public List<Asset> findByDriver(Driver driver) {
+        return assetRepository.findByDriver(driver);
+    }
+
+    public Asset save(Asset asset) {
+        return assetRepository.save(asset);
     }
 }
