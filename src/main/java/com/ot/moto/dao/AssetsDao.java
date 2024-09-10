@@ -2,7 +2,6 @@ package com.ot.moto.dao;
 
 import com.ot.moto.entity.Asset;
 import com.ot.moto.repository.AssetRepository;
-import org.apache.poi.sl.draw.geom.GuideIf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -29,6 +28,6 @@ public class AssetsDao {
     }
 
     public List<Asset> findByNameContaining(String item) {
-        return assetRepository.findByItemNameContaining(item);
+        return assetRepository.findByItemContaining(item);
     }
 }

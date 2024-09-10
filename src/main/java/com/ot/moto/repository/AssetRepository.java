@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface AssetRepository extends JpaRepository<Asset, Long> {
 
-    public List<Asset> findByItemNameContaining(String item);
+    public List<Asset> findByItemContaining(String item);
 }
