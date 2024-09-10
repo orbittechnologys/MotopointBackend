@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/visa")
+@CrossOrigin(origins = "*")
 public class VisaController {
 
     @Autowired
