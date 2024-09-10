@@ -32,5 +32,4 @@ public class AuthenticationController {
             throws Exception {
         return authenticateService.authenticate(jwtRequest);
     }
-
 }
