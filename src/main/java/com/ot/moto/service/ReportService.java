@@ -125,10 +125,10 @@ public class ReportService {
             for (Orders orders : ordersList) {
                 long totalOrders = orderDao.getTotalOrdersForCurrentMonthByDriver(orders.getDriver().getId());
 
-                /* Fetch the highest bonus based on deliveryCount*/
+                // Fetch the highest bonus based on deliveryCount
                 Bonus bonusForCount = bonusDao.findTopByDeliveryCountLessThanEqualOrderByDeliveryCountDesc(totalOrders);
 
-                /* Fetch the bonus based on specialDate*/
+                // Fetch the bonus based on specialDate
                 Bonus bonusForDate = bonusDao.findTopBySpecialDate(orders.getDate());
 
                 double totalBonus = 0.0;
@@ -139,7 +139,7 @@ public class ReportService {
                     totalBonus += bonusForDate.getDateBonusAmount();
                 }
 
-                /* Now, update the driver's bonus in the order or driver entity*/
+                // Now, update the driver's bonus in the order or driver entity
                 if (totalBonus > 0) {
                     double preBonus = orders.getDriver().getBonus() != null ? orders.getDriver().getBonus() : 0.0;
                     double currentBonus = preBonus + totalBonus;
@@ -221,7 +221,6 @@ public class ReportService {
             long totalOrders = orders.getNoOfS1() + orders.getNoOfS2() + orders.getNoOfS3() + orders.getNoOfS4() + orders.getNoOfS5();
 
             salary.setTotalOrders(totalOrders);
-
 
             salary.setS1Earnings(s1Master.getMotoPaid() * salary.getNoOfS1());
             salary.setS2Earnings(s2Master.getMotoPaid() * salary.getNoOfS2());

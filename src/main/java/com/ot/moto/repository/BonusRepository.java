@@ -17,4 +17,7 @@ public interface BonusRepository extends JpaRepository<Bonus, Long> {
 
     /* Method to find the bonus for a specific special date*/
     public Bonus findTopBySpecialDate(LocalDate specialDate);
+
+   /* *//* Method to find the highest bonus where the distance travelled is less than or equal to the given distance *//*
+    public Bonus findTopByDistanceTravelledLessThanEqualOrderByDistanceTravelledDesc(Long distanceTravelled);*/
 }

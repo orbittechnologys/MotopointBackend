@@ -43,4 +43,8 @@ public class BonusDao {
     public Bonus findTopByDeliveryCountLessThanEqualOrderByDeliveryCountDesc(Long deliveryCount) {
         return bonusRepository.findTopByDeliveryCountLessThanEqualOrderByDeliveryCountDesc(deliveryCount);
     }
+
+  /*  public Bonus findTopByDistanceTravelledLessThanEqualOrderByDistanceTravelledDesc(Long distanceTravelled) {
+        return bonusRepository.findTopByDistanceTravelledLessThanEqualOrderByDistanceTravelledDesc(distanceTravelled);
+    }*/
 }

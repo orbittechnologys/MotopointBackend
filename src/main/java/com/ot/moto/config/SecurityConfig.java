@@ -170,7 +170,12 @@ public class SecurityConfig {
             "/bonus/updateDateBonus",
             "/bonus/updateOrderBonus",
             "/bonus/addDateBonus",
-            "/bonus/addOrderBonus"
+            "/bonus/addOrderBonus",
+            "/bonus/addDistanceTravelled",
+            "/bonus/updateDistanceTravelled",
+            "/user/validateOTP",
+            "/user/updateNewPassword",
+            "/user/forgotPassword"
 
     };
 

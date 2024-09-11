@@ -50,5 +50,16 @@ public class BonusController {
     public ResponseEntity<ResponseStructure<Object>> deleteBonusById(@PathVariable Long id) {
         return bonusService.deleteBonusById(id);
     }
+
+/*    @PostMapping("/addDistanceTravelled")
+    public ResponseEntity<ResponseStructure<Object>> addDistanceTravelled(@RequestBody AddDistanceTravelled addDistanceTravelled) {
+        return bonusService.addDistanceTravelled(addDistanceTravelled);
+    }
+
+    @PutMapping("/updateDistanceTravelled")
+    public ResponseEntity<ResponseStructure<Object>> updateDistanceTravelled(@RequestBody UpdateDistanceTravelled updateDistanceTravelled) {
+        return bonusService.updateDistanceTravelled(updateDistanceTravelled);
+    }*/
+
 }
 

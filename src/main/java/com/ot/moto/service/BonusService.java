@@ -2,10 +2,7 @@ package com.ot.moto.service;
 
 import com.ot.moto.dao.BonusDao;
 import com.ot.moto.dto.ResponseStructure;
-import com.ot.moto.dto.request.AddBonusDate;
-import com.ot.moto.dto.request.AddBonusOrders;
-import com.ot.moto.dto.request.UpdateBonusDate;
-import com.ot.moto.dto.request.UpdateBonusOrders;
+import com.ot.moto.dto.request.*;
 import com.ot.moto.entity.Bonus;
 import com.ot.moto.entity.Master;
 import org.slf4j.Logger;
@@ -25,6 +22,49 @@ public class BonusService {
 
     private static final Logger logger = LoggerFactory.getLogger(BonusService.class);
 
+    /*public ResponseEntity<ResponseStructure<Object>> addDistanceTravelled(AddDistanceTravelled addDistanceTravelled) {
+        try {
+            Bonus bonus = new Bonus();
+            bonus.setDistanceTravelled(addDistanceTravelled.getDistanceTravelled());
+            bonus.setDistanceTravelledAmount(addDistanceTravelled.getDistanceTravelledAmount());
+            bonus.setSpecialDate(null);
+            bonus.setDateBonusAmount(null);
+            bonus.setDeliveryCount(null);
+            bonus.setBonusAmount(null);
+
+            bonus = bonusDao.saveBonus(bonus);
+            return ResponseStructure.successResponse(bonus, "Bonus for distance travelled created successfully");
+        } catch (Exception e) {
+            logger.error("Error while creating bonus", e);
+            return ResponseStructure.errorResponse(null, 500, "Error while creating bonus: " + e.getMessage());
+        }
+    }
+
+
+
+    public ResponseEntity<ResponseStructure<Object>> updateDistanceTravelled(UpdateDistanceTravelled updateDistanceTravelled) {
+        try {
+            Bonus bonus = fetchBonus(updateDistanceTravelled.getId());
+            if (Objects.isNull(bonus)) {
+                logger.warn("No bonus found with id: {}", updateDistanceTravelled.getId());
+                return ResponseStructure.errorResponse(null, 404, "Bonus not found with id: " + updateDistanceTravelled.getId());
+            }
+            bonus.setDistanceTravelled(updateDistanceTravelled.getDistanceTravelled());
+            bonus.setDistanceTravelledAmount(updateDistanceTravelled.getDistanceTravelledAmount());
+            bonus.setSpecialDate(null);
+            bonus.setDateBonusAmount(null);
+            bonus.setDeliveryCount(null);
+            bonus.setBonusAmount(null);
+
+            bonus = bonusDao.saveBonus(bonus);
+
+            return ResponseStructure.successResponse(bonus, "Bonus for Orders Updated successfully");
+        } catch (Exception e) {
+            logger.error("Error while Updating Bonus Orders", e);
+            return ResponseStructure.errorResponse(null, 500, "Error while Updating Bonus Orders: " + e.getMessage());
+        }
+    }*/
+
     public ResponseEntity<ResponseStructure<Object>> addBonusOrders(AddBonusOrders addBonusOrders) {
         try {
             Bonus bonus = new Bonus();
@@ -35,10 +75,11 @@ public class BonusService {
             bonus = bonusDao.saveBonus(bonus);
             return ResponseStructure.successResponse(bonus, "Bonus for Orders created successfully");
         } catch (Exception e) {
-            logger.error("Error while creating Master", e);
-            return ResponseStructure.errorResponse(null, 500, "Error while creating master: " + e.getMessage());
+            logger.error("Error while creating Bonus", e);
+            return ResponseStructure.errorResponse(null, 500, "Error while creating bonus: " + e.getMessage());
         }
     }
+
 
     public ResponseEntity<ResponseStructure<Object>> addBonusDate(AddBonusDate addBonusDate) {
         try {
@@ -50,7 +91,7 @@ public class BonusService {
             bonus = bonusDao.saveBonus(bonus);
             return ResponseStructure.successResponse(bonus, "Bonus for Date created successfully");
         } catch (Exception e) {
-            logger.error("Error while creating Master", e);
+            logger.error("Error while creating Bonus", e);
             return ResponseStructure.errorResponse(null, 500, "Error while creating master: " + e.getMessage());
         }
     }
@@ -111,7 +152,7 @@ public class BonusService {
             }
             return ResponseStructure.successResponse(bonuses, "Master Data  found");
         } catch (Exception e) {
-            logger.error("Error fetching Master Data ", e);
+            logger.error("Error fetching Bonus Data ", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
@@ -131,5 +172,4 @@ public class BonusService {
             return ResponseStructure.errorResponse(null, 500, "Failed to delete Bonus ID: " + id);
         }
     }
-
 }
