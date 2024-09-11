@@ -45,7 +45,7 @@ public class MasterController {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "master data Found"),
             @ApiResponse(responseCode = "404", description = "master data Not Found")})
     @GetMapping("/getAll")
-    public ResponseEntity<ResponseStructure<Object>> getAllAdmin(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<ResponseStructure<Object>> getAll(@RequestParam(defaultValue = "0") int page,
                                                                  @RequestParam(defaultValue = "10") int size,
                                                                  @RequestParam(defaultValue = "id") String field) {
         return masterService.getAllByMaster(page, size, field);
