@@ -12,8 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(value = "*")
 @RequestMapping("/master")
+@CrossOrigin(origins = "*")
 public class MasterController {
 
     @Autowired

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/bonus")
+@CrossOrigin(origins = "*")
 public class BonusController {
 
     @Autowired
