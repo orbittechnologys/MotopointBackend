@@ -182,7 +182,7 @@ public class SecurityConfig {
 
     };
 
-    private static final String[] ADMIN_WHITELIST = {"/staff/create","/driver/update",
+    private static final String[] ADMIN_WHITELIST = {"/staff/create",
             "/user/{userId}/status"};
 
     private static final String[] DRIVER_WHITELIST = {};
