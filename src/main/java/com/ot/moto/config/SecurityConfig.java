@@ -179,7 +179,6 @@ public class SecurityConfig {
             "/fleet/unassignFleet",
             "/driver/count-owned-vehicles",
             "/driver/count-not-owned-vehicles"
-
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create",
