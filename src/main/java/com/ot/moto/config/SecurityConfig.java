@@ -165,6 +165,7 @@ public class SecurityConfig {
             "/driver/visa/countCompany",
             "/driver/visa/countOther",
             "/driver/update",
+            "/driver/create",
             "/bonus/delete/{id}",
             "/bonus/getAll",
             "/bonus/updateDateBonus",
@@ -177,7 +178,8 @@ public class SecurityConfig {
             "/user/updateNewPassword",
             "/user/forgotPassword",
             "/fleet/unassignFleet",
-            "/driver/count-owned-vehicles"
+            "/driver/count-owned-vehicles",
+            "/driver/count-not-owned-vehicles"
 
     };
 

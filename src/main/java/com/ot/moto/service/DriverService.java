@@ -926,7 +926,29 @@ public class DriverService {
         }
     }
 
-    public Long getCountOfOwnedVehicleDrivers() {
-        return driverDao.countOwnedVehicleDrivers();
+    public ResponseEntity<ResponseStructure<Object>> countDriversWithOwnedVehicle() {
+        try {
+            Long count = driverDao.countOwnedVehicleDrivers();
+            Long result = (count == null) ? 0L : count;
+
+            logger.info("Successfully retrieved Owned vehicle driver count: {}", result);
+            return ResponseStructure.successResponse(result, "Owned vehicle driver count retrieved successfully.");
+        } catch (Exception e) {
+            logger.error("Error while fetching Owned vehicle driver count.", e);
+            return ResponseStructure.errorResponse(null, 500, "Internal server error.");
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> countDriversWithVehicleTypeNotOwned() {
+        try {
+            Long count = driverDao.countVehicleTypeNotOwned();
+            Long result = (count == null) ? 0L : count;
+
+            logger.info("Successfully retrieved count of drivers with vehicle type not 'Owned': {}", result);
+            return ResponseStructure.successResponse(result, "Driver count with vehicle type not 'Owned' retrieved successfully.");
+        } catch (Exception e) {
+            logger.error("Error while fetching driver count with vehicle type not 'Owned'.", e);
+            return ResponseStructure.errorResponse(null, 500, "Internal server error.");
+        }
     }
 }

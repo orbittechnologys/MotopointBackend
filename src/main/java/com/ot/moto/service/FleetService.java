@@ -237,13 +237,25 @@ public class FleetService {
                 logger.warn("No fleet found with id: {}", id);
                 return ResponseStructure.errorResponse(null, 404, "Fleet not found with id: " + id);
             }
+
+            // Check if the fleet is already unassigned
+            if (fleet.getFleetUnAssignDate() != null) {
+                logger.warn("Fleet with id {} is already unassigned on Date: {}", id, fleet.getFleetUnAssignDate());
+                return ResponseStructure.errorResponse(null, 400, "Fleet is already unassigned on Date: " + fleet.getFleetUnAssignDate());
+            }
+
             if (fleet.getDriver() != null) {
                 Driver driver = fleet.getDriver();
                 driver.setFleet(null);
                 driverDao.createDriver(driver);
                 fleet.setFleetUnAssignDate(LocalDate.now());
                 fleetDao.createFleet(fleet);
+            } else {
+                // If there's no driver, also consider it already unassigned if needed
+                logger.warn("Fleet with id {} is already unassigned as it has no driver.", id);
+                return ResponseStructure.errorResponse(null, 400, "Fleet is already unassigned as it has no driver.");
             }
+
             logger.info("Fleet unassigned successfully: {}", fleet.getId());
             return ResponseStructure.successResponse(fleet, "Fleet unassigned successfully on Date " + fleet.getFleetUnAssignDate());
         } catch (Exception e) {
@@ -251,6 +263,7 @@ public class FleetService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
+
 
     public ResponseEntity<ResponseStructure<List<Fleet>>> searchFleetByVehicleNumber(String vehicleNumberSubstring) {
         ResponseStructure responseStructure = new ResponseStructure();

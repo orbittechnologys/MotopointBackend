@@ -53,4 +53,7 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
 
     @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType = :vehicleType")
     Long countByVehicleType(@Param("vehicleType") String vehicleType);
+
+    @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType != :vehicleType")
+    Long countByVehicleTypeNotOwned(@Param("vehicleType") String vehicleType);
 }
