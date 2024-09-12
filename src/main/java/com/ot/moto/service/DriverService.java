@@ -644,11 +644,6 @@ public class DriverService {
                 return ResponseStructure.errorResponse(null, 404, "Driver not found with id: " + request.getId());
             }
 
-            Optional<User> userEmail = userDao.getUserByEmail(request.getEmail());
-            if (userEmail.isPresent() && !userEmail.get().getId().equals(request.getId())) {
-                logger.warn("Email already exists: {}", request.getEmail());
-                return ResponseStructure.errorResponse(null, 409, "Email already exists");
-            }
 
             Optional<User> userPhone = userDao.getUserByPhone(request.getPhone());
             if (userPhone.isPresent() && !userPhone.get().getId().equals(request.getId())) {
@@ -692,6 +687,7 @@ public class DriverService {
     }
 
     private Driver updateDriverFromRequest(UpdateDriverReq request, Driver driver) {
+
         if (request.getEmail() != null && !request.getEmail().isEmpty()) {
             driver.setEmail(request.getEmail());
         }
