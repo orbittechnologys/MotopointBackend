@@ -161,7 +161,18 @@ public class JwtFilter extends OncePerRequestFilter {
             "/driver/visa/countCr",
             "/driver/visa/countCompany",
             "/driver/visa/countOther",
-            "/driver/update"
+            "/driver/update",
+            "/bonus/delete/{id}",
+            "/bonus/getAll",
+            "/bonus/updateDateBonus",
+            "/bonus/updateOrderBonus",
+            "/bonus/addDateBonus",
+            "/bonus/addOrderBonus",
+            "/bonus/addDistanceTravelled",
+            "/bonus/updateDistanceTravelled",
+            "/user/validateOTP",
+            "/user/updateNewPassword",
+            "/user/forgotPassword"
     );
 
     @Override
