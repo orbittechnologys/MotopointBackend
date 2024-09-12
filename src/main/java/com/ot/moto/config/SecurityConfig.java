@@ -176,7 +176,7 @@ public class SecurityConfig {
             "/user/validateOTP",
             "/user/updateNewPassword",
             "/user/forgotPassword",
-            "/fleet/unassignFleet/{id}",
+            "/fleet/unassignFleet",
             "/driver/count-owned-vehicles"
 
     };
