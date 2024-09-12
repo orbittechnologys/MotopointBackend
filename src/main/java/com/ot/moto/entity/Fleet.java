@@ -1,12 +1,10 @@
 package com.ot.moto.entity;
 
-
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
-
 
 @Entity
 @Data
@@ -42,6 +40,10 @@ public class Fleet {
     private String image;
 
     private LocalDate fleetAssignDate;
+
+    private LocalDate fleetUnAssignDate;
+
+    private String registrationCertificate;
 
     private String model;
 

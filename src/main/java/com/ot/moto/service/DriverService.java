@@ -925,4 +925,8 @@ public class DriverService {
             driver.setOtherDeductionsAmountEmi(null);
         }
     }
+
+    public Long getCountOfOwnedVehicleDrivers() {
+        return driverDao.countOwnedVehicleDrivers();
+    }
 }

@@ -97,7 +97,6 @@ public class DriverDao {
         return driverRepository.findAll();
     }
 
-
     public Double SumPayToJahezForAllDrivers() {
         Double amount = driverRepository.sumPayToJahezForAllDrivers();
         return Objects.isNull(amount) ? 0 : amount;
@@ -106,5 +105,10 @@ public class DriverDao {
     public Double sumProfitForAllDrivers() {
         Double sum = driverRepository.sumProfitForAllDrivers();
         return Objects.isNull(sum) ? 0 : sum;
+    }
+
+    public Long countOwnedVehicleDrivers() {
+        Long sum = driverRepository.countByVehicleType("Owned");
+        return Objects.isNull(sum) ? 0 : sum ;
     }
 }

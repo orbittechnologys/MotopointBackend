@@ -178,4 +178,10 @@ public class DriverController {
     public ResponseEntity<ResponseStructure<Object>> countDriversWithOtherVisa() {
         return driverService.countOtherVisa();
     }
+
+    @GetMapping("/count-owned-vehicles")
+    public ResponseEntity<Long> getCountOfOwnedVehicleDrivers() {
+        Long count = driverService.getCountOfOwnedVehicleDrivers();
+        return ResponseEntity.ok(count);
+    }
 }

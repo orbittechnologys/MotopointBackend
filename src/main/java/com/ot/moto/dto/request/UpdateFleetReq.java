@@ -22,4 +22,8 @@ public class UpdateFleetReq {
     public Long driverId;
 
     private String image;
+
+    private String registrationCertificate;
+
+    private LocalDate dateOfPurchase;
 }

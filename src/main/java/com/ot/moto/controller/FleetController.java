@@ -156,4 +156,15 @@ public class FleetController {
     public ResponseEntity<ResponseStructure<Long>> countAssignedFourWheeler() {
         return fleetService.countAssignedFourWheeler();
     }
+
+    @Operation(summary = "unassignFleet Fleet", description = "Input is Fleet Id and Driver Id, returns Fleet Object")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Fleet unassigned"),
+            @ApiResponse(responseCode = "404", description = "Fleet Not Found"),
+            @ApiResponse(responseCode = "409", description = "Conflict with existing data")
+    })
+    @PostMapping("/unassignFleet")
+    public ResponseEntity<ResponseStructure<Object>> unassignFleet(@RequestParam Long id) {
+        return fleetService.unassignFleet(id);
+    }
 }

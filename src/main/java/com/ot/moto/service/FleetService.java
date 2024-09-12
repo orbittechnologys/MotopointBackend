@@ -88,6 +88,8 @@ public class FleetService {
         fleet.setInsuranceDocument(request.getInsuranceDocument());
         fleet.setVehicleType(vehicleType);
         fleet.setImage(request.getImage());
+        fleet.setRegistrationCertificate(request.getRegistrationCertificate());
+        fleet.setDateOfPurchase(request.getDateOfPurchase());
         Driver driver = driverDao.getById(request.getDriverId());
         fleet.setDriver(driver);
 
@@ -118,6 +120,13 @@ public class FleetService {
             Driver driver = driverDao.getById(request.getDriverId());
             fleet.setDriver(driver);
         }
+        if (request.getRegistrationCertificate() != null) {
+            fleet.setRegistrationCertificate(request.getRegistrationCertificate());
+        }
+        if (request.getDateOfPurchase() != null) {
+            fleet.setDateOfPurchase(request.getDateOfPurchase());
+        }
+
         return fleet;
     }
 
@@ -221,6 +230,28 @@ public class FleetService {
         }
     }
 
+    public ResponseEntity<ResponseStructure<Object>> unassignFleet(Long id) {
+        try {
+            Fleet fleet = fetchFleet(id);
+            if (Objects.isNull(fleet)) {
+                logger.warn("No fleet found with id: {}", id);
+                return ResponseStructure.errorResponse(null, 404, "Fleet not found with id: " + id);
+            }
+            if (fleet.getDriver() != null) {
+                Driver driver = fleet.getDriver();
+                driver.setFleet(null);
+                driverDao.createDriver(driver);
+                fleet.setFleetUnAssignDate(LocalDate.now());
+                fleetDao.createFleet(fleet);
+            }
+            logger.info("Fleet unassigned successfully: {}", fleet.getId());
+            return ResponseStructure.successResponse(fleet, "Fleet unassigned successfully on Date " + fleet.getFleetUnAssignDate());
+        } catch (Exception e) {
+            logger.error("Error updating fleet", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
     public ResponseEntity<ResponseStructure<List<Fleet>>> searchFleetByVehicleNumber(String vehicleNumberSubstring) {
         ResponseStructure responseStructure = new ResponseStructure();
         try {
@@ -247,7 +278,6 @@ public class FleetService {
             return new ResponseEntity<>(responseStructure, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     public ResponseEntity<ResponseStructure<Long>> countAssignedTwoWheeler() {
         ResponseStructure<Long> responseStructure = new ResponseStructure<>();

@@ -172,7 +172,8 @@ public class JwtFilter extends OncePerRequestFilter {
             "/bonus/updateDistanceTravelled",
             "/user/validateOTP",
             "/user/updateNewPassword",
-            "/user/forgotPassword"
+            "/user/forgotPassword",
+            "/fleet/unassignFleet/{id}"
     );
 
     @Override

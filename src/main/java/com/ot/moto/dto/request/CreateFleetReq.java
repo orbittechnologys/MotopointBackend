@@ -17,6 +17,10 @@ public class CreateFleetReq {
 
     private String insuranceDocument;
 
+    private String registrationCertificate;
+
+    private LocalDate dateOfPurchase;
+
     public long driverId;
 
     private String image;
