@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 public class TamDao {
@@ -26,10 +27,12 @@ public class TamDao {
     }
 
     public Double getSumPayInAmountForDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        return tamRepository.sumPayInAmountOnDate(startDate, endDate);
+        Double sumRange = tamRepository.sumPayInAmountOnDate(startDate, endDate);
+        return Objects.isNull(sumRange) ? 0 : sumRange ;
     }
 
     public Double getSumPayInAmountForCurrentMonth(LocalDateTime startDate, LocalDateTime endDate) {
-        return tamRepository.sumPayInAmountForCurrentMonth(startDate, endDate);
+        Double sumMonth = tamRepository.sumPayInAmountForCurrentMonth(startDate, endDate);
+        return Objects.isNull(sumMonth) ? 0 : sumMonth ;
     }
 }
