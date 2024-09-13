@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,9 +52,14 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
     @Query("SELECT SUM(d.profit) FROM Driver d")
     public Double sumProfitForAllDrivers();
 
-    @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType = :vehicleType")
-    Long countByVehicleType(@Param("vehicleType") String vehicleType);
 
-    @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType != :vehicleType")
-    Long countByVehicleTypeNotOwned(@Param("vehicleType") String vehicleType);
+    @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType = 'owned'")
+    public Long countByVehicleTypeOwned();
+
+
+    @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType != 'owned'")
+      public Long countByVehicleTypeNotOwned();
+
+
+
 }

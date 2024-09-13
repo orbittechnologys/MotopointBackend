@@ -107,13 +107,17 @@ public class DriverDao {
         return Objects.isNull(sum) ? 0 : sum;
     }
 
+
     public Long countOwnedVehicleDrivers() {
-        Long sum = driverRepository.countByVehicleType("Owned");
-        return Objects.isNull(sum) ? 0 : sum ;
+        Long sum = driverRepository.countByVehicleTypeOwned();
+        return (sum == null) ? 0 : sum;
     }
 
-    public long countVehicleTypeNotOwned() {
-        Long countNotOwned = driverRepository.countByVehicleTypeNotOwned("Owned");
-        return countNotOwned != null ? countNotOwned : 0;
+
+
+    public Long countDriversWithVehicleTypeNotOwned() {
+        Long count = driverRepository.countByVehicleTypeNotOwned();
+        return (count == null) ? 0L : count;
     }
+
 }

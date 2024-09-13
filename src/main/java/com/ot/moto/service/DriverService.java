@@ -635,7 +635,6 @@ public class DriverService {
         }
     }
 
-
     public ResponseEntity<ResponseStructure<Object>> updateDriver(UpdateDriverReq request) {
         try {
             Driver driver = fetchDriver(request.getId());
@@ -818,7 +817,6 @@ public class DriverService {
         return driver;
     }
 
-
     private void updateDriverAssets(Driver driver, List<AssetUpdateReq> assetUpdateReqs) {
         // Fetch existing assets for the driver
         List<Asset> existingAssets = assetsDao.findByDriver(driver);
@@ -937,8 +935,8 @@ public class DriverService {
 
     public ResponseEntity<ResponseStructure<Object>> countDriversWithVehicleTypeNotOwned() {
         try {
-            Long count = driverDao.countVehicleTypeNotOwned();
-            Long result = (count == null) ? 0L : count;
+            Long count = driverDao.countDriversWithVehicleTypeNotOwned();  // Call to the DAO method
+            Long result = (count == null) ? 0L : count;  // Handle null values by defaulting to 0
 
             logger.info("Successfully retrieved count of drivers with vehicle type not 'Owned': {}", result);
             return ResponseStructure.successResponse(result, "Driver count with vehicle type not 'Owned' retrieved successfully.");

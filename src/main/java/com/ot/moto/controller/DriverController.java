@@ -186,6 +186,6 @@ public class DriverController {
 
     @GetMapping("/count-owned-vehicles")
     public ResponseEntity<ResponseStructure<Object>> countDriversWithOwnedVehicle() {
-        return driverService.countDriversWithVehicleTypeNotOwned();
+        return driverService.countDriversWithOwnedVehicle();
     }
 }
