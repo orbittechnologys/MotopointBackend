@@ -180,7 +180,8 @@ public class SecurityConfig {
             "/driver/count-owned-vehicles",
             "/driver/count-not-owned-vehicles",
             "/fleet/getAllAssignedFleets",
-            "/fleet/getAllUnAssignedFleets"
+            "/fleet/getAllUnAssignedFleets",
+            "/fleet/update"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create",
