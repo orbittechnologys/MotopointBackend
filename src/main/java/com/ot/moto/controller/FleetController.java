@@ -167,4 +167,28 @@ public class FleetController {
     public ResponseEntity<ResponseStructure<Object>> unassignFleet(@RequestParam Long id) {
         return fleetService.unassignFleet(id);
     }
+
+    @Operation(summary = "Get All AssignedFleets", description = "Returns List of Assigned Fleet Objects")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "AssignedFleets Found"),
+            @ApiResponse(responseCode = "404", description = "No AssignedFleets Found")
+    })
+    @GetMapping("/getAllAssignedFleets")
+    public ResponseEntity<ResponseStructure<Object>> getAllAssignedFleets(@RequestParam(defaultValue = "0") int page,
+                                                                          @RequestParam(defaultValue = "10") int size,
+                                                                          @RequestParam(defaultValue = "id") String field) {
+        return fleetService.getAllAssignedFleets(page, size, field);
+    }
+
+    @Operation(summary = "Get All AssignedFleets", description = "Returns List of Assigned Fleet Objects")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "AssignedFleets Found"),
+            @ApiResponse(responseCode = "404", description = "No AssignedFleets Found")
+    })
+    @GetMapping("/getAllUnAssignedFleets")
+    public ResponseEntity<ResponseStructure<Object>> getAllUnAssignedFleets(@RequestParam(defaultValue = "0") int page,
+                                                                            @RequestParam(defaultValue = "10") int size,
+                                                                            @RequestParam(defaultValue = "id") String field) {
+        return fleetService.getAllUnAssignedFleets(page, size, field);
+    }
 }

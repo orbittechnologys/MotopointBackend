@@ -178,7 +178,9 @@ public class SecurityConfig {
             "/user/forgotPassword",
             "/fleet/unassignFleet",
             "/driver/count-owned-vehicles",
-            "/driver/count-not-owned-vehicles"
+            "/driver/count-not-owned-vehicles",
+            "/fleet/getAllAssignedFleets",
+            "/fleet/getAllUnAssignedFleets"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create",

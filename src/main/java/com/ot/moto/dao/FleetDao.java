@@ -8,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
-import org.springframework.validation.ObjectError;
 
 import java.util.List;
 import java.util.Objects;
@@ -68,5 +67,13 @@ public class FleetDao {
     public long countAssignedFourWheeler() {
         long countB = fleetRepository.countAssignedFourWheeler();
         return Objects.isNull(countB) ? 0 : countB;
+    }
+
+    public List<Fleet> findAllAssignedFleets(int offset, int pageSize, String field){
+        return fleetRepository.findAllAssignedFleets(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
+    }
+
+    public List<Fleet> findAllUnAssignedFleets(int offset, int pageSize, String field){
+        return fleetRepository.findAllUnassignedFleets(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
 }

@@ -264,7 +264,6 @@ public class FleetService {
         }
     }
 
-
     public ResponseEntity<ResponseStructure<List<Fleet>>> searchFleetByVehicleNumber(String vehicleNumberSubstring) {
         ResponseStructure responseStructure = new ResponseStructure();
         try {
@@ -346,4 +345,37 @@ public class FleetService {
         }
     }
 
+    public ResponseEntity<ResponseStructure<Object>> getAllAssignedFleets(int page, int size, String field) {
+        try {
+            List<Fleet> assignedFleets = fleetDao.findAllAssignedFleets(page, size, field);
+
+            if (assignedFleets.isEmpty()) {
+                logger.info("No assigned fleets found.");
+                return ResponseStructure.successResponse(assignedFleets, "No assigned fleets found.");
+            }
+
+            logger.info("Assigned fleets retrieved successfully. Count: {}", assignedFleets.size());
+            return ResponseStructure.successResponse(assignedFleets, "Assigned fleets retrieved successfully.");
+        } catch (Exception e) {
+            logger.error("Error retrieving assigned fleets", e);
+            return ResponseStructure.errorResponse(null, 500, "Error retrieving assigned fleets: " + e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> getAllUnAssignedFleets(int page, int size, String field) {
+        try {
+            List<Fleet> assignedFleets = fleetDao.findAllUnAssignedFleets(page, size, field);
+
+            if (assignedFleets.isEmpty()) {
+                logger.info("No Unassigned fleets found.");
+                return ResponseStructure.successResponse(assignedFleets, "No Unassigned fleets found.");
+            }
+
+            logger.info("Unassigned fleets retrieved successfully. Count: {}", assignedFleets.size());
+            return ResponseStructure.successResponse(assignedFleets, "Unassigned fleets retrieved successfully.");
+        } catch (Exception e) {
+            logger.error("Error retrieving Unassigned fleets", e);
+            return ResponseStructure.errorResponse(null, 500, "Error retrieving Unassigned fleets: " + e.getMessage());
+        }
+    }
 }

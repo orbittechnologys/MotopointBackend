@@ -1,6 +1,7 @@
 package com.ot.moto.repository;
 
 import com.ot.moto.entity.Fleet;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,4 +25,10 @@ public interface FleetRepository extends JpaRepository<Fleet, Long> {
 
     @Query("SELECT COUNT(f) FROM Fleet f WHERE f.vehicleType = com.ot.moto.entity.Fleet.VEHICLE_TYPE.FOUR_WHEELER AND f.driver IS NOT NULL")
     public long countAssignedFourWheeler();
+
+    @Query("SELECT f FROM Fleet f WHERE f.driver IS NOT NULL")
+    public List<Fleet> findAllAssignedFleets(Pageable pageable);
+
+    @Query("SELECT f FROM Fleet f WHERE f.driver IS NULL")
+    public List<Fleet> findAllUnassignedFleets(Pageable pageable);
 }
