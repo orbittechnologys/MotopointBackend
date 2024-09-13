@@ -232,47 +232,40 @@ public class FleetService {
     }
 
     @Transactional
-    public ResponseEntity<ResponseStructure<Object>> unassignFleet(Long id) {
+    public ResponseEntity<ResponseStructure<Object>> unassignFleet(Long fleetId) {
         try {
-            Fleet fleet = fetchFleet(id);
+            // Fetch the fleet by its ID
+            Fleet fleet = fetchFleet(fleetId);
             if (Objects.isNull(fleet)) {
-                logger.warn("No fleet found with id: {}", id);
-                return ResponseStructure.errorResponse(null, 404, "Fleet not found with id: " + id);
+                logger.warn("No fleet found with id: {}", fleetId);
+                return ResponseStructure.errorResponse(null, 404, "Fleet not found with id: " + fleetId);
             }
 
             // Check if the fleet is already unassigned
-            if (fleet.getFleetUnAssignDate() != null) {
-                logger.warn("Fleet with id {} is already unassigned on Date: {}", id, fleet.getFleetUnAssignDate());
-                return ResponseStructure.errorResponse(null, 400, "Fleet is already unassigned on Date: " + fleet.getFleetUnAssignDate());
+            if (fleet.getDriver() == null) {
+                logger.warn("Fleet with id {} is already unassigned.", fleetId);
+                return ResponseStructure.errorResponse(null, 400, "Fleet is already unassigned.");
             }
 
-            if (fleet.getDriver() != null) {
-                Driver driver = fleet.getDriver();
-                driver.setFleet(null);
-                // Save the driver update to the database
-                driverDao.createDriver(driver);
+            // Get the current driver assigned to the fleet
+            Driver currentDriver = fleet.getDriver();
 
-                // Update the fleet's unassignment date and save
-                fleet.setFleetUnAssignDate(LocalDate.now());
-                fleet.setDriver(null); // Also set driver to null in fleet to reflect unassignment
-                fleetDao.createFleet(fleet);
+            // Unassign the fleet from the current driver
+            fleet.setDriver(null); // Remove the driver from the fleet
+            fleet.setFleetUnAssignDate(LocalDate.now()); // Set the unassign date
+            fleetDao.createFleet(fleet); // Save the fleet update
 
-                // If using JPA, you might want to flush to ensure changes are applied
-                // entityManager.flush(); // Uncomment if needed
-
-            } else {
-                logger.warn("Fleet with id {} is already unassigned as it has no driver.", id);
-                return ResponseStructure.errorResponse(null, 400, "Fleet is already unassigned as it has no driver.");
-            }
+            // Unlink the fleet from the driver
+            currentDriver.setFleet(null);
+            driverDao.createDriver(currentDriver); // Save the driver update
 
             logger.info("Fleet unassigned successfully: {}", fleet.getId());
             return ResponseStructure.successResponse(fleet, "Fleet unassigned successfully on Date " + fleet.getFleetUnAssignDate());
         } catch (Exception e) {
-            logger.error("Error updating fleet", e);
-            return ResponseStructure.errorResponse(null, 500, "Error updating fleet: " + e.getMessage());
+            logger.error("Error unassigning fleet", e);
+            return ResponseStructure.errorResponse(null, 500, "Error unassigning fleet: " + e.getMessage());
         }
     }
-
 
     public ResponseEntity<ResponseStructure<List<Fleet>>> searchFleetByVehicleNumber(String vehicleNumberSubstring) {
         ResponseStructure responseStructure = new ResponseStructure();
