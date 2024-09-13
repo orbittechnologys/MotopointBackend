@@ -9,6 +9,7 @@ import com.ot.moto.dto.request.UpdateFleetReq;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Fleet;
 import com.ot.moto.util.StringUtil;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -230,6 +231,7 @@ public class FleetService {
         }
     }
 
+    @Transactional
     public ResponseEntity<ResponseStructure<Object>> unassignFleet(Long id) {
         try {
             Fleet fleet = fetchFleet(id);
@@ -247,11 +249,18 @@ public class FleetService {
             if (fleet.getDriver() != null) {
                 Driver driver = fleet.getDriver();
                 driver.setFleet(null);
+                // Save the driver update to the database
                 driverDao.createDriver(driver);
+
+                // Update the fleet's unassignment date and save
                 fleet.setFleetUnAssignDate(LocalDate.now());
+                fleet.setDriver(null); // Also set driver to null in fleet to reflect unassignment
                 fleetDao.createFleet(fleet);
+
+                // If using JPA, you might want to flush to ensure changes are applied
+                // entityManager.flush(); // Uncomment if needed
+
             } else {
-                // If there's no driver, also consider it already unassigned if needed
                 logger.warn("Fleet with id {} is already unassigned as it has no driver.", id);
                 return ResponseStructure.errorResponse(null, 400, "Fleet is already unassigned as it has no driver.");
             }
@@ -260,9 +269,10 @@ public class FleetService {
             return ResponseStructure.successResponse(fleet, "Fleet unassigned successfully on Date " + fleet.getFleetUnAssignDate());
         } catch (Exception e) {
             logger.error("Error updating fleet", e);
-            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+            return ResponseStructure.errorResponse(null, 500, "Error updating fleet: " + e.getMessage());
         }
     }
+
 
     public ResponseEntity<ResponseStructure<List<Fleet>>> searchFleetByVehicleNumber(String vehicleNumberSubstring) {
         ResponseStructure responseStructure = new ResponseStructure();
