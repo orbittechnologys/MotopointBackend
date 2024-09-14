@@ -99,7 +99,6 @@ public class FleetController {
         }
     }
 
-
     @Operation(summary = "Update Fleet", description = "Input is Update Fleet Request, returns Fleet Object")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Fleet Updated"),
