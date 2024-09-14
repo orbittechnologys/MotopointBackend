@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/penalty")
+@CrossOrigin(origins = "*")
 public class PenaltyController {
 
     @Autowired
