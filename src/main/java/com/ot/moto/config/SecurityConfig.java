@@ -181,7 +181,12 @@ public class SecurityConfig {
             "/driver/count-not-owned-vehicles",
             "/fleet/getAllAssignedFleets",
             "/fleet/getAllUnAssignedFleets",
-            "/fleet/update"
+            "/fleet/update",
+            "/penalty/save",
+            "/penalty/update",
+            "/penalty/getAll",
+            "/penalty/delete/{id}",
+            "/penalty/findById/{id}"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create",

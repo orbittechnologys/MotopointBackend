@@ -59,4 +59,6 @@ public class Salary {
     @JoinColumn
     private Driver driver;
 
+
+
 }

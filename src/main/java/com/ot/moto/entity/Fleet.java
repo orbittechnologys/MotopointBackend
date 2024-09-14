@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Data
@@ -53,4 +54,8 @@ public class Fleet {
     @JoinColumn
     @JsonManagedReference("fleet")
     private Driver driver;
+
+    @OneToMany(mappedBy = "fleet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("fleetPenalty")
+    private List<Penalty> penalties;
 }
