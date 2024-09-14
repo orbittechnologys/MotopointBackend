@@ -9,10 +9,13 @@ import com.ot.moto.service.DriverService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,11 +31,26 @@ public class DriverController {
 
 
     @Operation(summary = "Save Driver", description = "Input is Create driver Request, returns Driver Object")
-    @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"),
-            @ApiResponse(responseCode = "409", description = "Staff Already Exist")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "CREATED"),
+            @ApiResponse(responseCode = "409", description = "Driver Already Exist"),
+            @ApiResponse(responseCode = "400", description = "Validation Errors"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })
     @PostMapping("/create")
-    public ResponseEntity<ResponseStructure<Object>> createDriver(@RequestBody CreateDriverReq req) {
-        return driverService.createDriver(req);
+    public ResponseEntity<ResponseStructure<Object>> createDriver(@Valid @RequestBody CreateDriverReq request, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            StringBuilder errorMessage = new StringBuilder();
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                errorMessage.append(error.getField())
+                        .append(": ")
+                        .append(error.getDefaultMessage())
+                        .append("; ");
+            }
+            return ResponseStructure.errorResponse(null, 400, errorMessage.toString());
+        }
+        return driverService.createDriver(request);
     }
 
     @Operation(summary = "Get Driver", description = "Input is Driver Id, returns Driver Object")
