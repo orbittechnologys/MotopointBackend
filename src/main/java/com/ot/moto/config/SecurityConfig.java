@@ -186,7 +186,8 @@ public class SecurityConfig {
             "/penalty/update",
             "/penalty/getAll",
             "/penalty/delete/{id}",
-            "/penalty/findById/{id}"
+            "/penalty/findById/{id}",
+            "/fleet/getById/{id}"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create",
