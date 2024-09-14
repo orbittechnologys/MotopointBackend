@@ -114,7 +114,6 @@ public class DriverDao {
     }
 
 
-
     public Long countDriversWithVehicleTypeNotOwned() {
         Long count = driverRepository.countByVehicleTypeNotOwned();
         return (count == null) ? 0L : count;

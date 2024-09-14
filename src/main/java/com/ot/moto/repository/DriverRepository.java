@@ -1,6 +1,7 @@
 package com.ot.moto.repository;
 
 import com.ot.moto.entity.Driver;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,13 +33,13 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
     public Long countDriversWithFlexiVisa();
 
     @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType = '2WHEELER'")
-    public long countTwoWheelerRiders();
+    public Long countTwoWheelerRiders();
 
     @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType = '4WHEELER'")
-    public long countFourWheelerDrivers();
+    public Long countFourWheelerDrivers();
 
     @Query("SELECT COUNT(d) FROM Driver d")
-    public long countTotalDrivers();
+    public Long countTotalDrivers();
 
     @Query("SELECT d FROM Driver d ORDER BY d.totalOrders DESC LIMIT 1")
     public Optional<Driver> findTopDriverByTotalOrders();
@@ -52,14 +53,9 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
     @Query("SELECT SUM(d.profit) FROM Driver d")
     public Double sumProfitForAllDrivers();
 
-
     @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType = 'owned'")
     public Long countByVehicleTypeOwned();
 
-
     @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType != 'owned'")
-      public Long countByVehicleTypeNotOwned();
-
-
-
+    public Long countByVehicleTypeNotOwned();
 }

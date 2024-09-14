@@ -256,7 +256,6 @@ public class DriverService {
         }
     }
 
-
     public ResponseEntity<ResponseStructure<Object>> getDriver(Long id) {
         try {
             Driver driver = driverDao.getById(id);
@@ -273,15 +272,14 @@ public class DriverService {
 
     public ResponseEntity<ResponseStructure<Object>> getAllDriver(int page, int size, String field) {
         try {
-
             Page<Driver> driverPage = driverDao.findAll(page, size, field);
             if (driverPage.isEmpty()) {
                 logger.warn("No Driver found.");
                 return ResponseStructure.errorResponse(null, 404, "No Driver found");
             }
-            return ResponseStructure.successResponse(driverPage, "All Driver found");
+            return ResponseStructure.successResponse(driverPage, "All Drivers found");
         } catch (Exception e) {
-            logger.error("Error fetching Driver", e);
+            logger.error("Error fetching Drivers", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
@@ -676,15 +674,6 @@ public class DriverService {
         }
     }
 
-    private Driver fetchDriver(Long id) {
-        Driver driver = driverDao.getById(id);
-        if (Objects.isNull(driver)) {
-            logger.warn("No Driver found. Invalid ID:" + id);
-            return null;
-        }
-        return driver;
-    }
-
     private Driver updateDriverFromRequest(UpdateDriverReq request, Driver driver) {
 
         if (request.getEmail() != null && !request.getEmail().isEmpty()) {
@@ -812,6 +801,42 @@ public class DriverService {
         }
         if (request.getVisaCopyImageUrl() != null && !request.getVisaCopyImageUrl().isEmpty()) {
             driver.setVisaCopyImageUrl(request.getVisaCopyImageUrl());
+        }
+
+        // Update EMI fields
+        if (request.getVisaAmount() != null) {
+            driver.setVisaAmount(request.getVisaAmount());
+        }
+        if (request.getVisaAmountStartDate() != null) {
+            driver.setVisaAmountStartDate(request.getVisaAmountStartDate());
+        }
+        if (request.getVisaAmountEndDate() != null) {
+            driver.setVisaAmountEndDate(request.getVisaAmountEndDate());
+        }
+
+        if (request.getBikeRentAmount() != null) {
+            driver.setBikeRentAmount(request.getBikeRentAmount());
+        }
+        if (request.getBikeRentAmountStartDate() != null) {
+            driver.setBikeRentAmountStartDate(request.getBikeRentAmountStartDate());
+        }
+        if (request.getBikeRentAmountEndDate() != null) {
+            driver.setBikeRentAmountEndDate(request.getBikeRentAmountEndDate());
+        }
+
+        if (request.getOtherDeductionAmount() != null) {
+            driver.setOtherDeductionAmount(request.getOtherDeductionAmount());
+        }
+        if (request.getOtherDeductionAmountStartDate() != null) {
+            driver.setOtherDeductionAmountStartDate(request.getOtherDeductionAmountStartDate());
+        }
+        if (request.getOtherDeductionAmountEndDate() != null) {
+            driver.setOtherDeductionAmountEndDate(request.getOtherDeductionAmountEndDate());
+        }
+
+        // Update remarks
+        if (request.getRemarks() != null && !request.getRemarks().isEmpty()) {
+            driver.setRemarks(request.getRemarks());
         }
 
         return driver;
@@ -944,5 +969,14 @@ public class DriverService {
             logger.error("Error while fetching driver count with vehicle type not 'Owned'.", e);
             return ResponseStructure.errorResponse(null, 500, "Internal server error.");
         }
+    }
+
+    private Driver fetchDriver(Long id) {
+        Driver driver = driverDao.getById(id);
+        if (Objects.isNull(driver)) {
+            logger.warn("No Driver found. Invalid ID:" + id);
+            return null;
+        }
+        return driver;
     }
 }
