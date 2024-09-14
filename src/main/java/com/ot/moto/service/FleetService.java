@@ -37,24 +37,6 @@ public class FleetService {
     private static final Logger logger = LoggerFactory.getLogger(FleetService.class);
 
 
-    public ResponseEntity<ResponseStructure<Object>> getFleetCounts() {
-        try {
-            long selfOwnedCount = fleetDao.getSelfOwnedFleetCount(Fleet.OWN_TYPE.SELF_OWNED);
-            long motoPointCount = fleetDao.getMotoPointFleetCount(Fleet.OWN_TYPE.MOTO_POINT);
-
-            logger.info("Fetched fleet counts - SELF_OWNED: {}, MOTO_POINT: {}", selfOwnedCount, motoPointCount);
-
-            Map<String, Long> counts = new HashMap<>();
-            counts.put("SELF_OWNED", selfOwnedCount);
-            counts.put("MOTO_POINT", motoPointCount);
-
-            return ResponseStructure.successResponse(counts, "Fleet counts retrieved successfully");
-        } catch (Exception e) {
-            logger.error("Error fetching fleet counts", e);
-            return ResponseStructure.errorResponse(null, 500, "Error fetching fleet counts: " + e.getMessage());
-        }
-    }
-
     public ResponseEntity<ResponseStructure<Object>> createFleet(CreateFleetReq request) {
         try {
             if (fleetDao.getVehicleNumber(request.getVehicleNumber()) != null) {
@@ -97,6 +79,27 @@ public class FleetService {
         return fleet;
     }
 
+
+    public ResponseEntity<ResponseStructure<Object>> updateFleet(UpdateFleetReq request) {
+        try {
+            Fleet fleet = fetchFleet(request.getId());
+            if (Objects.isNull(fleet)) {
+                logger.warn("No fleet found with id: {}", request.getId());
+                return ResponseStructure.errorResponse(null, 404, "Fleet not found with id: " + request.getId());
+            }
+
+            fleet = updateFleetFromRequest(request, fleet);
+            fleetDao.createFleet(fleet);
+            logger.info("Fleet updated successfully: {}", fleet.getId());
+
+            return ResponseStructure.successResponse(fleet, "Fleet updated successfully");
+
+        } catch (Exception e) {
+            logger.error("Error updating fleet", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
     private Fleet updateFleetFromRequest(UpdateFleetReq request, Fleet fleet) {
         if (!StringUtil.isEmpty(request.getVehicleName())) {
             fleet.setVehicleName(request.getVehicleName());
@@ -105,21 +108,13 @@ public class FleetService {
             fleet.setVehicleNumber(request.getVehicleNumber());
         }
         if (!StringUtil.isEmpty(request.getVehicleType())) {
-
             fleet.setVehicleType(Fleet.VEHICLE_TYPE.valueOf(request.getVehicleType().toUpperCase()));
         }
         if (request.getInsuranceExpiryDate() != null) {
             fleet.setInsuranceExpiryDate(request.getInsuranceExpiryDate());
         }
-        if (request.getImage() != null) {
-            fleet.setImage(request.getImage());
-        }
         if (!StringUtil.isEmpty(request.getInsuranceDocument())) {
             fleet.setInsuranceDocument(request.getInsuranceDocument());
-        }
-        if (request.getDriverId() != null) {
-            Driver driver = driverDao.getById(request.getDriverId());
-            fleet.setDriver(driver);
         }
         if (request.getRegistrationCertificate() != null) {
             fleet.setRegistrationCertificate(request.getRegistrationCertificate());
@@ -130,6 +125,7 @@ public class FleetService {
 
         return fleet;
     }
+
 
     public ResponseEntity<ResponseStructure<Object>> getFleet(Long id) {
         try {
@@ -168,26 +164,6 @@ public class FleetService {
         return fleet;
     }
 
-    public ResponseEntity<ResponseStructure<Object>> updateFleet(UpdateFleetReq request) {
-        try {
-            Fleet fleet = fetchFleet(request.getId());
-            if (Objects.isNull(fleet)) {
-                logger.warn("No fleet found with id: {}", request.getId());
-                return ResponseStructure.errorResponse(null, 404, "Fleet not found with id: " + request.getId());
-            }
-
-            fleet = updateFleetFromRequest(request, fleet);
-            fleetDao.createFleet(fleet);
-            logger.info("Fleet updated successfully: {}", fleet.getId());
-
-            return ResponseStructure.successResponse(fleet, "Fleet updated successfully");
-
-        } catch (Exception e) {
-            logger.error("Error updating fleet", e);
-            return ResponseStructure.errorResponse(null, 500, e.getMessage());
-        }
-    }
-
     public long countTwoWheelers() {
         return fleetDao.countByVehicleType(Fleet.VEHICLE_TYPE.TWO_WHEELER);
     }
@@ -196,6 +172,7 @@ public class FleetService {
         return fleetDao.countByVehicleType(Fleet.VEHICLE_TYPE.FOUR_WHEELER);
     }
 
+    @Transactional
     public ResponseEntity<ResponseStructure<Object>> assignFleet(AssignFleet assignFleet) {
         try {
             Fleet fleet = fetchFleet(assignFleet.getId());
@@ -348,6 +325,7 @@ public class FleetService {
         }
     }
 
+
     public ResponseEntity<ResponseStructure<Object>> getAllAssignedFleets(int page, int size, String field) {
         try {
             List<Fleet> assignedFleets = fleetDao.findAllAssignedFleets(page, size, field);
@@ -379,6 +357,24 @@ public class FleetService {
         } catch (Exception e) {
             logger.error("Error retrieving Unassigned fleets", e);
             return ResponseStructure.errorResponse(null, 500, "Error retrieving Unassigned fleets: " + e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> getFleetCounts() {
+        try {
+            long selfOwnedCount = fleetDao.getSelfOwnedFleetCount(Fleet.OWN_TYPE.SELF_OWNED);
+            long motoPointCount = fleetDao.getMotoPointFleetCount(Fleet.OWN_TYPE.MOTO_POINT);
+
+            logger.info("Fetched fleet counts - SELF_OWNED: {}, MOTO_POINT: {}", selfOwnedCount, motoPointCount);
+
+            Map<String, Long> counts = new HashMap<>();
+            counts.put("SELF_OWNED", selfOwnedCount);
+            counts.put("MOTO_POINT", motoPointCount);
+
+            return ResponseStructure.successResponse(counts, "Fleet counts retrieved successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching fleet counts", e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching fleet counts: " + e.getMessage());
         }
     }
 }

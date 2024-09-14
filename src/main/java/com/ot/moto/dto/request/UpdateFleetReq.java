@@ -19,10 +19,6 @@ public class UpdateFleetReq {
 
     private String insuranceDocument;
 
-    public Long driverId;
-
-    private String image;
-
     private String registrationCertificate;
 
     private LocalDate dateOfPurchase;
