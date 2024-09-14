@@ -803,38 +803,6 @@ public class DriverService {
             driver.setVisaCopyImageUrl(request.getVisaCopyImageUrl());
         }
 
-        // Update EMI fields
-        if (request.getVisaAmount() != null) {
-            driver.setVisaAmount(request.getVisaAmount());
-        }
-        if (request.getVisaAmountStartDate() != null) {
-            driver.setVisaAmountStartDate(request.getVisaAmountStartDate());
-        }
-        if (request.getVisaAmountEndDate() != null) {
-            driver.setVisaAmountEndDate(request.getVisaAmountEndDate());
-        }
-
-        if (request.getBikeRentAmount() != null) {
-            driver.setBikeRentAmount(request.getBikeRentAmount());
-        }
-        if (request.getBikeRentAmountStartDate() != null) {
-            driver.setBikeRentAmountStartDate(request.getBikeRentAmountStartDate());
-        }
-        if (request.getBikeRentAmountEndDate() != null) {
-            driver.setBikeRentAmountEndDate(request.getBikeRentAmountEndDate());
-        }
-
-        if (request.getOtherDeductionAmount() != null) {
-            driver.setOtherDeductionAmount(request.getOtherDeductionAmount());
-        }
-        if (request.getOtherDeductionAmountStartDate() != null) {
-            driver.setOtherDeductionAmountStartDate(request.getOtherDeductionAmountStartDate());
-        }
-        if (request.getOtherDeductionAmountEndDate() != null) {
-            driver.setOtherDeductionAmountEndDate(request.getOtherDeductionAmountEndDate());
-        }
-
-        // Update remarks
         if (request.getRemarks() != null && !request.getRemarks().isEmpty()) {
             driver.setRemarks(request.getRemarks());
         }
@@ -882,9 +850,16 @@ public class DriverService {
     }
 
     private void calculateDriverEMI(Driver driver, UpdateDriverReq request) {
-        driver.setVisaAmount(request.getVisaAmount());
-        driver.setVisaAmountStartDate(request.getVisaAmountStartDate());
-        driver.setVisaAmountEndDate(request.getVisaAmountEndDate());
+        // Visa EMI Calculation
+        if (request.getVisaAmount() != null) {
+            driver.setVisaAmount(request.getVisaAmount());
+        }
+        if (request.getVisaAmountStartDate() != null) {
+            driver.setVisaAmountStartDate(request.getVisaAmountStartDate());
+        }
+        if (request.getVisaAmountEndDate() != null) {
+            driver.setVisaAmountEndDate(request.getVisaAmountEndDate());
+        }
 
         LocalDate visaStartDate = request.getVisaAmountStartDate();
         LocalDate visaEndDate = request.getVisaAmountEndDate();
@@ -898,14 +873,21 @@ public class DriverService {
             } else {
                 throw new RuntimeException("Visa start date must be before end date.");
             }
-        } else {
-            driver.setVisaAmountEmi(null);
+        } else if (request.getVisaAmount() == null || request.getVisaAmountStartDate() == null || request.getVisaAmountEndDate() == null) {
+            // If any required field is missing, keep the old EMI value
+            driver.setVisaAmountEmi(driver.getVisaAmountEmi());
         }
 
         // Bike Rent EMI Calculation
-        driver.setBikeRentAmount(request.getBikeRentAmount());
-        driver.setBikeRentAmountStartDate(request.getBikeRentAmountStartDate());
-        driver.setBikeRentAmountEndDate(request.getBikeRentAmountEndDate());
+        if (request.getBikeRentAmount() != null) {
+            driver.setBikeRentAmount(request.getBikeRentAmount());
+        }
+        if (request.getBikeRentAmountStartDate() != null) {
+            driver.setBikeRentAmountStartDate(request.getBikeRentAmountStartDate());
+        }
+        if (request.getBikeRentAmountEndDate() != null) {
+            driver.setBikeRentAmountEndDate(request.getBikeRentAmountEndDate());
+        }
 
         LocalDate bikeStartDate = request.getBikeRentAmountStartDate();
         LocalDate bikeEndDate = request.getBikeRentAmountEndDate();
@@ -919,14 +901,21 @@ public class DriverService {
             } else {
                 throw new RuntimeException("Bike rent start date must be before end date.");
             }
-        } else {
-            driver.setBikeRentAmountEmi(null);
+        } else if (request.getBikeRentAmount() == null || request.getBikeRentAmountStartDate() == null || request.getBikeRentAmountEndDate() == null) {
+            // If any required field is missing, keep the old EMI value
+            driver.setBikeRentAmountEmi(driver.getBikeRentAmountEmi());
         }
 
         // Other Deductions EMI Calculation
-        driver.setOtherDeductionAmount(request.getOtherDeductionAmount());
-        driver.setOtherDeductionAmountStartDate(request.getOtherDeductionAmountStartDate());
-        driver.setOtherDeductionAmountEndDate(request.getOtherDeductionAmountEndDate());
+        if (request.getOtherDeductionAmount() != null) {
+            driver.setOtherDeductionAmount(request.getOtherDeductionAmount());
+        }
+        if (request.getOtherDeductionAmountStartDate() != null) {
+            driver.setOtherDeductionAmountStartDate(request.getOtherDeductionAmountStartDate());
+        }
+        if (request.getOtherDeductionAmountEndDate() != null) {
+            driver.setOtherDeductionAmountEndDate(request.getOtherDeductionAmountEndDate());
+        }
 
         LocalDate otherStartDate = request.getOtherDeductionAmountStartDate();
         LocalDate otherEndDate = request.getOtherDeductionAmountEndDate();
@@ -940,10 +929,12 @@ public class DriverService {
             } else {
                 throw new RuntimeException("Other deductions start date must be before end date.");
             }
-        } else {
-            driver.setOtherDeductionsAmountEmi(null);
+        } else if (request.getOtherDeductionAmount() == null || request.getOtherDeductionAmountStartDate() == null || request.getOtherDeductionAmountEndDate() == null) {
+            // If any required field is missing, keep the old EMI value
+            driver.setOtherDeductionsAmountEmi(driver.getOtherDeductionsAmountEmi());
         }
     }
+
 
     public ResponseEntity<ResponseStructure<Object>> countDriversWithOwnedVehicle() {
         try {
