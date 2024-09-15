@@ -73,6 +73,7 @@ public class SecurityConfig {
             "/driver/findByUsernameContaining/{name}",
             "/tam/upload/tamSheet",
             "/tam/findAll",
+
             "/tam/getByJahezRiderId",
             "/tam/findByDriverName",
             "/report/findByDriverName",
