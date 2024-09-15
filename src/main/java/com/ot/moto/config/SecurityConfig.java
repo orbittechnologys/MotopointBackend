@@ -159,12 +159,10 @@ public class SecurityConfig {
             "/driver/cr",
             "/driver/company",
             "/driver/other",
-
             "/driver/visa/CountFlexi",
             "/driver/visa/countCr",
             "/driver/visa/countCompany",
             "/driver/visa/countOther",
-
             "/bonus/delete/{id}",
             "/bonus/getAll",
             "/bonus/updateDateBonus",
