@@ -52,7 +52,6 @@ public class SecurityConfig {
             "/report/upload/bankStatement",
             "/staff/delete",
             "/admin/delete",
-
             "/report/total-by-type",
             "/fleet/count/four-wheelers",
             "/fleet/count/two-wheelers",
@@ -70,7 +69,6 @@ public class SecurityConfig {
             "/report/current-month",
             "/order/top-driver",
             "/driver/topDriver",
-
             "/driver/download-csv",
             "/driver/findByUsernameContaining/{name}",
             "/tam/upload/tamSheet",
@@ -154,7 +152,6 @@ public class SecurityConfig {
             "/visa/getAll",
             "/visa/update",
             "/visa/create",
-            "/driver/create",
             "/driver/flexi",
             "/driver/cr",
             "/driver/company",
