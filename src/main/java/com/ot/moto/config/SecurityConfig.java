@@ -54,9 +54,9 @@ public class SecurityConfig {
             "/admin/delete",
             "/driver/delete",
             "/report/total-by-type",
-            "/fleet/count/four-wheelers",
-            "/fleet/count/two-wheelers",
-            "/fleet/create",
+
+
+
             "/orgReports/upload/orgReports",
             "/driver/details",
             "/order/getOrderCount",
@@ -66,7 +66,7 @@ public class SecurityConfig {
             "/report/upload/orgReports",
             "/report/getCodAmountForYesterday",
             "/report/getArrearsForToday",
-            "/fleet/ownTypeCount",
+
             "/report/current-month",
             "/order/top-driver",
             "/driver/topDriver",
@@ -90,7 +90,7 @@ public class SecurityConfig {
             "/driver/findByUsernameContaining/{name}",
             "/tam/download",
             "/report/download",
-            "/fleet/assignFleet",
+
             "/report/sumAmountCollectedByDriver",
             "/report/getSumForCurrentMonthForBenefit",
             "/report/getAmountForYesterdayForBenefit",
@@ -129,15 +129,15 @@ public class SecurityConfig {
             "/order/findByNameContaining",
             "/order/totalOrders",
             "/order/highestOrders",
-            "/fleet/search",
+
             "/report/payment/download",
             "/driver/summary/sum-payToJahez",
             "/driver/summary/total-profit",
             "/driver/summary/download-csv",
             "/driver/getAll",
             "/master/create",
-            "/fleet/count-assigned-two-wheeler",
-            "/fleet/count-assigned-four-wheeler",
+
+
             "/salary/search",
             "/bonus/delete/{id}",
             "/bonus/getAll",
@@ -145,9 +145,7 @@ public class SecurityConfig {
             "/bonus/updateOrderBonus",
             "/bonus/addDateBonus",
             "/bonus/addOrderBonus",
-            "/fleet/getById/{id}",
-            "/fleet/getAll",
-            "/fleet/assignFleet",
+
             "/staff/getAll",
             "/visa/getByName",
             "/visa/getById/{id}",
@@ -176,30 +174,44 @@ public class SecurityConfig {
             "/user/validateOTP",
             "/user/updateNewPassword",
             "/user/forgotPassword",
-            "/fleet/unassignFleet",
+
             "/driver/count-owned-vehicles",
             "/driver/count-not-owned-vehicles",
-            "/fleet/getAllAssignedFleets",
-            "/fleet/getAllUnAssignedFleets",
-            "/fleet/update",
             "/penalty/save",
             "/penalty/update",
             "/penalty/getAll",
             "/penalty/delete/{id}",
             "/penalty/findById/{id}",
+            "/fleet/count/four-wheelers",
+            "/fleet/count/two-wheelers",
+            "/fleet/create",
+            "/fleet/ownTypeCount",
+            "/driver/update",
+            "/fleet/count-assigned-two-wheeler",
+            "/fleet/count-assigned-four-wheeler",
+            "/fleet/search",
+            "/fleet/create",
+            "/fleet/getAllAssignedFleets",
             "/fleet/getById/{id}",
+            "/fleet/unassignFleet",
+            "/fleet/getAll",
             "/fleet/update",
-            "/fleet/getAll"
+            "/fleet/getAllUnAssignedFleets",
+            "/fleet/assignFleet",
+            "/driver/create",
+            "/staff/create",
+            "/user/{userId}/status",
+            "/driver/details",
+            "/staff/update"
     };
 
-    private static final String[] ADMIN_WHITELIST = {"/staff/create",
-            "/user/{userId}/status"};
+    private static final String[] ADMIN_WHITELIST = {};
 
     private static final String[] DRIVER_WHITELIST = {};
 
     private static final String[] STAFF_WHITELIST = {};
 
-    private static final String[] ADMIN_STAFF_WHITELIST = {"/driver/create", "/driver/update", "/fleet/create", "/fleet/getById/{id}", "/fleet/getAll", "/fleet/update", "/driver/details", "/staff/update"};
+    private static final String[] ADMIN_STAFF_WHITELIST = {};
 
     @Bean
     public PasswordEncoder passwordEncoder() {

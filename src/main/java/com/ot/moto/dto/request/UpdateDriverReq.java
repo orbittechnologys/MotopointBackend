@@ -10,6 +10,8 @@ public class UpdateDriverReq {
 
     private Long id;
 
+    private String username;
+
     private String jahezId;
 
     private String email;
@@ -17,10 +19,6 @@ public class UpdateDriverReq {
     private String phone;
 
     private String password;
-
-    private String firstName;
-
-    private String lastName;
 
     private LocalDate joiningDate;
 
