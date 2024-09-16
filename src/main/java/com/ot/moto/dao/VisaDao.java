@@ -1,5 +1,6 @@
 package com.ot.moto.dao;
 
+import com.ot.moto.entity.Asset;
 import com.ot.moto.entity.Visa;
 import com.ot.moto.repository.VisaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,5 +31,9 @@ public class VisaDao {
     public Visa findByVisaName(String visaName) {
         Optional<Visa> optional = visaRepository.findByVisaNameIgnoreCase(visaName);
         return optional.orElse(null);
+    }
+
+    public void delete(Visa visa ) {
+        visaRepository.delete(visa);
     }
 }

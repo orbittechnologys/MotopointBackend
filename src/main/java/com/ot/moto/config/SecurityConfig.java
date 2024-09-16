@@ -188,6 +188,7 @@ public class SecurityConfig {
             "/fleet/getAll",
             "/driver/create",
             "/driver/update",
+            "visa/delete"
     };
 
     private static final String[] ADMIN_WHITELIST = {"/staff/create",
