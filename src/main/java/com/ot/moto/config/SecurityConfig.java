@@ -56,7 +56,6 @@ public class SecurityConfig {
             "/report/total-by-type",
 
 
-
             "/orgReports/upload/orgReports",
             "/driver/details",
             "/order/getOrderCount",
