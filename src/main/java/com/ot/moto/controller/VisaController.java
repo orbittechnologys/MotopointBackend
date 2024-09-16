@@ -75,7 +75,7 @@ public class VisaController {
             @ApiResponse(responseCode = "200", description = "Visa Found"),
             @ApiResponse(responseCode = "404", description = "Visa Not Found")
     })
-    @GetMapping("/delete")
+    @DeleteMapping("/delete")
     public ResponseEntity<ResponseStructure<Object>> delete(@RequestParam Long visaId) {
         return visaService.deleteVisa(visaId);
     }
