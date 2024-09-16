@@ -136,7 +136,6 @@ public class SecurityConfig {
             "/driver/getAll",
             "/master/create",
 
-
             "/salary/search",
             "/bonus/delete/{id}",
             "/bonus/getAll",
