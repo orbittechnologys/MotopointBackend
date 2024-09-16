@@ -69,4 +69,14 @@ public class VisaController {
     public ResponseEntity<ResponseStructure<Object>> getVisaByName(@RequestParam String visaName) {
         return visaService.getVisaByName(visaName);
     }
+
+    @Operation(summary = "Get Visa by ID", description = "Input is Visa Id, returns Visa Object")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Visa Found"),
+            @ApiResponse(responseCode = "404", description = "Visa Not Found")
+    })
+    @DeleteMapping("/delete")
+    public ResponseEntity<ResponseStructure<Object>> delete(@RequestParam Long visaId) {
+        return visaService.deleteVisa(visaId);
+    }
 }

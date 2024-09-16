@@ -106,6 +106,28 @@ public class DriverService {
         }
     }
 
+    private void createAssetAndVise(Driver driver, CreateDriverReq request) {
+        // Handle assets after the driver is saved
+        if (request.getAssets() != null) {
+            List<Asset> assets = new ArrayList<>();
+            for (AssetRequest assetRequest : request.getAssets()) {
+                Asset asset = new Asset();
+                asset.setItem(assetRequest.getItem());
+                asset.setQuantity(assetRequest.getQuantity());
+                asset.setLocalDate(assetRequest.getLocalDate());
+                asset.setDriver(driver); // Link the saved driver to the asset
+                assets.add(asset);
+            }
+            assetsDao.saveAll(assets); // Save all assets after the driver is saved
+        }
+
+        Visa visa = visaDao.findById(request.getVisaType());
+        if (visa != null) {
+            driver.setVisa(visa);
+            driverRepository.save(driver);
+        }
+    }
+
     private Driver buildDriverFromRequest(CreateDriverReq request) {
         Driver driver = new Driver();
 
@@ -168,29 +190,6 @@ public class DriverService {
 
         return driver;
     }
-
-    private void createAssetAndVise(Driver driver, CreateDriverReq request) {
-        // Handle assets after the driver is saved
-        if (request.getAssets() != null) {
-            List<Asset> assets = new ArrayList<>();
-            for (AssetRequest assetRequest : request.getAssets()) {
-                Asset asset = new Asset();
-                asset.setItem(assetRequest.getItem());
-                asset.setQuantity(assetRequest.getQuantity());
-                asset.setLocalDate(assetRequest.getLocalDate());
-                asset.setDriver(driver); // Link the saved driver to the asset
-                assets.add(asset);
-            }
-            assetsDao.saveAll(assets); // Save all assets after the driver is saved
-        }
-
-        Visa visa = visaDao.findById(request.getVisaType());
-        if (visa != null) {
-            driver.setVisa(visa);
-            driverRepository.save(driver);
-        }
-    }
-
 
     public void calculateDriverEMI(Driver driver, CreateDriverReq request) {
 
@@ -266,6 +265,7 @@ public class DriverService {
                 return ResponseStructure.errorResponse(null, 404, "Driver not found with id: " + request.getId());
             }
 
+
             Optional<User> userPhone = userDao.getUserByPhone(request.getPhone());
             if (userPhone.isPresent() && !userPhone.get().getId().equals(request.getId())) {
                 logger.warn("Phone already exists: {}", request.getPhone());
@@ -309,14 +309,12 @@ public class DriverService {
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             driver.setPassword(encoder.encode(request.getPassword()));
         }
-
         logger.info("Updating driver with ID {}. Current username: {}", driver.getId(), driver.getUsername());
         if (request.getUsername() != null && !request.getUsername().isEmpty()) {
             String newUsername = request.getUsername().toUpperCase();
             logger.info("Updating username from {} to {}", driver.getUsername(), newUsername);
             driver.setUsername(newUsername);
         }
-
         if (request.getProfilePic() != null && !request.getProfilePic().isEmpty()) {
             driver.setProfilePic(request.getProfilePic());
         }
@@ -941,7 +939,6 @@ public class DriverService {
             return ResponseStructure.errorResponse(null, 500, "Internal server error.");
         }
     }
-
 
     public ResponseEntity<ResponseStructure<Object>> countDriversWithOwnedVehicle() {
         try {

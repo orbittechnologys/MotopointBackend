@@ -4,6 +4,7 @@ import com.ot.moto.dao.VisaDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.VisaRequest;
 import com.ot.moto.dto.request.VisaUpdateReq;
+import com.ot.moto.entity.Admin;
 import com.ot.moto.entity.Fleet;
 import com.ot.moto.entity.Visa;
 import org.slf4j.Logger;
@@ -92,6 +93,25 @@ public class VisaService {
             return ResponseStructure.successResponse(visa, "Visa found");
         } catch (Exception e) {
             logger.error("Error fetching visa by name: " + visaName, e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+
+    public ResponseEntity<ResponseStructure<Object>> deleteVisa(Long visaId) {
+        try {
+            Visa visa = visaDao.findById(visaId);
+            if (Objects.isNull(visa)) {
+                logger.warn("Visa not found with ID: {}", visaId);
+                return ResponseStructure.errorResponse(null, 404, "Visa not found");
+            }
+
+            visaDao.delete(visa);
+            logger.info("Visa deleted successfully: {}", visaId);
+            return ResponseStructure.successResponse(null, "Visa deleted successfully");
+
+        } catch (Exception e) {
+            logger.error("Error deleting Visa", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
