@@ -685,8 +685,11 @@ public class DriverService {
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             driver.setPassword(encoder.encode(request.getPassword()));
         }
-        if (request.getFirstName() != null && !request.getFirstName().isEmpty() || request.getLastName() != null && !request.getLastName().isEmpty()) {
-            driver.setUsername((request.getFirstName() + " " + request.getLastName()).toUpperCase());
+        logger.info("Updating driver with ID {}. Current username: {}", driver.getId(), driver.getUsername());
+        if (request.getUsername() != null && !request.getUsername().isEmpty()) {
+            String newUsername = request.getUsername().toUpperCase();
+            logger.info("Updating username from {} to {}", driver.getUsername(), newUsername);
+            driver.setUsername(newUsername);
         }
         if (request.getProfilePic() != null && !request.getProfilePic().isEmpty()) {
             driver.setProfilePic(request.getProfilePic());
