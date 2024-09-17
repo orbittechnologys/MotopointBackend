@@ -24,8 +24,8 @@ public class PenaltyServices {
     @Autowired
     private FleetDao fleetDao;
 
-
     private static final Logger logger = LoggerFactory.getLogger(PenaltyServices.class);
+
 
     public ResponseEntity<ResponseStructure<Object>> getPenaltyById(long id) {
         try {

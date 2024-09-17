@@ -191,4 +191,12 @@ public class DriverController {
     public ResponseEntity<ResponseStructure<Object>> countDriversWithOwnedVehicle() {
         return driverService.countDriversWithOwnedVehicle();
     }
+
+    @Operation(summary = "Fetch Driver By ownedVechileType ", description = "returns Driver Object By ownedVechileType")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
+            @ApiResponse(responseCode = "404", description = "Driver Not Found")})
+    @GetMapping(value = "getAll/rented/s-rented")
+    public ResponseEntity<ResponseStructure<List<Driver>>> rentedSRented() {
+        return driverService.rentedSRentedVeichleType();
+    }
 }

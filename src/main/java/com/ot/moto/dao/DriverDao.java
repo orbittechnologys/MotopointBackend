@@ -119,4 +119,9 @@ public class DriverDao {
         return (count == null) ? 0L : count;
     }
 
+
+    public List<Driver> rentedSRented() {
+        return driverRepository.findDriversByRentedSRentedVehicleType();
+    }
+
 }

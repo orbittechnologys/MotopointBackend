@@ -103,6 +103,8 @@ public class CreateDriverReq {
 
     private LocalDate visaExpiryDate;
 
+    private String consentDoc;
+
     //visa & asset
     private List<AssetRequest> assets;
 

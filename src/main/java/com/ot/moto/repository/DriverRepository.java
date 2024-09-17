@@ -58,4 +58,7 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
 
     @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType != 'owned'")
     public Long countByVehicleTypeNotOwned();
+
+    @Query("SELECT d FROM Driver d WHERE d.vehicleType IN ('S-Rented','Rented')")
+    public List<Driver> findDriversByRentedSRentedVehicleType();
 }

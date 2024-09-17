@@ -152,6 +152,7 @@ public class DriverService {
 
         driver.setRemarks(request.getRemarks());
         driver.setDeductionDescription(request.getDeductionDescription());
+        driver.setConsentDoc(request.getConsentDoc());
 
         // Upload Documents
         driver.setDlFrontPhotoUrl(request.getDlFrontPhotoUrl());
@@ -436,10 +437,13 @@ public class DriverService {
         if (request.getRemarks() != null && !request.getRemarks().isEmpty()) {
             driver.setRemarks(request.getRemarks());
         }
-
         if (request.getDeductionDescription() != null && !request.getDeductionDescription().isEmpty()) {
             driver.setDeductionDescription(request.getDeductionDescription());
         }
+        if (request.getConsentDoc() != null && !request.getConsentDoc().isEmpty()){
+            driver.setConsentDoc(request.getConsentDoc());
+        }
+
 
         return driver;
     }
@@ -981,4 +985,30 @@ public class DriverService {
         }
         return driver;
     }
+
+    public ResponseEntity<ResponseStructure<List<Driver>>> rentedSRentedVeichleType() {
+        ResponseStructure<List<Driver>> responseStructure = new ResponseStructure<>();
+        try {
+            logger.info("Searching for drivers with ownedVeichleType : {}");
+
+            List<Driver> driverList = driverDao.rentedSRented();
+            if (driverList.isEmpty()) {
+                logger.warn("No drivers found with ownedVeichleType{}" );
+                responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
+                responseStructure.setMessage("Driver Not Found With ownedVeichleType ");
+                responseStructure.setData(null);
+                return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
+            } else {
+                logger.info("Found {} drivers with ownedVeichleType {}", driverList.size());
+                responseStructure.setStatus(HttpStatus.OK.value());
+                responseStructure.setMessage("Driver Found With ownedVeichleType ");
+                responseStructure.setData(driverList);
+                return new ResponseEntity<>(responseStructure, HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            logger.error("Error searching for drivers with ownedVeichleType {}", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

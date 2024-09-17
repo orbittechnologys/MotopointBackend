@@ -27,11 +27,9 @@ public class FleetHistory {
 
     @ManyToOne
     @JoinColumn(name = "fleet_id")
-    @JsonBackReference("fleetHistory")
     private Fleet fleet;
 
     @ManyToOne
     @JoinColumn(name = "driver_id")
-    @JsonBackReference("driverHistory")
     private Driver driver;
 }

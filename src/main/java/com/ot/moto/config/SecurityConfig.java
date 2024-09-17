@@ -199,7 +199,12 @@ public class SecurityConfig {
             "/staff/update",
             "/fleet/count-assigned-four-wheeler",
             "/fleet/count-assigned-two-wheeler",
-            "/fleetHistory/getAll"
+            "/fleetHistory/getAll",
+            "/fleetHistory/getById/{id}",
+            "/fleetHistory/getByFleetId/{fleetId}",
+            "/fleetHistory/getByDriverId/{driverId}",
+            "/fleetHistory/getByFleetIdAndDriverId",
+            "/driver/getAll/rented/s-rented"
     };
 
     private static final String[] ADMIN_WHITELIST = {};
