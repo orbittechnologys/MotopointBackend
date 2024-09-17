@@ -10,5 +10,4 @@ public class MotoApplication {
     public static void main(String[] args) {
         SpringApplication.run(MotoApplication.class, args);
     }
-
 }

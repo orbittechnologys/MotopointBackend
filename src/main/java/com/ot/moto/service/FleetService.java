@@ -8,7 +8,10 @@ import com.ot.moto.dto.request.CreateFleetReq;
 import com.ot.moto.dto.request.UpdateFleetReq;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Fleet;
+import com.ot.moto.entity.FleetHistory;
+import com.ot.moto.repository.FleetHistoryRepository;
 import com.ot.moto.util.StringUtil;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +23,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 public class FleetService {
@@ -33,6 +34,9 @@ public class FleetService {
 
     @Autowired
     private DriverDao driverDao;
+
+    @Autowired
+    private FleetHistoryRepository fleetHistoryRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(FleetService.class);
 
@@ -181,12 +185,23 @@ public class FleetService {
                 return ResponseStructure.errorResponse(null, 404, "Fleet not found with id: " + assignFleet.getId());
             }
 
-            // Unassign fleet from current driver if assigned
+            // Unassign fleet from current driver if already assigned to a different driver
             if (fleet.getDriver() != null && !fleet.getDriver().getId().equals(assignFleet.getDriverId())) {
                 Driver currentDriver = fleet.getDriver();
-                currentDriver.setFleet(null); // Unlink the fleet from the current driver
+                currentDriver.setFleet(null);  // Unlink the fleet from the current driver
+
+                // Update FleetHistory for the current driver (Unassigning)
+                FleetHistory lastHistory = fleetHistoryRepository
+                        .findByFleetIdAndDriverId(fleet.getId(), currentDriver.getId())
+                        .stream()
+                        .max(Comparator.comparing(FleetHistory::getFleetAssignDateTime))
+                        .orElseThrow(() -> new EntityNotFoundException("History not found"));
+
+                lastHistory.setFleetUnAssignDateTime(LocalDateTime.now());  // Set unassign date and time
+                fleetHistoryRepository.save(lastHistory);
             }
 
+            // Fetch the new driver for assignment
             Driver newDriver = driverDao.getById(assignFleet.getDriverId());
             if (newDriver == null) {
                 logger.warn("No driver found with id: {}", assignFleet.getDriverId());
@@ -195,18 +210,27 @@ public class FleetService {
 
             // Assign fleet to the new driver
             fleet.setDriver(newDriver);
-            newDriver.setFleet(fleet); // Ensure the new driver is aware of the fleet
-            fleet.setFleetAssignDate(LocalDate.now());
+            fleet.setFleetAssignDateTime(LocalDateTime.now());  // Set assign date and time
 
+            // Save the new FleetHistory entry
+            FleetHistory newHistory = new FleetHistory();
+            newHistory.setFleet(fleet);
+            newHistory.setDriver(newDriver);
+            newHistory.setFleetAssignDateTime(LocalDateTime.now());  // Record the assignment date and time
+            newHistory.setProfit("0");  // Profit can be calculated based on your logic
+            fleetHistoryRepository.save(newHistory);
+
+            // Save the updated fleet
             fleetDao.createFleet(fleet);
 
             logger.info("Fleet assigned successfully: {}", fleet.getId());
-            return ResponseStructure.successResponse(fleet, "Fleet assigned successfully on Date " + fleet.getFleetAssignDate());
+            return ResponseStructure.successResponse(fleet, "Fleet assigned successfully on Date " + fleet.getFleetAssignDateTime());
         } catch (Exception e) {
-            logger.error("Error updating fleet", e);
+            logger.error("Error assigning fleet", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
+
 
     @Transactional
     public ResponseEntity<ResponseStructure<Object>> unassignFleet(Long fleetId) {
@@ -228,21 +252,30 @@ public class FleetService {
             Driver currentDriver = fleet.getDriver();
 
             // Unassign the fleet from the current driver
-            fleet.setDriver(null); // Remove the driver from the fleet
-            fleet.setFleetUnAssignDate(LocalDate.now()); // Set the unassign date
-            fleetDao.createFleet(fleet); // Save the fleet update
+            fleet.setDriver(null);  // Remove the driver from the fleet
+            fleet.setFleetUnAssignDateTime(LocalDateTime.now());  // Set the unassign date and time
 
-            // Unlink the fleet from the driver
-            currentDriver.setFleet(null);
-            driverDao.createDriver(currentDriver); // Save the driver update
+            // Save the updated fleet
+            fleetDao.createFleet(fleet);
+
+            // Update FleetHistory for the current driver (Unassigning)
+            FleetHistory lastHistory = fleetHistoryRepository
+                    .findByFleetIdAndDriverId(fleet.getId(), currentDriver.getId())
+                    .stream()
+                    .max(Comparator.comparing(FleetHistory::getFleetUnAssignDateTime))
+                    .orElseThrow(() -> new EntityNotFoundException("History not found"));
+
+            lastHistory.setFleetUnAssignDateTime(LocalDateTime.now());  // Set unassign date and time
+            fleetHistoryRepository.save(lastHistory);
 
             logger.info("Fleet unassigned successfully: {}", fleet.getId());
-            return ResponseStructure.successResponse(fleet, "Fleet unassigned successfully on Date " + fleet.getFleetUnAssignDate());
+            return ResponseStructure.successResponse(fleet, "Fleet unassigned successfully on Date " + fleet.getFleetUnAssignDateTime());
         } catch (Exception e) {
             logger.error("Error unassigning fleet", e);
             return ResponseStructure.errorResponse(null, 500, "Error unassigning fleet: " + e.getMessage());
         }
     }
+
 
     public ResponseEntity<ResponseStructure<List<Fleet>>> searchFleetByVehicleNumber(String vehicleNumberSubstring) {
         ResponseStructure responseStructure = new ResponseStructure();

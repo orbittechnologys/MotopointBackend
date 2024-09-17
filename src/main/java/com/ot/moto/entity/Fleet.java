@@ -1,10 +1,12 @@
 package com.ot.moto.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -40,9 +42,11 @@ public class Fleet {
 
     private String image;
 
-    private LocalDate fleetAssignDate;
 
-    private LocalDate fleetUnAssignDate;
+    private LocalDateTime fleetAssignDateTime;
+
+    private LocalDateTime fleetUnAssignDateTime;
+
 
     private String registrationCertificate;
 
@@ -58,4 +62,8 @@ public class Fleet {
     @OneToMany(mappedBy = "fleet", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("fleetPenalty")
     private List<Penalty> penalties;
+
+    @OneToMany(mappedBy = "fleet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("fleetHistory")
+    private List<FleetHistory> fleetHistoryList;
 }
