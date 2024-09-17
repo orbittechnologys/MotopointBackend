@@ -198,7 +198,8 @@ public class SecurityConfig {
             "/driver/details",
             "/staff/update",
             "/fleet/count-assigned-four-wheeler",
-            "/fleet/count-assigned-two-wheeler"
+            "/fleet/count-assigned-two-wheeler",
+            "/fleetHistory/getAll"
     };
 
     private static final String[] ADMIN_WHITELIST = {};
