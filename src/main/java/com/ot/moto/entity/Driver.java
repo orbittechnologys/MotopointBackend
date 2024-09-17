@@ -105,6 +105,7 @@ public class Driver extends User {
     private Double otherDeductionsAmountEmi;
 
     private String remarks;
+    private String deductionDescription;
 
 
     //Document Uploads
@@ -144,5 +145,9 @@ public class Driver extends User {
     @JoinColumn
     @JsonManagedReference("visa")
     private Visa visa;
+
+    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("driverHistory")
+    private List<FleetHistory> fleetHistoryList;
 
 }

@@ -99,6 +99,7 @@ public class UpdateDriverReq {
     private LocalDate otherDeductionAmountEndDate;
 
     private String remarks;
+    private String deductionDescription;
 
     private LocalDate visaExpiryDate;
 

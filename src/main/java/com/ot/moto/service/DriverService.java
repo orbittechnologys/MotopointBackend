@@ -106,28 +106,6 @@ public class DriverService {
         }
     }
 
-    private void createAssetAndVise(Driver driver, CreateDriverReq request) {
-        // Handle assets after the driver is saved
-        if (request.getAssets() != null) {
-            List<Asset> assets = new ArrayList<>();
-            for (AssetRequest assetRequest : request.getAssets()) {
-                Asset asset = new Asset();
-                asset.setItem(assetRequest.getItem());
-                asset.setQuantity(assetRequest.getQuantity());
-                asset.setLocalDate(assetRequest.getLocalDate());
-                asset.setDriver(driver); // Link the saved driver to the asset
-                assets.add(asset);
-            }
-            assetsDao.saveAll(assets); // Save all assets after the driver is saved
-        }
-
-        Visa visa = visaDao.findById(request.getVisaType());
-        if (visa != null) {
-            driver.setVisa(visa);
-            driverRepository.save(driver);
-        }
-    }
-
     private Driver buildDriverFromRequest(CreateDriverReq request) {
         Driver driver = new Driver();
 
@@ -170,8 +148,11 @@ public class DriverService {
         driver.setBankAccountCurrency(request.getBankAccountCurrency());
         driver.setBankMobilePayNumber(request.getBankMobilePayNumber());
         driver.setBankAccountType(request.getBankAccountType());
-        driver.setRemarks(request.getRemarks());
         driver.setVisaExpiryDate(request.getVisaExpiryDate());
+
+        driver.setRemarks(request.getRemarks());
+        driver.setDeductionDescription(request.getDeductionDescription());
+
         // Upload Documents
         driver.setDlFrontPhotoUrl(request.getDlFrontPhotoUrl());
         driver.setDlBackPhotoUrl(request.getDlBackPhotoUrl());
@@ -189,6 +170,28 @@ public class DriverService {
         calculateDriverEMI(driver, request);
 
         return driver;
+    }
+
+    private void createAssetAndVise(Driver driver, CreateDriverReq request) {
+        // Handle assets after the driver is saved
+        if (request.getAssets() != null) {
+            List<Asset> assets = new ArrayList<>();
+            for (AssetRequest assetRequest : request.getAssets()) {
+                Asset asset = new Asset();
+                asset.setItem(assetRequest.getItem());
+                asset.setQuantity(assetRequest.getQuantity());
+                asset.setLocalDate(assetRequest.getLocalDate());
+                asset.setDriver(driver); // Link the saved driver to the asset
+                assets.add(asset);
+            }
+            assetsDao.saveAll(assets); // Save all assets after the driver is saved
+        }
+
+        Visa visa = visaDao.findById(request.getVisaType());
+        if (visa != null) {
+            driver.setVisa(visa);
+            driverRepository.save(driver);
+        }
     }
 
     public void calculateDriverEMI(Driver driver, CreateDriverReq request) {
@@ -432,6 +435,10 @@ public class DriverService {
 
         if (request.getRemarks() != null && !request.getRemarks().isEmpty()) {
             driver.setRemarks(request.getRemarks());
+        }
+
+        if (request.getDeductionDescription() != null && !request.getDeductionDescription().isEmpty()) {
+            driver.setDeductionDescription(request.getDeductionDescription());
         }
 
         return driver;
