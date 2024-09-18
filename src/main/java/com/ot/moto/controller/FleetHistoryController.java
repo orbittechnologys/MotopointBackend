@@ -43,6 +43,7 @@ public class FleetHistoryController {
     }
 
 
+
     @Operation(summary = "Get FleetHistory by Driver ID", description = "Returns List of FleetHistory Objects by Driver ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "FleetHistory Found"),
