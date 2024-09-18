@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -196,7 +197,9 @@ public class DriverController {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Driver Found"),
             @ApiResponse(responseCode = "404", description = "Driver Not Found")})
     @GetMapping(value = "getAll/rented/s-rented")
-    public ResponseEntity<ResponseStructure<List<Driver>>> rentedSRented() {
-        return driverService.rentedSRentedVeichleType();
+    public ResponseEntity<ResponseStructure<Page<Driver>>> rentedSRented(@RequestParam(defaultValue = "0") int page,
+                                                                         @RequestParam(defaultValue = "10") int size,
+                                                                         @RequestParam(defaultValue = "id") String field) {
+        return driverService.rentedSRentedVeichleType(page, size, field);
     }
 }

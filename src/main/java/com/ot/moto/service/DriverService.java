@@ -986,12 +986,12 @@ public class DriverService {
         return driver;
     }
 
-    public ResponseEntity<ResponseStructure<List<Driver>>> rentedSRentedVeichleType() {
-        ResponseStructure<List<Driver>> responseStructure = new ResponseStructure<>();
+    public ResponseEntity<ResponseStructure<Page<Driver>>> rentedSRentedVeichleType(int offset,int pageSize,String field) {
+        ResponseStructure<Page<Driver>> responseStructure = new ResponseStructure<>();
         try {
             logger.info("Searching for drivers with ownedVeichleType : {}");
 
-            List<Driver> driverList = driverDao.rentedSRented();
+            Page<Driver> driverList = driverDao.rentedSRented(offset, pageSize, field);
             if (driverList.isEmpty()) {
                 logger.warn("No drivers found with ownedVeichleType{}" );
                 responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
@@ -999,7 +999,7 @@ public class DriverService {
                 responseStructure.setData(null);
                 return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
             } else {
-                logger.info("Found {} drivers with ownedVeichleType {}", driverList.size());
+                logger.info("Found {} drivers with ownedVeichleType {}", driverList);
                 responseStructure.setStatus(HttpStatus.OK.value());
                 responseStructure.setMessage("Driver Found With ownedVeichleType ");
                 responseStructure.setData(driverList);

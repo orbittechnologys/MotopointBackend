@@ -120,8 +120,7 @@ public class DriverDao {
     }
 
 
-    public List<Driver> rentedSRented() {
-        return driverRepository.findDriversByRentedSRentedVehicleType();
+    public Page<Driver> rentedSRented(int offset,int pageSize,String field) {
+        return driverRepository.findDriversByRentedSRentedVehicleType(PageRequest.of(offset,pageSize).withSort(Sort.by(field).descending()));
     }
-
 }
