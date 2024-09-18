@@ -38,7 +38,7 @@ public class FleetHistoryController {
                                                                               @RequestParam(defaultValue = "0") int page,
                                                                               @RequestParam(defaultValue = "10") int size,
                                                                               @RequestParam(defaultValue = "id") String field) {
-        return fleetHistoryService.getFleetHistoryByFleetId(fleetId,page,size,field);
+        return fleetHistoryService.getFleetHistoryByFleetId(fleetId, page, size, field);
     }
 
 

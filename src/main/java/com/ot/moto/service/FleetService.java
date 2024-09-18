@@ -263,7 +263,7 @@ public class FleetService {
             fleet.setFleetUnAssignDateTime(LocalDateTime.now());  // Set the unassign date and time
 
             long rentedDays = ChronoUnit.DAYS.between(fleet.getFleetAssignDateTime().toLocalDate(), LocalDateTime.now().toLocalDate());
-            double profit = currentDriver.getBikeRentAmount() * rentedDays;
+            double profit = currentDriver.getBikeRentAmountEmi() * rentedDays;
 
             if (fleet.getFinalProfit() == null) {
                 fleet.setFinalProfit(0.0);
