@@ -28,6 +28,10 @@ public class FleetHistoryDao {
         return fleetHistoryRepository.findByFleetId(fleetId,PageRequest.of(offset,pageSize).withSort(Sort.by(field).descending()));
     }
 
+    public List<FleetHistory> findByFleetId(Long fleetId){
+        return fleetHistoryRepository.findByFleetId(fleetId);
+    }
+
     public List<FleetHistory> findByDriverId(Long driverId) {
         return fleetHistoryRepository.findByDriverId(driverId);
     }
@@ -42,5 +46,9 @@ public class FleetHistoryDao {
 
     public Page<FleetHistory> findAll(int offset, int pageSize, String field){
         return fleetHistoryRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).ascending()));
+    }
+
+    public List<FleetHistory> findAll(){
+        return fleetHistoryRepository.findAll();
     }
 }

@@ -32,4 +32,6 @@ public interface FleetHistoryRepository extends JpaRepository<FleetHistory, Long
 
 
     public Page<FleetHistory> findAll(Pageable pageable);
+
+    public List<FleetHistory> findByFleetId(Long fleetId);
 }

@@ -205,6 +205,7 @@ public class SecurityConfig {
             "/fleetHistory/getByFleetId/{fleetId}",
             "/fleetHistory/getById/{id}",
             "/fleetHistory/getAll",
+            "/fleetHistory/downloadReport",
 
             "/driver/getAll/rented/s-rented",
 
