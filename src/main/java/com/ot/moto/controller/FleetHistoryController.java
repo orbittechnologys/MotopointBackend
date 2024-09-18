@@ -28,7 +28,6 @@ public class FleetHistoryController {
         return fleetHistoryService.getFleetHistoryById(id);
     }
 
-
     @Operation(summary = "Get FleetHistory by Fleet ID", description = "Returns List of FleetHistory Objects by Fleet ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "FleetHistory Found"),
