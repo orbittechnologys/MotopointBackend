@@ -35,8 +35,11 @@ public class FleetHistoryController {
             @ApiResponse(responseCode = "404", description = "No FleetHistory Found for Fleet ID")
     })
     @GetMapping("/getByFleetId/{fleetId}")
-    public ResponseEntity<ResponseStructure<Object>> getFleetHistoryByFleetId(@PathVariable Long fleetId) {
-        return fleetHistoryService.getFleetHistoryByFleetId(fleetId);
+    public ResponseEntity<ResponseStructure<Object>> getFleetHistoryByFleetId(@PathVariable Long fleetId,
+                                                                              @RequestParam(defaultValue = "0") int page,
+                                                                              @RequestParam(defaultValue = "10") int size,
+                                                                              @RequestParam(defaultValue = "id") String field) {
+        return fleetHistoryService.getFleetHistoryByFleetId(fleetId,page,size,field);
     }
 
 

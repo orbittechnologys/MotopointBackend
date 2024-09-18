@@ -41,9 +41,9 @@ public class FleetHistoryService {
     }
 
 
-    public ResponseEntity<ResponseStructure<Object>> getFleetHistoryByFleetId(Long fleetId) {
+    public ResponseEntity<ResponseStructure<Object>> getFleetHistoryByFleetId(Long fleetId,int offset,int pageSize,String field) {
         try {
-            List<FleetHistory> fleetHistories = fleetHistoryDao.findByFleetId(fleetId);
+            Page<FleetHistory> fleetHistories = fleetHistoryDao.findByFleetId(fleetId,offset,pageSize,field);
             if (fleetHistories.isEmpty()) {
                 logger.warn("No FleetHistory found for fleetId: {}", fleetId);
                 return ResponseStructure.errorResponse(null, 404, "No FleetHistory found for fleetId: " + fleetId);

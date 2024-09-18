@@ -23,6 +23,7 @@ public class FleetDao {
         return fleetRepository.save(fleet);
     }
 
+
     public Fleet getVehicleNumber(String vehicleNumber) {
         return fleetRepository.findByVehicleNumber(vehicleNumber);
     }

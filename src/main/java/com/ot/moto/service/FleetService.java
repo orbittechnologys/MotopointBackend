@@ -11,7 +11,9 @@ import com.ot.moto.entity.Fleet;
 import com.ot.moto.entity.FleetHistory;
 import com.ot.moto.repository.FleetHistoryRepository;
 import com.ot.moto.util.StringUtil;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -186,8 +188,21 @@ public class FleetService {
                 return ResponseStructure.errorResponse(null, 404, "Fleet not found with id: " + assignFleet.getId());
             }
 
-            // Unassign fleet from current driver if already assigned to a different driver
-            if (fleet.getDriver() != null && !fleet.getDriver().getId().equals(assignFleet.getDriverId())) {
+            // Fetch the new driver for assignment
+            Driver newDriver = driverDao.getById(assignFleet.getDriverId());
+            if (newDriver == null) {
+                logger.warn("No driver found with id: {}", assignFleet.getDriverId());
+                return ResponseStructure.errorResponse(null, 404, "Driver not found with id: " + assignFleet.getDriverId());
+            }
+
+            // Check if the fleet is already assigned to the new driver
+            if (fleet.getDriver() != null && fleet.getDriver().getId().equals(assignFleet.getDriverId())) {
+                logger.warn("Fleet with id: {} is already assigned to driver with id: {}", assignFleet.getId(), assignFleet.getDriverId());
+                return ResponseStructure.errorResponse(null, 400, "Fleet is already assigned to this driver.");
+            }
+
+            // Unassign fleet from the current driver if already assigned
+            if (fleet.getDriver() != null) {
                 Driver currentDriver = fleet.getDriver();
                 currentDriver.setFleet(null);  // Unlink the fleet from the current driver
 
@@ -196,22 +211,18 @@ public class FleetService {
                         .findByFleetIdAndDriverId(fleet.getId(), currentDriver.getId())
                         .stream()
                         .max(Comparator.comparing(FleetHistory::getFleetAssignDateTime))
-                        .orElseThrow(() -> new EntityNotFoundException("History not found"));
+                        .orElseThrow(() -> new EntityNotFoundException("Fleet history not found"));
 
                 lastHistory.setFleetUnAssignDateTime(LocalDateTime.now());  // Set unassign date and time
                 fleetHistoryRepository.save(lastHistory);
             }
 
-            // Fetch the new driver for assignment
-            Driver newDriver = driverDao.getById(assignFleet.getDriverId());
-            if (newDriver == null) {
-                logger.warn("No driver found with id: {}", assignFleet.getDriverId());
-                return ResponseStructure.errorResponse(null, 404, "Driver not found with id: " + assignFleet.getDriverId());
-            }
-
             // Assign fleet to the new driver
             fleet.setDriver(newDriver);
             fleet.setFleetAssignDateTime(LocalDateTime.now());  // Set assign date and time
+
+            // Save the updated fleet
+            fleetDao.createFleet(fleet);
 
             // Save the new FleetHistory entry
             FleetHistory newHistory = new FleetHistory();
@@ -221,40 +232,36 @@ public class FleetService {
             newHistory.setProfit(0.0);  // Profit can be calculated based on your logic
             fleetHistoryRepository.save(newHistory);
 
-            // Save the updated fleet
-            fleetDao.createFleet(fleet);
-
             logger.info("Fleet assigned successfully: {}", fleet.getId());
             return ResponseStructure.successResponse(fleet, "Fleet assigned successfully on Date " + fleet.getFleetAssignDateTime());
         } catch (Exception e) {
             logger.error("Error assigning fleet", e);
-            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+            return ResponseStructure.errorResponse(null, 500, "Error assigning fleet: " + e.getMessage());
         }
     }
 
 
+    @Autowired
+    private EntityManager entityManager;
+
     @Transactional
     public ResponseEntity<ResponseStructure<Object>> unassignFleet(Long fleetId) {
         try {
-            // Fetch the fleet by its ID
             Fleet fleet = fetchFleet(fleetId);
             if (Objects.isNull(fleet)) {
                 logger.warn("No fleet found with id: {}", fleetId);
                 return ResponseStructure.errorResponse(null, 404, "Fleet not found with id: " + fleetId);
             }
 
-            // Check if the fleet is already unassigned
             if (fleet.getDriver() == null) {
                 logger.warn("Fleet with id {} is already unassigned.", fleetId);
                 return ResponseStructure.errorResponse(null, 400, "Fleet is already unassigned.");
             }
 
-            // Get the current driver assigned to the fleet
             Driver currentDriver = fleet.getDriver();
-
-            // Unassign the fleet from the current driver
             fleet.setDriver(null);  // Remove the driver from the fleet
             fleet.setFleetUnAssignDateTime(LocalDateTime.now());  // Set the unassign date and time
+
             long rentedDays = ChronoUnit.DAYS.between(fleet.getFleetAssignDateTime().toLocalDate(), LocalDateTime.now().toLocalDate());
             double profit = currentDriver.getBikeRentAmount() * rentedDays;
 
@@ -262,15 +269,15 @@ public class FleetService {
                 fleet.setFinalProfit(0.0);
             }
             fleet.setFinalProfit(fleet.getFinalProfit() + profit);
-            // Save the updated fleet
-            fleetDao.createFleet(fleet);
 
-            // Update FleetHistory for the current driver (Unassigning)
+            fleetDao.createFleet(fleet); // Ensure that you are using the correct method for saving
+            entityManager.flush(); // Explicitly flush changes
+
             FleetHistory lastHistory = fleetHistoryRepository
                     .findByFleetIdAndDriverId(fleet.getId(), currentDriver.getId())
                     .stream()
-                    .max(Comparator.comparing(FleetHistory::getFleetUnAssignDateTime))
-                    .orElseThrow(() -> new EntityNotFoundException("History not found"));
+                    .max(Comparator.comparing(FleetHistory::getFleetAssignDateTime))
+                    .orElseThrow(() -> new EntityNotFoundException("Fleet history not found"));
 
             lastHistory.setFleetUnAssignDateTime(LocalDateTime.now());  // Set unassign date and time
             lastHistory.setProfit(profit);
@@ -283,6 +290,7 @@ public class FleetService {
             return ResponseStructure.errorResponse(null, 500, "Error unassigning fleet: " + e.getMessage());
         }
     }
+
 
 
     public ResponseEntity<ResponseStructure<List<Fleet>>> searchFleetByVehicleNumber(String vehicleNumberSubstring) {

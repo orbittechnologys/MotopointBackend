@@ -13,7 +13,7 @@ import java.util.List;
 public interface FleetHistoryRepository extends JpaRepository<FleetHistory, Long> {
 
     @Query("SELECT fh FROM FleetHistory fh WHERE fh.fleet.id = :fleetId")
-    public List<FleetHistory> findByFleetId(@Param("fleetId") Long fleetId);
+    public Page<FleetHistory> findByFleetId(@Param("fleetId") Long fleetId,Pageable pageable);
 
 
     @Query("SELECT fh FROM FleetHistory fh WHERE fh.driver.id = :driverId")

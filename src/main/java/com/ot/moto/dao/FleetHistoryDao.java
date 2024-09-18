@@ -24,8 +24,8 @@ public class FleetHistoryDao {
         return fleetHistory.orElse(null);
     }
 
-    public List<FleetHistory> findByFleetId(Long fleetId){
-        return fleetHistoryRepository.findByFleetId(fleetId);
+    public Page<FleetHistory> findByFleetId(Long fleetId,int offset,int pageSize,String field){
+        return fleetHistoryRepository.findByFleetId(fleetId,PageRequest.of(offset,pageSize).withSort(Sort.by(field).descending()));
     }
 
     public List<FleetHistory> findByDriverId(Long driverId) {
