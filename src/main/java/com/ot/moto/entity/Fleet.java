@@ -47,12 +47,13 @@ public class Fleet {
 
     private LocalDateTime fleetUnAssignDateTime;
 
-
     private String registrationCertificate;
 
     private String model;
 
     private LocalDate dateOfPurchase;
+
+    private Double finalProfit;
 
     @OneToOne
     @JoinColumn

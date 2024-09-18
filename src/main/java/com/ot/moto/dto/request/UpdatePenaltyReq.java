@@ -7,6 +7,10 @@ public class UpdatePenaltyReq {
 
     private long id;
 
+    private long fleetId;
+
+    private long driverId;
+
     private String description;
 
     private Double amount;

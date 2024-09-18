@@ -7,6 +7,8 @@ public class CreatePenaltyReq {
 
     private long fleetId;
 
+    private long driverId;
+
     private String description;
 
     private Double amount;

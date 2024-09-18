@@ -1,10 +1,13 @@
 package com.ot.moto.controller;
 
+import com.ot.moto.dao.PenaltyDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreatePenaltyReq;
 import com.ot.moto.dto.request.UpdatePenaltyReq;
 import com.ot.moto.entity.Penalty;
 import com.ot.moto.service.PenaltyServices;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +22,26 @@ public class PenaltyController {
     @Autowired
     private PenaltyServices penaltyServices;
 
+    @Autowired
+    private PenaltyDao penaltyDao;
+
+    @PostMapping("/save")
+    public ResponseEntity<ResponseStructure<Object>> savePenalty(@RequestBody CreatePenaltyReq createPenaltyReq) {
+        return penaltyServices.savePenalty(createPenaltyReq);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<ResponseStructure<Object>> updatePenalty(@RequestBody UpdatePenaltyReq updatePenaltyReq,
+                                                                   @RequestParam Long fleetId,
+                                                                   @RequestParam Long driverId) {
+        return penaltyServices.updatePenaltyByFleetIdAndDriverId(updatePenaltyReq, fleetId, driverId);
+    }
+
+
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ResponseStructure<Object>> deletePenaltyById(@PathVariable long id) {
-        return penaltyServices.deletePenaltyById(id);
+    public ResponseEntity<ResponseStructure<Object>> deletePenaltiesByFleetIdAndDriverId(@RequestParam Long fleetId,
+                                                                                         @RequestParam Long driverId) {
+        return penaltyServices.deletePenaltiesByFleetIdAndDriverId(fleetId,driverId);
     }
 
     @GetMapping("/findById/{id}")
@@ -34,13 +54,9 @@ public class PenaltyController {
         return penaltyServices.getAllPenalties();
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<ResponseStructure<Object>> updatePenalty(@RequestBody UpdatePenaltyReq updatePenaltyReq) {
-        return penaltyServices.updatePenalty(updatePenaltyReq);
-    }
-
-    @PostMapping("/save")
-    public ResponseEntity<ResponseStructure<Object>> savePenalty(@RequestBody CreatePenaltyReq createPenaltyReq) {
-        return penaltyServices.savePenalty(createPenaltyReq);
+    @GetMapping("/getPenaltiesByFleetIdAndDriverId")
+    public ResponseEntity<ResponseStructure<Object>> getPenaltiesByFleetIdAndDriverId(@RequestParam Long fleetId,
+                                                                                      @RequestParam Long driverId) {
+        return penaltyServices.findPenaltiesByFleetIdAndDriverId(fleetId, driverId);
     }
 }

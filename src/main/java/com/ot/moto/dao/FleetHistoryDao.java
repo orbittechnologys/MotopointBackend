@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +24,7 @@ public class FleetHistoryDao {
         return fleetHistory.orElse(null);
     }
 
-    public List<FleetHistory> findByFleetId(Long fleetId) {
+    public List<FleetHistory> findByFleetId(Long fleetId){
         return fleetHistoryRepository.findByFleetId(fleetId);
     }
 
@@ -35,7 +36,11 @@ public class FleetHistoryDao {
         return fleetHistoryRepository.findByFleetIdAndDriverId(fleetId, driverId);
     }
 
-    public Page<FleetHistory> findAll(int offset, int pageSize, String field) {
-        return fleetHistoryRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
+    public List<FleetHistory> findByFleetIdAndDateRange(Long fleetId, LocalDateTime startDate, LocalDateTime endDate) {
+        return fleetHistoryRepository.findByFleetIdAndDateRange(fleetId, startDate, endDate);
+    }
+
+    public Page<FleetHistory> findAll(int offset, int pageSize, String field){
+        return fleetHistoryRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).ascending()));
     }
 }

@@ -24,4 +24,9 @@ public class Penalty {
     @JoinColumn
     @JsonBackReference("fleetPenalty")
     private Fleet fleet;
+
+    @ManyToOne
+    @JoinColumn
+    @JsonBackReference("driverPenalty")
+    private Driver driver;  // Reference to Driver entity
 }

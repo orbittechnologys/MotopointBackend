@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -217,7 +218,7 @@ public class FleetService {
             newHistory.setFleet(fleet);
             newHistory.setDriver(newDriver);
             newHistory.setFleetAssignDateTime(LocalDateTime.now());  // Record the assignment date and time
-            newHistory.setProfit("0");  // Profit can be calculated based on your logic
+            newHistory.setProfit(0.0);  // Profit can be calculated based on your logic
             fleetHistoryRepository.save(newHistory);
 
             // Save the updated fleet
@@ -254,7 +255,13 @@ public class FleetService {
             // Unassign the fleet from the current driver
             fleet.setDriver(null);  // Remove the driver from the fleet
             fleet.setFleetUnAssignDateTime(LocalDateTime.now());  // Set the unassign date and time
+            long rentedDays = ChronoUnit.DAYS.between(fleet.getFleetAssignDateTime().toLocalDate(), LocalDateTime.now().toLocalDate());
+            double profit = currentDriver.getBikeRentAmount() * rentedDays;
 
+            if (fleet.getFinalProfit() == null) {
+                fleet.setFinalProfit(0.0);
+            }
+            fleet.setFinalProfit(fleet.getFinalProfit() + profit);
             // Save the updated fleet
             fleetDao.createFleet(fleet);
 
@@ -266,6 +273,7 @@ public class FleetService {
                     .orElseThrow(() -> new EntityNotFoundException("History not found"));
 
             lastHistory.setFleetUnAssignDateTime(LocalDateTime.now());  // Set unassign date and time
+            lastHistory.setProfit(profit);
             fleetHistoryRepository.save(lastHistory);
 
             logger.info("Fleet unassigned successfully: {}", fleet.getId());
