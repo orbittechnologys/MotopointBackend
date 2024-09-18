@@ -41,7 +41,7 @@ public class PenaltyController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ResponseStructure<Object>> deletePenaltiesByFleetIdAndDriverId(@RequestParam Long fleetId,
                                                                                          @RequestParam Long driverId) {
-        return penaltyServices.deletePenaltiesByFleetIdAndDriverId(fleetId,driverId);
+        return penaltyServices.deletePenaltiesByFleetIdAndDriverId(fleetId, driverId);
     }
 
     @GetMapping("/findById/{id}")
@@ -54,9 +54,19 @@ public class PenaltyController {
         return penaltyServices.getAllPenalties();
     }
 
-    @GetMapping("/getPenaltiesByFleetIdAndDriverId")
-    public ResponseEntity<ResponseStructure<Object>> getPenaltiesByFleetIdAndDriverId(@RequestParam Long fleetId,
-                                                                                      @RequestParam Long driverId) {
-        return penaltyServices.findPenaltiesByFleetIdAndDriverId(fleetId, driverId);
+    @GetMapping("/getPenaltiesByFleetId/{fleetId}")
+    public ResponseEntity<ResponseStructure<Object>> getPenaltiesByFleetId(@PathVariable Long fleetId,
+                                                                           @RequestParam int offset,
+                                                                           @RequestParam int pageSize,
+                                                                           @RequestParam String field) {
+        return penaltyServices.getPenaltiesByFleetId(fleetId, offset, pageSize, field);
+    }
+
+    @GetMapping("/getPenaltiesByDriverId/{driverId}")
+    public ResponseEntity<ResponseStructure<Object>> getPenaltiesByDriverId(@PathVariable Long driverId,
+                                                                            @RequestParam int offset,
+                                                                            @RequestParam int pageSize,
+                                                                            @RequestParam String field) {
+        return penaltyServices.getPenaltiesByDriverId(driverId, offset, pageSize, field);
     }
 }

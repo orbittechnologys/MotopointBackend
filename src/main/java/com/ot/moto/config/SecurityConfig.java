@@ -208,7 +208,8 @@ public class SecurityConfig {
 
             "/driver/getAll/rented/s-rented",
 
-            "/penalty/getPenaltiesByFleetIdAndDriverId",
+            "/penalty/getPenaltiesByDriverId/{driverId}",
+            "/penalty/getPenaltiesByFleetId/{fleetId}",
             "/penalty/save",
             "/penalty/update",
             "/penalty/delete/{id}",

@@ -3,6 +3,11 @@ package com.ot.moto.dao;
 import com.ot.moto.entity.Penalty;
 import com.ot.moto.repository.PenaltyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -31,16 +36,20 @@ public class PenaltyDao {
         return penaltyRepository.findAll();
     }
 
-    public List<Penalty> findByFleetId(Long fleetId) {
-        return penaltyRepository.findByFleetId(fleetId);
-    }
-
     public List<Penalty> getPenaltiesByFleetIdAndDriverId(long fleetId, long driverId) {
         return penaltyRepository.findByFleetIdAndDriverId(fleetId, driverId);
     }
 
     public void deleteByFleetIdAndDriverId(Long fleetId, Long driverId) {
         penaltyRepository.deleteByFleetIdAndDriverId(fleetId, driverId);
+    }
+
+    public Page<Penalty> findByFleetId(Long fleetId, int offset, int pageSize, String field) {
+        return penaltyRepository.findByFleetId(fleetId, PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
+    }
+
+    public Page<Penalty> findByDriverId(Long driverId, int offset, int pageSize, String field) {
+        return penaltyRepository.findByDriverId(driverId, PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
 }
 
