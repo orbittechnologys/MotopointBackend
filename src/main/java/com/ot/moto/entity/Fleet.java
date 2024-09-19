@@ -64,6 +64,4 @@ public class Fleet {
     @JsonManagedReference("fleetPenalty")
     private List<Penalty> penalties;
 
-/*    @OneToMany(mappedBy = "fleet", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FleetHistory> fleetHistoryList;*/
 }

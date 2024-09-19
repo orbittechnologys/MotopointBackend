@@ -43,7 +43,7 @@ public class Driver extends User {
 
     private Double profit = 0.0;
 
-    private String jahezId;
+    private Long jahezId;
 
     private LocalDate visaExpiryDate;
 

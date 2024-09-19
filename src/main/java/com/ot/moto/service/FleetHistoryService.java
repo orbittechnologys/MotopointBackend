@@ -218,7 +218,7 @@ public class FleetHistoryService {
                 // Driver details
                 if (driver != null) {
                     row.createCell(4).setCellValue(driver.getUsername());
-                    row.createCell(5).setCellValue(driver.getJahezId() != null ? driver.getJahezId() : "");
+                    row.createCell(5).setCellValue(driver.getJahezId() != null ? String.valueOf(driver.getJahezId()) : "");
                     row.createCell(6).setCellValue(driver.getCprNumber() != null ? driver.getCprNumber() : "");
                     row.createCell(7).setCellValue(driver.getAddress() != null ? driver.getAddress() : "");
                     row.createCell(8).setCellValue(driver.getVehicleType() != null ? driver.getVehicleType() : "");

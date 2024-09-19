@@ -357,7 +357,7 @@ public class DriverService {
         }
 
         // Update other fields only if provided
-        if (request.getJahezId() != null && !request.getJahezId().isEmpty()) {
+        if (request.getJahezId() != null) {
             driver.setJahezId(request.getJahezId());
         }
         if (request.getVisaExpiryDate() != null) {
@@ -462,9 +462,6 @@ public class DriverService {
         if (request.getRemarks() != null && !request.getRemarks().isEmpty()) {
             driver.setRemarks(request.getRemarks());
         }
-/*        if (request.getDeductionDescription() != null && !request.getDeductionDescription().isEmpty()) {
-            driver.setDeductionDescription(request.getDeductionDescription());
-        }*/
         if (request.getConsentDoc() != null && !request.getConsentDoc().isEmpty()) {
             driver.setConsentDoc(request.getConsentDoc());
         }
@@ -776,6 +773,7 @@ public class DriverService {
         }
     }
 
+
     public ResponseEntity<InputStreamResource> generateCsvForDrivers() {
         try {
             List<Driver> allDrivers = driverRepository.findAll();
@@ -793,20 +791,62 @@ public class DriverService {
                     "RC Front Photo URL", "RC Back Photo URL", "Bank Account Name", "Bank Name", "Bank Account Number",
                     "Bank IBAN Number", "Bank Branch", "Bank Branch Code", "Bank Swift Code", "Bank Account Currency",
                     "Bank Mobile Pay Number", "Visa Amount", "Visa Amount Start Date", "Visa Amount End Date", "Visa Amount EMI",
-                    "Bike Rent Amount", "Bike Rent Start Date", "Bike Rent End Date", "Bike Rent EMI", "Other Deduction Amount",
-                    "Other Deduction Start Date", "Other Deduction End Date", "Other Deductions EMI", "Remarks"
+                    "Bike Rent Amount", "Bike Rent Start Date", "Bike Rent End Date", "Bike Rent EMI",
+                    "Other Deduction Amount(s)", "Other Deduction Start Date(s)", "Other Deduction End Date(s)",
+                    "Other Deductions EMI(s)", "Orders Info", "Assets Names", "Visa Name", "Remarks"
             };
 
             csvWriter.writeNext(header);
 
             for (Driver driver : allDrivers) {
+                // Other Deductions
+                String otherDeductionAmounts = driver.getOtherDeductions() != null ?
+                        driver.getOtherDeductions().stream()
+                                .map(deduction -> deduction.getOtherDeductionAmount() != null ?
+                                        String.valueOf(deduction.getOtherDeductionAmount()) : "")
+                                .collect(Collectors.joining("; ")) : "";
+
+                String otherDeductionStartDates = driver.getOtherDeductions() != null ?
+                        driver.getOtherDeductions().stream()
+                                .map(deduction -> deduction.getOtherDeductionAmountStartDate() != null ?
+                                        deduction.getOtherDeductionAmountStartDate().toString() : "")
+                                .collect(Collectors.joining("; ")) : "";
+
+                String otherDeductionEndDates = driver.getOtherDeductions() != null ?
+                        driver.getOtherDeductions().stream()
+                                .map(deduction -> deduction.getOtherDeductionAmountEndDate() != null ?
+                                        deduction.getOtherDeductionAmountEndDate().toString() : "")
+                                .collect(Collectors.joining("; ")) : "";
+
+                String otherDeductionsEmis = driver.getOtherDeductions() != null ?
+                        driver.getOtherDeductions().stream()
+                                .map(deduction -> deduction.getOtherDeductionAmountEmi() != null ?
+                                        String.valueOf(deduction.getOtherDeductionAmountEmi()) : "")
+                                .collect(Collectors.joining("; ")) : "";
+
+
+                // Orders Info (One-to-Many)
+                String ordersInfo = driver.getOrders() != null ?
+                        driver.getOrders().stream()
+                                .map(order -> "Order ID: " + order.getId()) // Customize order fields if needed
+                                .collect(Collectors.joining("; ")) : "";
+
+                // Assets Info (One-to-Many)
+                String assetsNames = driver.getAssets() != null ?
+                        driver.getAssets().stream()
+                                .map(asset -> asset.getItem()) // Customize asset fields if needed
+                                .collect(Collectors.joining("; ")) : "";
+
+                // Visa Info (Many-to-One)
+                String visaName = driver.getVisa() != null ? driver.getVisa().getVisaName() : "";
+
                 String[] data = {
                         String.valueOf(driver.getId()),
                         String.valueOf(driver.getAmountPending()),
                         String.valueOf(driver.getAmountReceived()),
                         String.valueOf(driver.getTotalOrders()),
                         String.valueOf(driver.getCurrentOrders()),
-                        driver.getJahezId(),
+                        String.valueOf(driver.getJahezId()),
                         driver.getVisaExpiryDate() != null ? driver.getVisaExpiryDate().toString() : "",
                         String.valueOf(driver.getSalaryAmount()),
                         driver.getAddress(),
@@ -838,12 +878,16 @@ public class DriverService {
                         driver.getBikeRentAmountStartDate() != null ? driver.getBikeRentAmountStartDate().toString() : "",
                         driver.getBikeRentAmountEndDate() != null ? driver.getBikeRentAmountEndDate().toString() : "",
                         driver.getBikeRentAmountEmi() != null ? String.valueOf(driver.getBikeRentAmountEmi()) : "",
-                        /* driver.getOtherDeductionAmount() != null ? String.valueOf(driver.getOtherDeductionAmount()) : "",
-                         driver.getOtherDeductionAmountStartDate() != null ? driver.getOtherDeductionAmountStartDate().toString() : "",
-                         driver.getOtherDeductionAmountEndDate() != null ? driver.getOtherDeductionAmountEndDate().toString() : "",
-                         driver.getOtherDeductionsAmountEmi() != null ? String.valueOf(driver.getOtherDeductionsAmountEmi()) : "",*/
+                        otherDeductionAmounts,
+                        otherDeductionStartDates,
+                        otherDeductionEndDates,
+                        otherDeductionsEmis,
+                        ordersInfo,
+                        assetsNames,
+                        visaName,
                         driver.getRemarks()
                 };
+
                 csvWriter.writeNext(data);
             }
 
@@ -867,6 +911,7 @@ public class DriverService {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     public ResponseStructure<Map<String, Object>> getDriverAttendanceDetails() {
         try {

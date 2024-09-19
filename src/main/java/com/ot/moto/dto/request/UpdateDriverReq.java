@@ -12,7 +12,7 @@ public class UpdateDriverReq {
 
     private String username;
 
-    private String jahezId;
+    private Long jahezId;
 
     private String email;
 
@@ -94,15 +94,8 @@ public class UpdateDriverReq {
     private LocalDate bikeRentAmountStartDate;
     private LocalDate bikeRentAmountEndDate;
 
-    private Double otherDeductionAmount;
-    private LocalDate otherDeductionAmountStartDate;
-    private LocalDate otherDeductionAmountEndDate;
-
     private String remarks;
-    private String deductionDescription;
-
     private LocalDate visaExpiryDate;
-
     private String consentDoc;
 
     //visa & asset
