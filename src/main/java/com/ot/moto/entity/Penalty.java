@@ -21,7 +21,6 @@ public class Penalty {
         NOT_SETTLED
     }
 
-
     private String description;
 
     private Double amount;
