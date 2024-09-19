@@ -213,7 +213,7 @@ public class SecurityConfig {
             "/penalty/getPenaltiesByFleetId",
             "/penalty/save",
             "/penalty/update",
-            "/penalty/delete/{id}",
+            "/penalty/deletePenaltiesByFleetIdAndDriverId",
             "/penalty/getAll",
             "/penalty/settlePenaltyByDriver"
     };

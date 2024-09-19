@@ -36,7 +36,7 @@ public class PenaltyController {
     }
 
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/deletePenaltiesByFleetIdAndDriverId")
     public ResponseEntity<ResponseStructure<Object>> deletePenaltiesByFleetIdAndDriverId(@RequestParam Long fleetId,
                                                                                          @RequestParam Long driverId) {
         return penaltyServices.deletePenaltiesByFleetIdAndDriverId(fleetId, driverId);
@@ -52,7 +52,6 @@ public class PenaltyController {
         return penaltyServices.getAllPenalties();
     }
 
-//
     @GetMapping("/getPenaltiesByFleetId")
     public ResponseEntity<ResponseStructure<Object>> getPenaltiesByFleetId(@RequestParam Long fleetId,
                                                                            @RequestParam(defaultValue = "0") int page,
