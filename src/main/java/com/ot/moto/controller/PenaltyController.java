@@ -52,6 +52,7 @@ public class PenaltyController {
         return penaltyServices.getAllPenalties();
     }
 
+//
     @GetMapping("/getPenaltiesByFleetId")
     public ResponseEntity<ResponseStructure<Object>> getPenaltiesByFleetId(@RequestParam Long fleetId,
                                                                            @RequestParam(defaultValue = "0") int page,
