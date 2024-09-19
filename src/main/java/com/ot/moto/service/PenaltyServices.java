@@ -109,6 +109,7 @@ public class PenaltyServices {
         }
     }
 
+
     @Transactional
     public ResponseEntity<ResponseStructure<Object>> updatePenaltyByFleetIdAndDriverId(UpdatePenaltyReq updatePenaltyReq) {
         try {
@@ -153,7 +154,6 @@ public class PenaltyServices {
             return ResponseStructure.errorResponse(null, 500, "Error updating penalty: " + e.getMessage());
         }
     }
-
 
 
     public ResponseEntity<ResponseStructure<Object>> getPenaltyById(long id) {
@@ -315,4 +315,29 @@ public class PenaltyServices {
             return ResponseStructure.errorResponse(null, 500, "Error settling penalty: " + e.getMessage());
         }
     }
+
+    public ResponseEntity<ResponseStructure<Object>> deletePenaltiesByFleetId(Long fleetId) {
+        try {
+            // Fetch penalties associated with the fleetId
+            List<Penalty> penalties = penaltyDao.getPenaltiesByFleetId(fleetId);
+
+            // Check if any penalties exist
+            if (penalties.isEmpty()) {
+                logger.warn("No penalties found for Fleet ID: {}", fleetId);
+                return ResponseStructure.errorResponse(null, 404, "No penalties found for Fleet ID: " + fleetId);
+            }
+
+            // Delete the penalties
+            penaltyRepository.deleteAll(penalties);
+            logger.info("Penalties deleted successfully for Fleet ID: {}", fleetId);
+
+            // Return a success response
+            return ResponseStructure.successResponse("Penalties deleted successfully", "Penalties deleted successfully for Fleet ID: " + fleetId);
+
+        } catch (Exception e) {
+            logger.error("Error deleting penalties for Fleet ID: {}", fleetId, e);
+            return ResponseStructure.errorResponse(null, 500, "Error deleting penalties: " + e.getMessage());
+        }
+    }
+
 }

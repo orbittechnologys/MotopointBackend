@@ -215,7 +215,8 @@ public class SecurityConfig {
             "/penalty/update",
             "/penalty/deletePenaltiesByFleetIdAndDriverId",
             "/penalty/getAll",
-            "/penalty/settlePenaltyByDriver"
+            "/penalty/settlePenaltyByDriver",
+            "/penalty/deletePenaltiesByFleetId"
     };
 
     private static final String[] ADMIN_WHITELIST = {};

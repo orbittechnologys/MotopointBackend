@@ -17,6 +17,9 @@ public interface PenaltyRepository extends JpaRepository<Penalty, Long> {
     @Query("SELECT p FROM Penalty p WHERE p.fleet.id = :fleetId")
     public Page<Penalty> findByFleetId(@Param("fleetId") Long fleetId, Pageable pageable);
 
+    @Query("SELECT p FROM Penalty p WHERE p.fleet.id = :fleetId")
+    public List<Penalty> getByFleetId(@Param("fleetId") Long fleetId);
+
 
     @Query("SELECT p FROM Penalty p WHERE p.fleet.id = :fleetId AND p.driver.id = :driverId")
     public List<Penalty> findByFleetIdAndDriverId(@Param("fleetId") Long fleetId, @Param("driverId") Long driverId);
@@ -25,6 +28,11 @@ public interface PenaltyRepository extends JpaRepository<Penalty, Long> {
     @Query("DELETE FROM Penalty p WHERE p.fleet.id = :fleetId AND p.driver.id = :driverId")
     public void deleteByFleetIdAndDriverId(@Param("fleetId") Long fleetId, @Param("driverId") Long driverId);
 
+    @Modifying
+    @Query("DELETE FROM Penalty p WHERE p.fleet.id = :fleetId")
+    public void deleteByFleetId(@Param("fleetId") Long fleetId);
+
     @Query("SELECT p FROM Penalty p WHERE p.driver.id = :driverId")
     public Page<Penalty> findByDriverId(@Param("driverId") Long driverId,Pageable pageable);
+
 }
