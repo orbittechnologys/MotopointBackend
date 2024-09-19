@@ -55,18 +55,18 @@ public class PenaltyController {
     }
 
     @GetMapping("/getPenaltiesByFleetId/{fleetId}")
-    public ResponseEntity<ResponseStructure<Object>> getPenaltiesByFleetId(@PathVariable Long fleetId,
-                                                                           @RequestParam int offset,
-                                                                           @RequestParam int pageSize,
-                                                                           @RequestParam String field) {
-        return penaltyServices.getPenaltiesByFleetId(fleetId, offset, pageSize, field);
+    public ResponseEntity<ResponseStructure<Object>> getPenaltiesByFleetId(@RequestParam Long fleetId,
+                                                                           @RequestParam(defaultValue = "0") int page,
+                                                                           @RequestParam(defaultValue = "10") int size,
+                                                                           @RequestParam(defaultValue = "id") String field) {
+        return penaltyServices.getPenaltiesByFleetId(fleetId, page, size, field);
     }
 
     @GetMapping("/getPenaltiesByDriverId/{driverId}")
-    public ResponseEntity<ResponseStructure<Object>> getPenaltiesByDriverId(@PathVariable Long driverId,
-                                                                            @RequestParam int offset,
-                                                                            @RequestParam int pageSize,
-                                                                            @RequestParam String field) {
-        return penaltyServices.getPenaltiesByDriverId(driverId, offset, pageSize, field);
+    public ResponseEntity<ResponseStructure<Object>> getPenaltiesByDriverId(@RequestParam Long driverId,
+                                                                            @RequestParam(defaultValue = "0") int page,
+                                                                            @RequestParam(defaultValue = "10") int size,
+                                                                            @RequestParam(defaultValue = "id") String field) {
+        return penaltyServices.getPenaltiesByDriverId(driverId, page, size, field);
     }
 }
