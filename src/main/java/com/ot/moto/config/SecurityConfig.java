@@ -209,12 +209,13 @@ public class SecurityConfig {
 
             "/driver/getAll/rented/s-rented",
 
-            "/penalty/getPenaltiesByDriverId/{driverId}",
-            "/penalty/getPenaltiesByFleetId/{fleetId}",
+            "/penalty/getPenaltiesByDriverId",
+            "/penalty/getPenaltiesByFleetId",
             "/penalty/save",
             "/penalty/update",
             "/penalty/delete/{id}",
-            "/penalty/getAll"
+            "/penalty/getAll",
+            "/penalty/settlePenaltyByDriver"
     };
 
     private static final String[] ADMIN_WHITELIST = {};

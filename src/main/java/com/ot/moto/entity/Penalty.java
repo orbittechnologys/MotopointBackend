@@ -16,9 +16,18 @@ public class Penalty {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    public enum PenaltyStatus {
+        SETTLED,
+        NOT_SETTLED
+    }
+
+
     private String description;
 
     private Double amount;
+
+    @Enumerated(EnumType.STRING)
+    private PenaltyStatus status;
 
     @ManyToOne
     @JoinColumn

@@ -11,8 +11,10 @@ import com.ot.moto.entity.Penalty;
 import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.FleetRepository;
 import com.ot.moto.repository.PenaltyRepository;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -62,6 +64,8 @@ public class PenaltyServices {
             newPenalty.setAmount(createPenaltyReq.getAmount());
             newPenalty.setFleet(fleet);  // Associate the penalty with the fleet
             newPenalty.setDriver(driver); // Associate the penalty with the driver
+            newPenalty.setStatus(Penalty.PenaltyStatus.NOT_SETTLED); // Set status to NOT_SETTLED by default
+
 
             // Save the penalty
             Penalty savedPenalty = penaltyDao.save(newPenalty);
@@ -100,8 +104,12 @@ public class PenaltyServices {
         }
     }
 
-    public ResponseEntity<ResponseStructure<Object>> updatePenaltyByFleetIdAndDriverId(UpdatePenaltyReq updatePenaltyReq, Long fleetId, Long driverId) {
+    @Transactional
+    public ResponseEntity<ResponseStructure<Object>> updatePenaltyByFleetIdAndDriverId(UpdatePenaltyReq updatePenaltyReq) {
         try {
+            Long fleetId = updatePenaltyReq.getFleetId();
+            Long driverId = updatePenaltyReq.getDriverId();
+
             // Fetch the penalty by fleetId and driverId
             List<Penalty> penalties = penaltyDao.getPenaltiesByFleetIdAndDriverId(fleetId, driverId);
 
@@ -113,21 +121,34 @@ public class PenaltyServices {
             // Assuming you're updating the first matched penalty
             Penalty existingPenalty = penalties.get(0);
 
-            // Set new values from request DTO
-            existingPenalty.setDescription(updatePenaltyReq.getDescription());
-            existingPenalty.setAmount(updatePenaltyReq.getAmount());
+            // Update fields only if provided
+            if (updatePenaltyReq.getDescription() != null && !updatePenaltyReq.getDescription().isEmpty()) {
+                existingPenalty.setDescription(updatePenaltyReq.getDescription());
+            }
+
+            if (updatePenaltyReq.getAmount() != null) {
+                existingPenalty.setAmount(updatePenaltyReq.getAmount());
+            }
+
+            // Set status to NOT_SETTLED by default if not provided
+            if (updatePenaltyReq.getStatus() == null) {
+                existingPenalty.setStatus(Penalty.PenaltyStatus.NOT_SETTLED);
+            } else {
+                existingPenalty.setStatus(updatePenaltyReq.getStatus());
+            }
 
             // Save the updated penalty
-            Penalty updatedPenalty = penaltyDao.save(existingPenalty);
+            penaltyDao.save(existingPenalty);
             logger.info("Penalty updated successfully for Fleet ID: {} and Driver ID: {}", fleetId, driverId);
 
-            return ResponseStructure.successResponse(updatedPenalty, "Penalty updated successfully");
+            return ResponseStructure.successResponse(existingPenalty, "Penalty updated successfully");
 
         } catch (Exception e) {
-            logger.error("Error updating penalty for Fleet ID: {} and Driver ID: {}", fleetId, driverId, e);
+            logger.error("Error updating penalty for Fleet ID: {} and Driver ID: {}", updatePenaltyReq.getFleetId(), updatePenaltyReq.getDriverId(), e);
             return ResponseStructure.errorResponse(null, 500, "Error updating penalty: " + e.getMessage());
         }
     }
+
 
 
     public ResponseEntity<ResponseStructure<Object>> getPenaltyById(long id) {
@@ -220,6 +241,44 @@ public class PenaltyServices {
         } catch (Exception e) {
             logger.error("Error fetching penalties for fleet ID: {}", fleetId, e);
             return ResponseStructure.errorResponse(null, 500, "Error fetching penalties: " + e.getMessage());
+        }
+    }
+
+
+
+    public ResponseEntity<ResponseStructure<Object>> settlePenaltyByDriver(long penaltyId, long driverId) {
+        try {
+            // Fetch the penalty by its ID using orElseThrow
+            Penalty penalty = penaltyRepository.findById(penaltyId)
+                    .orElseThrow(() -> new OpenApiResourceNotFoundException("Penalty not found with ID: " + penaltyId));
+
+            // Fetch the driver by its ID using orElseThrow
+            Driver driver = driverRepository.findById(driverId)
+                    .orElseThrow(() -> new OpenApiResourceNotFoundException("Driver not found with ID: " + driverId));
+
+            // Check if the penalty is associated with the given driver
+            if (!penalty.getDriver().equals(driver)) {
+                logger.warn("Driver ID: {} is not associated with Penalty ID: {}", driverId, penaltyId);
+                return ResponseStructure.errorResponse(null, 403, "Driver is not authorized to settle this penalty");
+            }
+
+            // Update the penalty status to SETTLED
+            penalty.setStatus(Penalty.PenaltyStatus.SETTLED);
+
+            // Save the updated penalty
+            Penalty updatedPenalty = penaltyRepository.save(penalty);
+            logger.info("Penalty settled successfully by Driver ID: {} with Penalty ID: {}", driverId, updatedPenalty.getId());
+
+            // Return a success response
+            return ResponseStructure.successResponse(updatedPenalty, "Penalty settled successfully");
+
+        } catch (OpenApiResourceNotFoundException e) {
+            logger.warn(e.getMessage(), e);
+            return ResponseStructure.errorResponse(null, 404, e.getMessage());
+
+        } catch (Exception e) {
+            logger.error("Error settling penalty", e);
+            return ResponseStructure.errorResponse(null, 500, "Error settling penalty: " + e.getMessage());
         }
     }
 }

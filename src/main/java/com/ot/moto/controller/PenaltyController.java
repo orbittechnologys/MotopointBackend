@@ -31,10 +31,8 @@ public class PenaltyController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<ResponseStructure<Object>> updatePenalty(@RequestBody UpdatePenaltyReq updatePenaltyReq,
-                                                                   @RequestParam Long fleetId,
-                                                                   @RequestParam Long driverId) {
-        return penaltyServices.updatePenaltyByFleetIdAndDriverId(updatePenaltyReq, fleetId, driverId);
+    public ResponseEntity<ResponseStructure<Object>> updatePenalty(@RequestBody UpdatePenaltyReq updatePenaltyReq) {
+        return penaltyServices.updatePenaltyByFleetIdAndDriverId(updatePenaltyReq);
     }
 
 
@@ -54,7 +52,7 @@ public class PenaltyController {
         return penaltyServices.getAllPenalties();
     }
 
-    @GetMapping("/getPenaltiesByFleetId/{fleetId}")
+    @GetMapping("/getPenaltiesByFleetId")
     public ResponseEntity<ResponseStructure<Object>> getPenaltiesByFleetId(@RequestParam Long fleetId,
                                                                            @RequestParam(defaultValue = "0") int page,
                                                                            @RequestParam(defaultValue = "10") int size,
@@ -62,11 +60,17 @@ public class PenaltyController {
         return penaltyServices.getPenaltiesByFleetId(fleetId, page, size, field);
     }
 
-    @GetMapping("/getPenaltiesByDriverId/{driverId}")
+    @GetMapping("/getPenaltiesByDriverId")
     public ResponseEntity<ResponseStructure<Object>> getPenaltiesByDriverId(@RequestParam Long driverId,
                                                                             @RequestParam(defaultValue = "0") int page,
                                                                             @RequestParam(defaultValue = "10") int size,
                                                                             @RequestParam(defaultValue = "id") String field) {
         return penaltyServices.getPenaltiesByDriverId(driverId, page, size, field);
+    }
+
+    @PostMapping("/settlePenaltyByDriver")
+    public ResponseEntity<ResponseStructure<Object>> settlePenaltyByDriver(@RequestParam Long fleetId,
+                                                                           @RequestParam Long driverId) {
+        return penaltyServices.settlePenaltyByDriver(fleetId, driverId);
     }
 }
