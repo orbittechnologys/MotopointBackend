@@ -108,5 +108,7 @@ public class UpdateDriverReq {
     //visa & asset
     private List<AssetUpdateReq> assets;
 
+    private List<UpdateOtherDeductionReq> otherDeduction;
+
     private Long visaType;
 }

@@ -237,7 +237,7 @@ public class FleetHistoryService {
                     row.createCell(21).setCellValue(driver.getBankAccountType() != null ? driver.getBankAccountType() : "");
                     row.createCell(22).setCellValue(driver.getVisaAmount() != null ? driver.getVisaAmount() : 0.0);
                     row.createCell(23).setCellValue(driver.getBikeRentAmount() != null ? driver.getBikeRentAmount() : 0.0);
-                    row.createCell(24).setCellValue(driver.getOtherDeductionAmount() != null ? driver.getOtherDeductionAmount() : 0.0);
+//                    row.createCell(24).setCellValue(driver.getOtherDeductionAmount() != null ? driver.getOtherDeductionAmount() : 0.0);
                     row.createCell(25).setCellValue(driver.getRemarks() != null ? driver.getRemarks() : "");
                 } else {
                     for (int i = 4; i <= 25; i++) {

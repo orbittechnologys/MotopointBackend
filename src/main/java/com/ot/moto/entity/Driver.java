@@ -99,14 +99,7 @@ public class Driver extends User {
     private LocalDate bikeRentAmountEndDate;
     private Double bikeRentAmountEmi;
 
-    private Double otherDeductionAmount;
-    private LocalDate otherDeductionAmountStartDate;
-    private LocalDate otherDeductionAmountEndDate;
-    private Double otherDeductionsAmountEmi;
-
     private String remarks;
-    private String deductionDescription;
-
 
     //Document Uploads
     private String dlFrontPhotoUrl;
@@ -129,8 +122,6 @@ public class Driver extends User {
 
     private String consentDoc;
 
-
-
     @OneToOne(mappedBy = "driver")
     @JsonBackReference("fleet")
     private Fleet fleet;
@@ -147,5 +138,9 @@ public class Driver extends User {
     @JoinColumn
     @JsonManagedReference("visa")
     private Visa visa;
+
+    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<OtherDeduction> otherDeductions;
 
 }

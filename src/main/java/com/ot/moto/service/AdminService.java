@@ -37,7 +37,7 @@ public class AdminService {
 
     public ResponseEntity<ResponseStructure<Object>> createAdmin(CreateAdminReq request) {
         try {
-            if (userDao.checkUserExists(request.getEmail(), request.getPhone())) {
+            if (userDao.checkUserExists(request.getPhone())) {
                 logger.warn("Email/ Phone already exists: {}, {}", request.getEmail(), request.getPhone());
                 return ResponseStructure.errorResponse(null, 409, "Email/ Phone already exists");
             }

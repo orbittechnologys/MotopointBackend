@@ -3,21 +3,11 @@ package com.ot.moto.service;
 import com.opencsv.CSVWriter;
 import com.ot.moto.dao.*;
 import com.ot.moto.dto.ResponseStructure;
-import com.ot.moto.dto.request.AssetRequest;
-import com.ot.moto.dto.request.AssetUpdateReq;
-import com.ot.moto.dto.request.CreateDriverReq;
-import com.ot.moto.dto.request.UpdateDriverReq;
+import com.ot.moto.dto.request.*;
 import com.ot.moto.dto.response.DriverDetails;
 import com.ot.moto.dto.response.TopDrivers;
-import com.ot.moto.entity.Asset;
-import com.ot.moto.entity.Driver;
-import com.ot.moto.entity.User;
-import com.ot.moto.entity.Visa;
-import com.ot.moto.repository.AssetRepository;
-import com.ot.moto.repository.DriverRepository;
-import com.ot.moto.repository.OrdersRepository;
-import com.ot.moto.repository.VisaRepository;
-import com.ot.moto.util.StringUtil;
+import com.ot.moto.entity.*;
+import com.ot.moto.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +28,9 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.List;
 
 @Service
 public class DriverService {
-
-    private static final Logger logger = LoggerFactory.getLogger(DriverService.class);
 
     @Autowired
     private PasswordEncoder encoder;
@@ -75,10 +62,16 @@ public class DriverService {
     @Autowired
     private AssetsDao assetsDao;
 
+    @Autowired
+    private OtherDeductionRepository otherDeductionRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(DriverService.class);
+
+
     public ResponseEntity<ResponseStructure<Object>> createDriver(CreateDriverReq request) {
         try {
             // Check for existing user
-            if (userDao.checkUserExists(request.getEmail(), request.getPhone())) {
+            if (userDao.checkUserExists(request.getPhone())) {
                 logger.warn("Email/ Phone already exists: {}, {}", request.getEmail(), request.getPhone());
                 return ResponseStructure.errorResponse(null, 409, "Email/ Phone already exists");
             }
@@ -97,6 +90,7 @@ public class DriverService {
             }
 
             createAssetAndVise(savedDriver, request);
+            createOtherDeductionForDriver(savedDriver, request);
 
             return ResponseStructure.successResponse(savedDriver, "Driver created successfully");
 
@@ -151,8 +145,8 @@ public class DriverService {
         driver.setVisaExpiryDate(request.getVisaExpiryDate());
 
         driver.setRemarks(request.getRemarks());
-        driver.setDeductionDescription(request.getDeductionDescription());
-        driver.setConsentDoc(request.getConsentDoc());
+//        driver.setDeductionDescription(request.getDeductionDescription());
+        /*        driver.setConsentDoc(request.getConsentDoc());*/
 
         // Upload Documents
         driver.setDlFrontPhotoUrl(request.getDlFrontPhotoUrl());
@@ -192,6 +186,37 @@ public class DriverService {
         if (visa != null) {
             driver.setVisa(visa);
             driverRepository.save(driver);
+        }
+    }
+
+    private void createOtherDeductionForDriver(Driver driver, CreateDriverReq request) {
+        if (request.getOtherDeduction() != null) {
+            List<OtherDeduction> otherDeductions = new ArrayList<>();
+            for (CreateOtherDeductionRequest otherDeductionRequest : request.getOtherDeduction()) {
+                OtherDeduction otherDeduction = new OtherDeduction();
+                otherDeduction.setOtherDeductionAmount(otherDeductionRequest.getOtherDeductionAmount());
+                otherDeduction.setOtherDeductionDescription(otherDeductionRequest.getOtherDeductionDescription());
+                otherDeduction.setOtherDeductionAmountStartDate(otherDeductionRequest.getOtherDeductionAmountStartDate());
+                otherDeduction.setOtherDeductionAmountEndDate(otherDeductionRequest.getOtherDeductionAmountEndDate());
+                LocalDate startDate = otherDeductionRequest.getOtherDeductionAmountStartDate();
+                LocalDate endDate = otherDeductionRequest.getOtherDeductionAmountEndDate();
+                Double otherDeductionAmount = otherDeductionRequest.getOtherDeductionAmount();
+                otherDeduction.setDriver(driver);
+                if (startDate != null && endDate != null && otherDeductionAmount != null) {
+                    long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+                    if (daysBetween > 0) {
+                        double emi = otherDeductionAmount / daysBetween;
+                        otherDeduction.setOtherDeductionAmountEmi(emi);
+                    } else {
+                        throw new RuntimeException("date must be before end date.");
+                    }
+                } else {
+                    otherDeduction.setOtherDeductionAmountEmi(null);
+                    otherDeduction.setDriver(null);
+                }
+                otherDeductions.add(otherDeduction);
+            }
+            otherDeductionRepository.saveAll(otherDeductions);
         }
     }
 
@@ -239,7 +264,7 @@ public class DriverService {
         }
 
         // Handle Other Deductions EMI calculation
-        driver.setOtherDeductionAmount(request.getOtherDeductionAmount());
+        /*driver.setOtherDeductionAmount(request.getOtherDeductionAmount());
         driver.setOtherDeductionAmountStartDate(request.getOtherDeductionAmountStartDate());
         driver.setOtherDeductionAmountEndDate(request.getOtherDeductionAmountEndDate());
 
@@ -257,7 +282,7 @@ public class DriverService {
             }
         } else {
             driver.setOtherDeductionsAmountEmi(null);
-        }
+        }*/
     }
 
 
@@ -437,13 +462,12 @@ public class DriverService {
         if (request.getRemarks() != null && !request.getRemarks().isEmpty()) {
             driver.setRemarks(request.getRemarks());
         }
-        if (request.getDeductionDescription() != null && !request.getDeductionDescription().isEmpty()) {
+/*        if (request.getDeductionDescription() != null && !request.getDeductionDescription().isEmpty()) {
             driver.setDeductionDescription(request.getDeductionDescription());
-        }
-        if (request.getConsentDoc() != null && !request.getConsentDoc().isEmpty()){
+        }*/
+        if (request.getConsentDoc() != null && !request.getConsentDoc().isEmpty()) {
             driver.setConsentDoc(request.getConsentDoc());
         }
-
 
         return driver;
     }
@@ -484,6 +508,72 @@ public class DriverService {
 
             // Save or update the asset
             assetsDao.save(asset);
+        }
+    }
+
+    private void updateOtherDeductionsForDriver(Driver driver, UpdateDriverReq request) {
+        if (request.getOtherDeduction() != null) {
+            List<OtherDeduction> existingDeductions = otherDeductionRepository.findByDriver(driver);
+            List<UpdateOtherDeductionReq> updatedDeductions = request.getOtherDeduction();
+
+            // Remove deductions that are no longer present in the updated list
+            List<OtherDeduction> toRemove = new ArrayList<>();
+            for (OtherDeduction existingDeduction : existingDeductions) {
+                boolean stillExists = updatedDeductions.stream()
+                        .anyMatch(updatedDeduction -> existingDeduction.getId().equals(updatedDeduction.getId()));
+                if (!stillExists) {
+                    toRemove.add(existingDeduction);
+                }
+            }
+            otherDeductionRepository.deleteAll(toRemove);
+
+            // Update existing deductions and add new ones
+            List<OtherDeduction> toSave = new ArrayList<>();
+            for (UpdateOtherDeductionReq otherDeductionRequest : updatedDeductions) {
+                OtherDeduction otherDeduction = existingDeductions.stream()
+                        .filter(existingDeduction -> existingDeduction.getId() != null &&
+                                existingDeduction.getId().equals(otherDeductionRequest.getId()))
+                        .findFirst()
+                        .orElse(new OtherDeduction());
+
+                // Preserve old values if fields are null
+                if (otherDeductionRequest.getOtherDeductionAmount() != null) {
+                    otherDeduction.setOtherDeductionAmount(otherDeductionRequest.getOtherDeductionAmount());
+                }
+                if (otherDeductionRequest.getOtherDeductionDescription() != null) {
+                    otherDeduction.setOtherDeductionDescription(otherDeductionRequest.getOtherDeductionDescription());
+                }
+                if (otherDeductionRequest.getOtherDeductionAmountStartDate() != null) {
+                    otherDeduction.setOtherDeductionAmountStartDate(otherDeductionRequest.getOtherDeductionAmountStartDate());
+                }
+                if (otherDeductionRequest.getOtherDeductionAmountEndDate() != null) {
+                    otherDeduction.setOtherDeductionAmountEndDate(otherDeductionRequest.getOtherDeductionAmountEndDate());
+                }
+
+                // Calculate EMI only if start date, end date, and amount are present
+                LocalDate startDate = otherDeductionRequest.getOtherDeductionAmountStartDate() != null ?
+                        otherDeductionRequest.getOtherDeductionAmountStartDate() : otherDeduction.getOtherDeductionAmountStartDate();
+                LocalDate endDate = otherDeductionRequest.getOtherDeductionAmountEndDate() != null ?
+                        otherDeductionRequest.getOtherDeductionAmountEndDate() : otherDeduction.getOtherDeductionAmountEndDate();
+                Double otherDeductionAmount = otherDeductionRequest.getOtherDeductionAmount() != null ?
+                        otherDeductionRequest.getOtherDeductionAmount() : otherDeduction.getOtherDeductionAmount();
+
+                if (startDate != null && endDate != null && otherDeductionAmount != null) {
+                    long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+                    if (daysBetween > 0) {
+                        double emi = otherDeductionAmount / daysBetween;
+                        otherDeduction.setOtherDeductionAmountEmi(emi);
+                    } else {
+                        throw new RuntimeException("Start date must be before end date.");
+                    }
+                }
+
+                otherDeduction.setDriver(driver);
+                toSave.add(otherDeduction);
+            }
+
+            // Save updated and new deductions
+            otherDeductionRepository.saveAll(toSave);
         }
     }
 
@@ -545,7 +635,7 @@ public class DriverService {
         }
 
         // Other Deductions EMI Calculation
-        if (request.getOtherDeductionAmount() != null) {
+       /* if (request.getOtherDeductionAmount() != null) {
             driver.setOtherDeductionAmount(request.getOtherDeductionAmount());
         }
         if (request.getOtherDeductionAmountStartDate() != null) {
@@ -570,7 +660,7 @@ public class DriverService {
         } else if (request.getOtherDeductionAmount() == null || request.getOtherDeductionAmountStartDate() == null || request.getOtherDeductionAmountEndDate() == null) {
             // If any required field is missing, keep the old EMI value
             driver.setOtherDeductionsAmountEmi(driver.getOtherDeductionsAmountEmi());
-        }
+        }*/
     }
 
 
@@ -748,10 +838,10 @@ public class DriverService {
                         driver.getBikeRentAmountStartDate() != null ? driver.getBikeRentAmountStartDate().toString() : "",
                         driver.getBikeRentAmountEndDate() != null ? driver.getBikeRentAmountEndDate().toString() : "",
                         driver.getBikeRentAmountEmi() != null ? String.valueOf(driver.getBikeRentAmountEmi()) : "",
-                        driver.getOtherDeductionAmount() != null ? String.valueOf(driver.getOtherDeductionAmount()) : "",
-                        driver.getOtherDeductionAmountStartDate() != null ? driver.getOtherDeductionAmountStartDate().toString() : "",
-                        driver.getOtherDeductionAmountEndDate() != null ? driver.getOtherDeductionAmountEndDate().toString() : "",
-                        driver.getOtherDeductionsAmountEmi() != null ? String.valueOf(driver.getOtherDeductionsAmountEmi()) : "",
+                        /* driver.getOtherDeductionAmount() != null ? String.valueOf(driver.getOtherDeductionAmount()) : "",
+                         driver.getOtherDeductionAmountStartDate() != null ? driver.getOtherDeductionAmountStartDate().toString() : "",
+                         driver.getOtherDeductionAmountEndDate() != null ? driver.getOtherDeductionAmountEndDate().toString() : "",
+                         driver.getOtherDeductionsAmountEmi() != null ? String.valueOf(driver.getOtherDeductionsAmountEmi()) : "",*/
                         driver.getRemarks()
                 };
                 csvWriter.writeNext(data);
@@ -986,14 +1076,14 @@ public class DriverService {
         return driver;
     }
 
-    public ResponseEntity<ResponseStructure<Page<Driver>>> rentedSRentedVeichleType(int offset,int pageSize,String field) {
+    public ResponseEntity<ResponseStructure<Page<Driver>>> rentedSRentedVeichleType(int offset, int pageSize, String field) {
         ResponseStructure<Page<Driver>> responseStructure = new ResponseStructure<>();
         try {
             logger.info("Searching for drivers with ownedVeichleType : {}");
 
             Page<Driver> driverList = driverDao.rentedSRented(offset, pageSize, field);
             if (driverList.isEmpty()) {
-                logger.warn("No drivers found with ownedVeichleType{}" );
+                logger.warn("No drivers found with ownedVeichleType{}");
                 responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
                 responseStructure.setMessage("Driver Not Found With ownedVeichleType ");
                 responseStructure.setData(null);

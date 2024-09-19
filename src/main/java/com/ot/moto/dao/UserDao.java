@@ -29,22 +29,12 @@ public class UserDao {
         return user.orElse(null);
     }
 
-    public boolean checkUserExists(String email, String phone) {
-        Optional<User> userByEmail = userRepository.findByEmail(email);
-        if (userByEmail.isPresent()) {
-            return true;
-        }
-
+    public boolean checkUserExists(String phone) {
         Optional<User> userByPhone = userRepository.findByPhone(phone);
         return userByPhone.isPresent();
     }
 
-    public Optional<User> getUser(String email, String phone) {
-        Optional<User> userByEmail = userRepository.findByEmail(email);
-        if (userByEmail.isPresent()) {
-            return userByEmail;
-        }
-
+    public Optional<User> getUser(String phone) {
         Optional<User> userByPhone = userRepository.findByPhone(phone);
         return userByPhone;
     }

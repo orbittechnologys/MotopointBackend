@@ -94,19 +94,22 @@ public class CreateDriverReq {
     private LocalDate bikeRentAmountStartDate;
     private LocalDate bikeRentAmountEndDate;
 
-    private Double otherDeductionAmount;
+/*    private Double otherDeductionAmount;
     private LocalDate otherDeductionAmountStartDate;
-    private LocalDate otherDeductionAmountEndDate;
+    private LocalDate otherDeductionAmountEndDate;*/
 
     private String remarks;
+/*
     private String deductionDescription;
+*/
 
     private LocalDate visaExpiryDate;
 
-    private String consentDoc;
-
+    /*private String consentDoc;*/
     //visa & asset
     private List<AssetRequest> assets;
+
+    private List<CreateOtherDeductionRequest> otherDeduction;
 
     private Long visaType;
 }
