@@ -205,7 +205,7 @@ public class FleetHistoryService {
                 headerRow.createCell(i).setCellValue(headers[i]);
             }
 
-// Populate rows with data
+            // Populate rows with data
             int rowNum = 4;
             for (FleetHistory fleetHistory : fleetHistoryList) {
                 Row row = sheet.createRow(rowNum++);
