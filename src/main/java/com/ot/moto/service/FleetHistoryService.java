@@ -192,24 +192,27 @@ public class FleetHistoryService {
             Row headerRow = sheet.createRow(3);
             String[] headers = {
                     "ID", "Profit", "Fleet Assign DateTime", "Fleet UnAssign DateTime",
-                    "Driver Username", "Driver Jahez ID", "Driver CPR Number", "Driver Address", "Driver Vehicle Type", "Driver Vehicle Number",
-                    "Driver DL Type", "Driver DL Expiry Date", "Driver Bank Account Name", "Driver Bank Name", "Driver Bank Account Number",
-                    "Driver Bank Iban Number", "Driver Bank Branch", "Driver Bank Branch Code", "Driver Bank Swift Code",
-                    "Driver Bank Account Currency", "Driver Bank Mobile Pay Number", "Driver Bank Account Type",
-                    "Driver Visa Amount", "Driver Bike Rent Amount", "Driver Other Deduction Amount", "Driver Remarks",
+                    "Driver Username", "Driver Jahez ID", "Driver CPR Number", "Driver Address",
+                    "Driver Vehicle Type", "Driver DL Type", "Driver DL Expiry Date",
+                    "Driver Bank Account Name", "Driver Bank Name", "Driver Bank Account Number",
+                    "Driver Bank Iban Number", "Driver Bank Branch", "Driver Bank Branch Code",
+                    "Driver Bank Swift Code", "Driver Bank Account Currency", "Driver Bank Mobile Pay Number",
+                    "Driver Bank Account Type", "Driver Visa Amount", "Driver Bike Rent Amount", "Driver Remarks",
                     "Fleet Name", "Fleet Number", "Fleet Type", "Fleet Date of Purchase"
             };
+
             for (int i = 0; i < headers.length; i++) {
                 headerRow.createCell(i).setCellValue(headers[i]);
             }
 
-            // Populate rows with data
+// Populate rows with data
             int rowNum = 4;
             for (FleetHistory fleetHistory : fleetHistoryList) {
                 Row row = sheet.createRow(rowNum++);
                 Driver driver = fleetHistory.getDriver();
                 Fleet fleetHistoryFleet = fleetHistory.getFleet();
 
+                // FleetHistory details
                 row.createCell(0).setCellValue(fleetHistory.getId());
                 row.createCell(1).setCellValue(fleetHistory.getProfit() != null ? fleetHistory.getProfit() : 0.0);
                 row.createCell(2).setCellValue(fleetHistory.getFleetAssignDateTime() != null ? fleetHistory.getFleetAssignDateTime().toString() : "");
@@ -222,41 +225,41 @@ public class FleetHistoryService {
                     row.createCell(6).setCellValue(driver.getCprNumber() != null ? driver.getCprNumber() : "");
                     row.createCell(7).setCellValue(driver.getAddress() != null ? driver.getAddress() : "");
                     row.createCell(8).setCellValue(driver.getVehicleType() != null ? driver.getVehicleType() : "");
-                    row.createCell(9).setCellValue(driver.getVehicleNumber() != null ? driver.getVehicleNumber() : "");
-                    row.createCell(10).setCellValue(driver.getDlType() != null ? driver.getDlType() : "");
-                    row.createCell(11).setCellValue(driver.getDlExpiryDate() != null ? driver.getDlExpiryDate().toString() : "");
-                    row.createCell(12).setCellValue(driver.getBankAccountName() != null ? driver.getBankAccountName() : "");
-                    row.createCell(13).setCellValue(driver.getBankName() != null ? driver.getBankName() : "");
-                    row.createCell(14).setCellValue(driver.getBankAccountNumber() != null ? driver.getBankAccountNumber() : "");
-                    row.createCell(15).setCellValue(driver.getBankIbanNumber() != null ? driver.getBankIbanNumber() : "");
-                    row.createCell(16).setCellValue(driver.getBankBranch() != null ? driver.getBankBranch() : "");
-                    row.createCell(17).setCellValue(driver.getBankBranchCode() != null ? driver.getBankBranchCode() : "");
-                    row.createCell(18).setCellValue(driver.getBankSwiftCode() != null ? driver.getBankSwiftCode() : "");
-                    row.createCell(19).setCellValue(driver.getBankAccountCurrency() != null ? driver.getBankAccountCurrency() : "");
-                    row.createCell(20).setCellValue(driver.getBankMobilePayNumber() != null ? driver.getBankMobilePayNumber() : "");
-                    row.createCell(21).setCellValue(driver.getBankAccountType() != null ? driver.getBankAccountType() : "");
-                    row.createCell(22).setCellValue(driver.getVisaAmount() != null ? driver.getVisaAmount() : 0.0);
-                    row.createCell(23).setCellValue(driver.getBikeRentAmount() != null ? driver.getBikeRentAmount() : 0.0);
-//                    row.createCell(24).setCellValue(driver.getOtherDeductionAmount() != null ? driver.getOtherDeductionAmount() : 0.0);
-                    row.createCell(25).setCellValue(driver.getRemarks() != null ? driver.getRemarks() : "");
+                    row.createCell(9).setCellValue(driver.getDlType() != null ? driver.getDlType() : "");
+                    row.createCell(10).setCellValue(driver.getDlExpiryDate() != null ? driver.getDlExpiryDate().toString() : "");
+                    row.createCell(11).setCellValue(driver.getBankAccountName() != null ? driver.getBankAccountName() : "");
+                    row.createCell(12).setCellValue(driver.getBankName() != null ? driver.getBankName() : "");
+                    row.createCell(13).setCellValue(driver.getBankAccountNumber() != null ? driver.getBankAccountNumber() : "");
+                    row.createCell(14).setCellValue(driver.getBankIbanNumber() != null ? driver.getBankIbanNumber() : "");
+                    row.createCell(15).setCellValue(driver.getBankBranch() != null ? driver.getBankBranch() : "");
+                    row.createCell(16).setCellValue(driver.getBankBranchCode() != null ? driver.getBankBranchCode() : "");
+                    row.createCell(17).setCellValue(driver.getBankSwiftCode() != null ? driver.getBankSwiftCode() : "");
+                    row.createCell(18).setCellValue(driver.getBankAccountCurrency() != null ? driver.getBankAccountCurrency() : "");
+                    row.createCell(19).setCellValue(driver.getBankMobilePayNumber() != null ? driver.getBankMobilePayNumber() : "");
+                    row.createCell(20).setCellValue(driver.getBankAccountType() != null ? driver.getBankAccountType() : "");
+                    row.createCell(21).setCellValue(driver.getVisaAmount() != null ? driver.getVisaAmount() : 0.0);
+                    row.createCell(22).setCellValue(driver.getBikeRentAmount() != null ? driver.getBikeRentAmount() : 0.0);
+                    row.createCell(23).setCellValue(driver.getRemarks() != null ? driver.getRemarks() : "");
                 } else {
-                    for (int i = 4; i <= 25; i++) {
+                    for (int i = 4; i <= 23; i++) {
                         row.createCell(i).setCellValue("");
                     }
                 }
 
                 // Fleet details
                 if (fleetHistoryFleet != null) {
-                    row.createCell(26).setCellValue(fleetHistoryFleet.getVehicleName() != null ? fleetHistoryFleet.getVehicleName() : "");
-                    row.createCell(27).setCellValue(fleetHistoryFleet.getVehicleNumber() != null ? fleetHistoryFleet.getVehicleNumber() : "");
-                    row.createCell(28).setCellValue(fleetHistoryFleet.getVehicleType() != null ? fleetHistoryFleet.getVehicleType().toString() : "");
-                    row.createCell(29).setCellValue(fleetHistoryFleet.getDateOfPurchase() != null ? fleetHistoryFleet.getDateOfPurchase().toString() : "");
+                    row.createCell(24).setCellValue(fleetHistoryFleet.getVehicleName() != null ? fleetHistoryFleet.getVehicleName() : "");
+                    row.createCell(25).setCellValue(fleetHistoryFleet.getVehicleNumber() != null ? fleetHistoryFleet.getVehicleNumber() : "");
+                    row.createCell(26).setCellValue(fleetHistoryFleet.getVehicleType() != null ? fleetHistoryFleet.getVehicleType().toString() : "");
+                    row.createCell(27).setCellValue(fleetHistoryFleet.getDateOfPurchase() != null ? fleetHistoryFleet.getDateOfPurchase().toString() : "");
                 } else {
-                    for (int i = 26; i <= 29; i++) {
+                    for (int i = 24; i <= 27; i++) {
                         row.createCell(i).setCellValue("");
                     }
                 }
             }
+
+
 
             // Write to ByteArrayOutputStream
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

@@ -4,15 +4,12 @@ import com.ot.moto.dao.PenaltyDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreatePenaltyReq;
 import com.ot.moto.dto.request.UpdatePenaltyReq;
-import com.ot.moto.entity.Penalty;
 import com.ot.moto.service.PenaltyServices;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/penalty")
@@ -77,5 +74,19 @@ public class PenaltyController {
     @DeleteMapping("/deletePenaltiesByFleetId")
     public ResponseEntity<ResponseStructure<Object>> deletePenaltiesByFleetId(@RequestParam Long fleetId) {
         return penaltyServices.deletePenaltiesByFleetId(fleetId);
+    }
+
+    @GetMapping("/downloadPenaltyReport")
+    public ResponseEntity<InputStreamResource> downloadPenaltyReport(Long fleetId) {
+        try {
+            ResponseEntity<InputStreamResource> responseEntity = penaltyServices.downloadPenaltyReport(fleetId);
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                return responseEntity;
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

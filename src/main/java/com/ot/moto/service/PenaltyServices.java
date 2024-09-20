@@ -12,16 +12,25 @@ import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.FleetRepository;
 import com.ot.moto.repository.PenaltyRepository;
 import jakarta.transaction.Transactional;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,7 +117,6 @@ public class PenaltyServices {
             return ResponseStructure.errorResponse(null, 500, "Error deleting penalties: " + e.getMessage());
         }
     }
-
 
     @Transactional
     public ResponseEntity<ResponseStructure<Object>> updatePenaltyByFleetIdAndDriverId(UpdatePenaltyReq updatePenaltyReq) {
@@ -337,6 +345,128 @@ public class PenaltyServices {
         } catch (Exception e) {
             logger.error("Error deleting penalties for Fleet ID: {}", fleetId, e);
             return ResponseStructure.errorResponse(null, 500, "Error deleting penalties: " + e.getMessage());
+        }
+    }
+
+    public ResponseEntity<InputStreamResource> downloadPenaltyReport(Long fleetId) {
+        try {
+            // Fetch Penalties for the specific fleetId
+            List<Penalty> penaltyList = penaltyDao.getPenaltiesByFleetId(fleetId);
+            if (penaltyList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Fetch the Fleet instance
+            Fleet fleet = fleetDao.getFleetById(fleetId);
+            if (fleet == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Penalty Data");
+
+            // Create font for the vehicle name heading
+            Font headingFont = workbook.createFont();
+            headingFont.setFontHeightInPoints((short) 22); // Modern font size
+            headingFont.setBold(true);
+            headingFont.setFontName("Arial"); // Modern font style
+
+            // Create cell style for the vehicle name heading
+            CellStyle headingStyle = workbook.createCellStyle();
+            headingStyle.setFont(headingFont);
+            headingStyle.setAlignment(HorizontalAlignment.CENTER);
+            headingStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+            // Add Vehicle name as a prominent heading
+            Row headingRow = sheet.createRow(0);
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 5)); // Adjust range to cover relevant columns
+            Cell headingCell = headingRow.createCell(0);
+            headingCell.setCellValue("Vehicle Name: " + fleet.getVehicleName());
+            headingCell.setCellStyle(headingStyle);
+
+            // Create font for the vehicle number subheading
+            Font subheadingFont = workbook.createFont();
+            subheadingFont.setFontHeightInPoints((short) 16); // Modern font size
+            subheadingFont.setBold(true);
+            subheadingFont.setFontName("Dubai Light"); // Modern font style
+
+            // Create cell style for the vehicle number subheading
+            CellStyle subheadingStyle = workbook.createCellStyle();
+            subheadingStyle.setFont(subheadingFont);
+            subheadingStyle.setAlignment(HorizontalAlignment.CENTER);
+            subheadingStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+            // Add Vehicle number as a subheading
+            Row subheadingRow = sheet.createRow(1);
+            sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 5)); // Adjust range to cover relevant columns
+            Cell subheadingCell = subheadingRow.createCell(0);
+            subheadingCell.setCellValue("Vehicle Number: " + fleet.getVehicleNumber());
+            subheadingCell.setCellStyle(subheadingStyle);
+
+            // Add a blank row
+            sheet.createRow(2);
+
+            // Create header row
+            Row headerRow = sheet.createRow(3);
+            String[] headers = {
+                    "ID", "Penalty Description", "Amount", "Status",
+                    "Driver Username", "Fleet Name"
+            };
+            for (int i = 0; i < headers.length; i++) {
+                headerRow.createCell(i).setCellValue(headers[i]);
+            }
+
+            // Populate rows with data
+            int rowNum = 4;
+            for (Penalty penalty : penaltyList) {
+                Row row = sheet.createRow(rowNum++);
+                Driver driver = penalty.getDriver();
+                Fleet penaltyFleet = penalty.getFleet();
+
+                row.createCell(0).setCellValue(penalty.getId());
+                row.createCell(1).setCellValue(penalty.getDescription() != null ? penalty.getDescription() : "");
+                row.createCell(2).setCellValue(penalty.getAmount() != null ? penalty.getAmount() : 0.0);
+                row.createCell(3).setCellValue(penalty.getStatus().toString());
+
+                // Driver details
+                if (driver != null) {
+                    row.createCell(4).setCellValue(driver.getUsername() != null ? driver.getUsername() : "");
+                } else {
+                    row.createCell(4).setCellValue("");
+                }
+
+                // Fleet details
+                if (penaltyFleet != null) {
+                    row.createCell(5).setCellValue(penaltyFleet.getVehicleName() != null ? penaltyFleet.getVehicleName() : "");
+                } else {
+                    row.createCell(5).setCellValue("");
+                }
+            }
+
+            // Write to ByteArrayOutputStream
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
+
+            // Convert ByteArrayOutputStream to ByteArrayInputStream
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            // Set HTTP headers for file download
+            HttpHeaders headers1 = new HttpHeaders();
+            headers1.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=penalty_data.xlsx");
+            headers1.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers1)
+                    .contentLength(outputStream.size())
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(resource);
+
+        } catch (IOException e) {
+            // Log the error and return an internal server error response
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
         }
     }
 

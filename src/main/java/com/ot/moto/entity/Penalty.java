@@ -36,5 +36,5 @@ public class Penalty {
     @ManyToOne
     @JoinColumn
     @JsonBackReference("driverPenalty")
-    private Driver driver;  // Reference to Driver entity
+    private Driver driver;
 }
