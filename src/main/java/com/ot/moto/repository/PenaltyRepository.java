@@ -20,7 +20,6 @@ public interface PenaltyRepository extends JpaRepository<Penalty, Long> {
     @Query("SELECT p FROM Penalty p WHERE p.fleet.id = :fleetId")
     public List<Penalty> getByFleetId(@Param("fleetId") Long fleetId);
 
-
     @Query("SELECT p FROM Penalty p WHERE p.fleet.id = :fleetId AND p.driver.id = :driverId")
     public List<Penalty> findByFleetIdAndDriverId(@Param("fleetId") Long fleetId, @Param("driverId") Long driverId);
 
