@@ -259,8 +259,6 @@ public class FleetHistoryService {
                 }
             }
 
-
-
             // Write to ByteArrayOutputStream
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             workbook.write(outputStream);

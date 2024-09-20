@@ -51,15 +51,27 @@ public class BonusController {
         return bonusService.deleteBonusById(id);
     }
 
-/*    @PostMapping("/addDistanceTravelled")
+    @GetMapping("/getAllDateBonus")
+    public ResponseEntity<ResponseStructure<Object>> getAllDateBonus(@RequestParam(defaultValue = "0") int page,
+                                                            @RequestParam(defaultValue = "10") int size,
+                                                            @RequestParam(defaultValue = "id") String field) {
+        return bonusService.getAllDateBonus(page, size, field);
+    }
+
+    @GetMapping("/getAllOrderBonus")
+    public ResponseEntity<ResponseStructure<Object>> getAllOrderBonus(@RequestParam(defaultValue = "0") int page,
+                                                                     @RequestParam(defaultValue = "10") int size,
+                                                                     @RequestParam(defaultValue = "id") String field) {
+        return bonusService.getAllOrderBonus(page, size, field);
+    }
+}
+
+     /*@PostMapping("/addDistanceTravelled")
     public ResponseEntity<ResponseStructure<Object>> addDistanceTravelled(@RequestBody AddDistanceTravelled addDistanceTravelled) {
         return bonusService.addDistanceTravelled(addDistanceTravelled);
     }
 
     @PutMapping("/updateDistanceTravelled")
     public ResponseEntity<ResponseStructure<Object>> updateDistanceTravelled(@RequestBody UpdateDistanceTravelled updateDistanceTravelled) {
-        return bonusService.updateDistanceTravelled(updateDistanceTravelled);
-    }*/
-
-}
+        return bonusService.updateDistanceTravelled(updateDistanceTravelled); }*/
 

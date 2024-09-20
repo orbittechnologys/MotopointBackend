@@ -22,48 +22,6 @@ public class BonusService {
 
     private static final Logger logger = LoggerFactory.getLogger(BonusService.class);
 
-    /*public ResponseEntity<ResponseStructure<Object>> addDistanceTravelled(AddDistanceTravelled addDistanceTravelled) {
-        try {
-            Bonus bonus = new Bonus();
-            bonus.setDistanceTravelled(addDistanceTravelled.getDistanceTravelled());
-            bonus.setDistanceTravelledAmount(addDistanceTravelled.getDistanceTravelledAmount());
-            bonus.setSpecialDate(null);
-            bonus.setDateBonusAmount(null);
-            bonus.setDeliveryCount(null);
-            bonus.setBonusAmount(null);
-
-            bonus = bonusDao.saveBonus(bonus);
-            return ResponseStructure.successResponse(bonus, "Bonus for distance travelled created successfully");
-        } catch (Exception e) {
-            logger.error("Error while creating bonus", e);
-            return ResponseStructure.errorResponse(null, 500, "Error while creating bonus: " + e.getMessage());
-        }
-    }
-
-
-
-    public ResponseEntity<ResponseStructure<Object>> updateDistanceTravelled(UpdateDistanceTravelled updateDistanceTravelled) {
-        try {
-            Bonus bonus = fetchBonus(updateDistanceTravelled.getId());
-            if (Objects.isNull(bonus)) {
-                logger.warn("No bonus found with id: {}", updateDistanceTravelled.getId());
-                return ResponseStructure.errorResponse(null, 404, "Bonus not found with id: " + updateDistanceTravelled.getId());
-            }
-            bonus.setDistanceTravelled(updateDistanceTravelled.getDistanceTravelled());
-            bonus.setDistanceTravelledAmount(updateDistanceTravelled.getDistanceTravelledAmount());
-            bonus.setSpecialDate(null);
-            bonus.setDateBonusAmount(null);
-            bonus.setDeliveryCount(null);
-            bonus.setBonusAmount(null);
-
-            bonus = bonusDao.saveBonus(bonus);
-
-            return ResponseStructure.successResponse(bonus, "Bonus for Orders Updated successfully");
-        } catch (Exception e) {
-            logger.error("Error while Updating Bonus Orders", e);
-            return ResponseStructure.errorResponse(null, 500, "Error while Updating Bonus Orders: " + e.getMessage());
-        }
-    }*/
 
     public ResponseEntity<ResponseStructure<Object>> addBonusOrders(AddBonusOrders addBonusOrders) {
         try {
@@ -172,4 +130,75 @@ public class BonusService {
             return ResponseStructure.errorResponse(null, 500, "Failed to delete Bonus ID: " + id);
         }
     }
+
+    public ResponseEntity<ResponseStructure<Object>> getAllOrderBonus(int page, int size, String field) {
+        try {
+            Page<Bonus> orderBonuses = bonusDao.findAllByDeliveryCountNotNull(page, size, field);
+            if (orderBonuses.isEmpty()) {
+                logger.warn("No Order Bonus Data found.");
+                return ResponseStructure.errorResponse(null, 404, "No Order Bonus Data found");
+            }
+            return ResponseStructure.successResponse(orderBonuses, "Order Bonus Data found");
+        } catch (Exception e) {
+            logger.error("Error fetching Order Bonus Data", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> getAllDateBonus(int page, int size, String field) {
+        try {
+            Page<Bonus> dateBonuses = bonusDao.findAllBySpecialDateNotNull(page, size, field);
+            if (dateBonuses.isEmpty()) {
+                logger.warn("No Date Bonus Data found.");
+                return ResponseStructure.errorResponse(null, 404, "No Date Bonus Data found");
+            }
+            return ResponseStructure.successResponse(dateBonuses, "Date Bonus Data found");
+        } catch (Exception e) {
+            logger.error("Error fetching Date Bonus Data", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+
 }
+
+    /*public ResponseEntity<ResponseStructure<Object>> addDistanceTravelled(AddDistanceTravelled addDistanceTravelled) {
+        try {
+            Bonus bonus = new Bonus();
+            bonus.setDistanceTravelled(addDistanceTravelled.getDistanceTravelled());
+            bonus.setDistanceTravelledAmount(addDistanceTravelled.getDistanceTravelledAmount());
+            bonus.setSpecialDate(null);
+            bonus.setDateBonusAmount(null);
+            bonus.setDeliveryCount(null);
+            bonus.setBonusAmount(null);
+
+            bonus = bonusDao.saveBonus(bonus);
+            return ResponseStructure.successResponse(bonus, "Bonus for distance travelled created successfully");
+        } catch (Exception e) {
+            logger.error("Error while creating bonus", e);
+            return ResponseStructure.errorResponse(null, 500, "Error while creating bonus: " + e.getMessage());
+        }
+    }
+
+        public ResponseEntity<ResponseStructure<Object>> updateDistanceTravelled(UpdateDistanceTravelled updateDistanceTravelled) {
+        try {
+            Bonus bonus = fetchBonus(updateDistanceTravelled.getId());
+            if (Objects.isNull(bonus)) {
+                logger.warn("No bonus found with id: {}", updateDistanceTravelled.getId());
+                return ResponseStructure.errorResponse(null, 404, "Bonus not found with id: " + updateDistanceTravelled.getId());
+            }
+            bonus.setDistanceTravelled(updateDistanceTravelled.getDistanceTravelled());
+            bonus.setDistanceTravelledAmount(updateDistanceTravelled.getDistanceTravelledAmount());
+            bonus.setSpecialDate(null);
+            bonus.setDateBonusAmount(null);
+            bonus.setDeliveryCount(null);
+            bonus.setBonusAmount(null);
+
+            bonus = bonusDao.saveBonus(bonus);
+
+            return ResponseStructure.successResponse(bonus, "Bonus for Orders Updated successfully");
+        } catch (Exception e) {
+            logger.error("Error while Updating Bonus Orders", e);
+            return ResponseStructure.errorResponse(null, 500, "Error while Updating Bonus Orders: " + e.getMessage());
+        }
+    }*/
