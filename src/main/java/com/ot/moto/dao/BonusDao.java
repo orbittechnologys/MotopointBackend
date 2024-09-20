@@ -51,10 +51,7 @@ public class BonusDao {
     public Page<Bonus> findAllBySpecialDateNotNull(int page, int size, String field) {
         return bonusRepository.findAllBySpecialDateIsNotNull(PageRequest.of(page, size).withSort(Sort.by(field).ascending()));
     }
-
-
 }
 
- /*  public Bonus findTopByDistanceTravelledLessThanEqualOrderByDistanceTravelledDesc(Long distanceTravelled) {
-        return bonusRepository.findTopByDistanceTravelledLessThanEqualOrderByDistanceTravelledDesc(distanceTravelled);
-    }*/
+        /*public Bonus findTopByDistanceTravelledLessThanEqualOrderByDistanceTravelledDesc(Long distanceTravelled) {
+        return bonusRepository.findTopByDistanceTravelledLessThanEqualOrderByDistanceTravelledDesc(distanceTravelled);}*/

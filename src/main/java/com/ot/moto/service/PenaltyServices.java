@@ -221,8 +221,40 @@ public class PenaltyServices {
             Page<Penalty> penalties = penaltyDao.findByDriverId(driverId, offset, pageSize, field);
 
             if (penalties.hasContent()) {
+                List<Map<String, Object>> penaltyDetails = penalties.getContent().stream().map(penalty -> {
+                    Map<String, Object> penaltyMap = new HashMap<>();
+                    penaltyMap.put("id", penalty.getId());
+                    penaltyMap.put("description", penalty.getDescription());
+                    penaltyMap.put("amount", penalty.getAmount());
+                    penaltyMap.put("status", penalty.getStatus().name()); // Convert enum to string
+
+                  /*  // Adding Fleet details if present
+                    if (penalty.getFleet() != null) {
+                        Map<String, Object> fleetMap = new HashMap<>();
+                        fleetMap.put("id", penalty.getFleet().getId());
+                        fleetMap.put("vehicleName", penalty.getFleet().getVehicleName());
+                        fleetMap.put("vehicleNumber", penalty.getFleet().getVehicleNumber());
+                        // Add other fleet fields as needed
+                        penaltyMap.put("fleet", fleetMap);
+                    }*/
+
+                    // Adding Driver details if present (though we already have the driver)
+                    if (penalty.getDriver() != null) {
+                        Map<String, Object> driverMap = new HashMap<>();
+                        driverMap.put("id", penalty.getDriver().getId());
+                        driverMap.put("username", penalty.getDriver().getUsername());
+                        driverMap.put("cprNumber", penalty.getDriver().getCprNumber()); // Ensure getter exists
+                        driverMap.put("phoneNumber", penalty.getDriver().getPhone()); // Ensure getter exists
+                        driverMap.put("jahezId", penalty.getDriver().getJahezId()); // Ensure getter exists
+                        // Add other driver fields as needed
+                        penaltyMap.put("driver", driverMap);
+                    }
+
+                    return penaltyMap;
+                }).collect(Collectors.toList());
+
                 logger.info("Penalties retrieved successfully for driver ID: {}", driverId);
-                return ResponseStructure.successResponse(penalties, "Penalties retrieved successfully");
+                return ResponseStructure.successResponse(penaltyDetails, "Penalties retrieved successfully");
             } else {
                 logger.warn("No penalties found for driver ID: {}", driverId);
                 return ResponseStructure.errorResponse(null, 404, "No penalties found for driver ID: " + driverId);
@@ -232,6 +264,7 @@ public class PenaltyServices {
             return ResponseStructure.errorResponse(null, 500, "Error fetching penalties: " + e.getMessage());
         }
     }
+
 
 
     public ResponseEntity<ResponseStructure<Object>> getPenaltiesByFleetId(Long fleetId, int offset, int pageSize, String field) {
