@@ -186,6 +186,7 @@ public class SecurityConfig {
             "/fleet/getById/{id}",
             "/fleet/update",
             "/fleet/getAll",
+            "/fleet/getAll",
             "/driver/create",
             "/driver/update",
             "/visa/delete",
@@ -219,7 +220,8 @@ public class SecurityConfig {
             "/penalty/deletePenaltiesByFleetId",
             "/penalty/downloadPenaltyReport",
             "/bonus/getAllDateBonus",
-            "/bonus/getAllOrderBonus"
+            "/bonus/getAllOrderBonus",
+            "/driver/delete"
     };
 
     private static final String[] ADMIN_WHITELIST = {};

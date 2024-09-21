@@ -216,7 +216,8 @@ public class JwtFilter extends OncePerRequestFilter {
             "/penalty/deletePenaltiesByFleetId",
             "/penalty/downloadPenaltyReport",
             "/bonus/getAllDateBonus",
-            "/bonus/getAllOrderBonus"
+            "/bonus/getAllOrderBonus",
+            "/driver/delete"
     );
 
     @Override
