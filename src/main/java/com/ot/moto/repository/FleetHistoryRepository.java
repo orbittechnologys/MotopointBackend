@@ -4,6 +4,7 @@ import com.ot.moto.entity.FleetHistory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -34,4 +35,14 @@ public interface FleetHistoryRepository extends JpaRepository<FleetHistory, Long
     public Page<FleetHistory> findAll(Pageable pageable);
 
     public List<FleetHistory> findByFleetId(Long fleetId);
+
+    @Modifying
+    @Query("UPDATE FleetHistory fh SET fh.driver = null WHERE fh.driver.id = :driverId")
+    void nullifyDriverReference(@Param("driverId") Long driverId);
+
+    @Modifying
+    @Query("DELETE FROM FleetHistory fh WHERE fh.driver.id = :driverId")
+    void deleteFleetHistoryByDriverId(@Param("driverId") Long driverId);
+
+
 }

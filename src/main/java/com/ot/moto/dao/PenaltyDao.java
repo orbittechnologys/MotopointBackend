@@ -57,5 +57,13 @@ public class PenaltyDao {
     public List<Penalty> getPenaltiesByFleetId(Long fleetId) {
         return penaltyRepository.getByFleetId(fleetId);
     }
+
+    public void deleteAll(List<Penalty> penalties) {
+         penaltyRepository.deleteAll();
+    }
+
+    public List<Penalty> findByDriverId(Long driverId){
+        return penaltyRepository.findByDriverId(driverId);
+    }
 }
 

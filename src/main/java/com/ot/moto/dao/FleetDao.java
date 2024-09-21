@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -70,11 +71,19 @@ public class FleetDao {
         return Objects.isNull(countB) ? 0 : countB;
     }
 
-    public List<Fleet> findAllAssignedFleets(int offset, int pageSize, String field){
+    public List<Fleet> findAllAssignedFleets(int offset, int pageSize, String field) {
         return fleetRepository.findAllAssignedFleets(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
 
-    public List<Fleet> findAllUnAssignedFleets(int offset, int pageSize, String field){
+    public List<Fleet> findAllUnAssignedFleets(int offset, int pageSize, String field) {
         return fleetRepository.findAllUnassignedFleets(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
+    }
+
+    public List<Fleet> findFleetByDriverId(Long driverId) {
+        return fleetRepository.findFleetByDriverId(driverId);
+    }
+
+    public void nullifyFleetDriver(Long driverId) {
+        fleetRepository.nullifyFleetDriver(driverId);
     }
 }

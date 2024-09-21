@@ -8,6 +8,7 @@ import com.ot.moto.dto.response.DriverDetails;
 import com.ot.moto.dto.response.TopDrivers;
 import com.ot.moto.entity.*;
 import com.ot.moto.repository.*;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,22 @@ public class DriverService {
     private AssetsDao assetsDao;
 
     @Autowired
+    private PenaltyDao penaltyDao;
+
+    @Autowired
     private OtherDeductionRepository otherDeductionRepository;
+
+    @Autowired
+    private FleetDao fleetDao;
+
+    @Autowired
+    private FleetRepository fleetRepository;
+
+    @Autowired
+    private FleetHistoryRepository fleetHistoryRepository;
+
+    @Autowired
+    private FleetHistoryDao fleetHistoryDao;
 
     private static final Logger logger = LoggerFactory.getLogger(DriverService.class);
 
@@ -72,8 +88,8 @@ public class DriverService {
         try {
             // Check for existing user
             if (userDao.checkUserExists(request.getPhone())) {
-                logger.warn("Email/ Phone already exists: {}, {}", request.getEmail(), request.getPhone());
-                return ResponseStructure.errorResponse(null, 409, "Email/ Phone already exists");
+                logger.warn("Phone number already exists: {}", request.getPhone());
+                return ResponseStructure.errorResponse(null, 409, " Phone number already exists");
             }
 
             // Build the Driver entity from the request
@@ -284,7 +300,6 @@ public class DriverService {
             driver.setOtherDeductionsAmountEmi(null);
         }*/
     }
-
 
     public ResponseEntity<ResponseStructure<Object>> updateDriver(UpdateDriverReq request) {
         try {
@@ -660,7 +675,6 @@ public class DriverService {
         }*/
     }
 
-
     public ResponseEntity<ResponseStructure<Object>> getDriver(Long id) {
         try {
             Driver driver = driverDao.getById(id);
@@ -713,22 +727,6 @@ public class DriverService {
         return new DriverDetails(totalDrivers, attendanceCount, ridersCount, driversCount);/*, visaTypeCount, flexiCount);*/
     }
 
-    public ResponseEntity<ResponseStructure<Object>> deleteDriver(Long driverId) {
-        try {
-            Driver driver = driverDao.getById(driverId);
-            if (Objects.isNull(driver)) {
-                logger.warn("Driver not found with ID: {}", driverId);
-                return ResponseStructure.errorResponse(null, 404, "Driver not found");
-            }
-
-            driverDao.deleteDriver(driver);
-            logger.info("Driver deleted successfully: {}", driverId);
-            return ResponseStructure.successResponse(null, "Driver deleted successfully");
-        } catch (Exception e) {
-            logger.error("Error deleting Driver", e);
-            return ResponseStructure.errorResponse(null, 500, e.getMessage());
-        }
-    }
 
     public ResponseEntity<ResponseStructure<Object>> fetchTopDriver() {
         try {
@@ -1146,4 +1144,45 @@ public class DriverService {
         }
     }
 
+
+    @Transactional
+    public ResponseEntity<ResponseStructure<Object>> deleteDriver(Long driverId) {
+        try {
+            Driver driver = driverDao.getById(driverId);
+            if (driver == null) {
+                logger.warn("Driver not found with ID: {}", driverId);
+                return ResponseStructure.errorResponse(null, 404, "Driver not found");
+            }
+
+            //  Delete all penalties associated with the driver
+            List<Penalty> penalties = penaltyDao.findByDriverId(driver.getId());
+            if (penalties != null && !penalties.isEmpty()) {
+                penaltyDao.deleteAll(penalties);
+                logger.info("Penalties deleted for Driver ID: {}", driverId);
+            }
+
+      /*      //  Delete all FleetHistory associated with the driver
+            List<FleetHistory> fleetHistories = fleetHistoryDao.findByDriverId(driver.getId());
+            if (fleetHistories != null && !fleetHistories.isEmpty()) {
+                fleetHistoryRepository.deleteAll(fleetHistories);
+                logger.info("FleetHistory deleted for Driver ID: {}", driverId);
+            }*/
+
+            // Delete all FleetHistory associated with the driver
+            fleetHistoryDao.deleteFleetHistoryByDriverId(driverId);
+            logger.info("FleetHistory deleted for Driver ID: {}", driverId);
+
+
+            //  Nullify driver references in related entities
+            fleetDao.nullifyFleetDriver(driverId);
+
+            //  Delete the driver
+            driverDao.deleteDriver(driver);
+            logger.info("Driver deleted successfully: {}", driverId);
+            return ResponseStructure.successResponse(null, "Driver and associated records deleted successfully");
+        } catch (Exception e) {
+            logger.error("Error deleting Driver", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
 }

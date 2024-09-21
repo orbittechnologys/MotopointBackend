@@ -126,7 +126,7 @@ public class Driver extends User {
     @JsonBackReference("fleet")
     private Fleet fleet;
 
-    @OneToMany(mappedBy = "driver")
+    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference("driver")
     private List<Orders> orders;
 

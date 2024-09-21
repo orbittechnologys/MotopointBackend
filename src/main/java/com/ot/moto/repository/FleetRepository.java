@@ -3,6 +3,7 @@ package com.ot.moto.repository;
 import com.ot.moto.entity.Fleet;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -31,4 +32,13 @@ public interface FleetRepository extends JpaRepository<Fleet, Long> {
 
     @Query("SELECT f FROM Fleet f WHERE f.driver IS NULL")
     public List<Fleet> findAllUnassignedFleets(Pageable pageable);
+
+    @Query("SELECT f FROM Fleet f WHERE f.driver.id = :driverId")
+    List<Fleet> findFleetByDriverId(@Param("driverId") Long driverId);
+
+    @Modifying
+    @Query("UPDATE Fleet f SET f.driver = null WHERE f.driver.id = :driverId")
+    void nullifyFleetDriver(@Param("driverId") Long driverId);
+
+
 }

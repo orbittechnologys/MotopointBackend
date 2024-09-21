@@ -34,4 +34,7 @@ public interface PenaltyRepository extends JpaRepository<Penalty, Long> {
     @Query("SELECT p FROM Penalty p WHERE p.driver.id = :driverId")
     public Page<Penalty> findByDriverId(@Param("driverId") Long driverId,Pageable pageable);
 
+    @Query("SELECT p FROM Penalty p WHERE p.driver.id = :driverId")
+    public List<Penalty> findByDriverId(@Param("driverId") Long driverId);
+
 }

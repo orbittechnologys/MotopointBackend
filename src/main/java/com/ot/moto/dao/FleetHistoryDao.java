@@ -51,4 +51,8 @@ public class FleetHistoryDao {
     public List<FleetHistory> findAll(){
         return fleetHistoryRepository.findAll();
     }
+
+    public void deleteFleetHistoryByDriverId(Long driverId) {
+        fleetHistoryRepository.deleteFleetHistoryByDriverId(driverId);
+    }
 }

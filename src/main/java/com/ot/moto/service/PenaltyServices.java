@@ -266,7 +266,6 @@ public class PenaltyServices {
     }
 
 
-
     public ResponseEntity<ResponseStructure<Object>> getPenaltiesByFleetId(Long fleetId, int offset, int pageSize, String field) {
         try {
             Optional<Fleet> fleet = fleetRepository.findById(fleetId);
@@ -400,7 +399,7 @@ public class PenaltyServices {
 
             // Create font for the vehicle name heading
             Font headingFont = workbook.createFont();
-            headingFont.setFontHeightInPoints((short) 22); // Modern font size
+            headingFont.setFontHeightInPoints((short) 16); // Modern font size
             headingFont.setBold(true);
             headingFont.setFontName("Arial"); // Modern font style
 
@@ -419,7 +418,7 @@ public class PenaltyServices {
 
             // Create font for the vehicle number subheading
             Font subheadingFont = workbook.createFont();
-            subheadingFont.setFontHeightInPoints((short) 16); // Modern font size
+            subheadingFont.setFontHeightInPoints((short) 10); // Modern font size
             subheadingFont.setBold(true);
             subheadingFont.setFontName("Dubai Light"); // Modern font style
 
@@ -503,4 +502,23 @@ public class PenaltyServices {
         }
     }
 
+    @Transactional
+    public ResponseEntity<ResponseStructure<Object>> deletePenaltiesForDriver(Long driverId) {
+        try {
+            List<Penalty> penalties = penaltyDao.findByDriverId(driverId);
+
+            if (penalties == null || penalties.isEmpty()) {
+                logger.warn("No penalties found for Driver with ID: {}", driverId);
+                return ResponseStructure.errorResponse(null, 404, "No penalties found for this driver");
+            }
+
+            // Deleting penalties for the specific driver
+            penaltyDao.deleteAll(penalties);
+            logger.info("Penalties deleted for Driver ID: {}", driverId);
+            return ResponseStructure.successResponse(null, "Penalties deleted successfully");
+        } catch (Exception e) {
+            logger.error("Error deleting penalties for Driver", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
 }
