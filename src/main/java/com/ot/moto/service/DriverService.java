@@ -79,10 +79,12 @@ public class DriverService {
     private FleetHistoryRepository fleetHistoryRepository;
 
     @Autowired
+    private OtherDeductionDao otherDeductionDao;
+
+    @Autowired
     private FleetHistoryDao fleetHistoryDao;
 
     private static final Logger logger = LoggerFactory.getLogger(DriverService.class);
-
 
     public ResponseEntity<ResponseStructure<Object>> createDriver(CreateDriverReq request) {
         try {
@@ -309,7 +311,6 @@ public class DriverService {
                 return ResponseStructure.errorResponse(null, 404, "Driver not found with id: " + request.getId());
             }
 
-
             Optional<User> userPhone = userDao.getUserByPhone(request.getPhone());
             if (userPhone.isPresent() && !userPhone.get().getId().equals(request.getId())) {
                 logger.warn("Phone already exists: {}", request.getPhone());
@@ -317,10 +318,11 @@ public class DriverService {
             }
 
             driver = updateDriverFromRequest(request, driver);
-            driverRepository.save(driver);
+            calculateDriverEMI(driver, request);
+            Driver updatedDriver = driverRepository.save(driver);
 
             if (request.getAssets() != null) {
-                updateDriverAssets(driver, request.getAssets());
+                updateDriverAssetsV2(updatedDriver, request);
             }
 
             if (request.getVisaType() != null) {
@@ -330,12 +332,12 @@ public class DriverService {
                 }
             }
 
-            calculateDriverEMI(driver, request);
+            if (request.getOtherDeduction() != null) {
+                updateOtherDeductionsForDriverV2(updatedDriver, request);
+            }
 
             logger.info("Driver updated successfully: {}", driver.getId());
-
             return ResponseStructure.successResponse(driver, "Driver updated successfully");
-
         } catch (Exception e) {
             logger.error("Error updating driver", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
@@ -484,108 +486,77 @@ public class DriverService {
         return driver;
     }
 
-    private void updateDriverAssets(Driver driver, List<AssetUpdateReq> assetUpdateReqs) {
-        // Fetch existing assets for the driver
-        List<Asset> existingAssets = assetsDao.findByDriver(driver);
+    private void updateDriverAssetsV2(Driver driver, UpdateDriverReq request) {
+        if (request.getAssets() != null) {
+            List<Asset> assets = new ArrayList<>();
+            for (AssetUpdateReq assetUpdateReq : request.getAssets()) {
+                Asset asset;
 
-        // Collect asset IDs to keep from the incoming requests
-        Set<Long> assetIdsToKeep = assetUpdateReqs.stream()
-                .map(AssetUpdateReq::getId) // Use AssetUpdateReq to get ID
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-
-        // Remove assets that are no longer in the request
-        existingAssets.removeIf(asset -> !assetIdsToKeep.contains(asset.getId()));
-        if (!existingAssets.isEmpty()) {
-            assetsDao.deleteAll(existingAssets);
-        }
-
-        // Add or update assets based on the incoming requests
-        for (AssetUpdateReq assetUpdateReq : assetUpdateReqs) {
-            Asset asset;
-            if (assetUpdateReq.getId() != null) {
-                asset = assetsDao.findById(assetUpdateReq.getId());
-                if (asset == null) {
-                    asset = new Asset(); // Create a new asset if not found
+                // If ID is provided, try to find the existing Asset, otherwise create a new one
+                if (assetUpdateReq.getId() != null) {
+                    asset = assetsDao.findById(assetUpdateReq.getId());
+                } else {
+                    asset = new Asset(); // Create a new instance if ID is null
                 }
-            } else {
-                asset = new Asset(); // Create a new asset if no ID is provided
+                // If the OtherDeduction exists or is newly created, update its details
+                if (asset != null) {
+                    asset.setItem(assetUpdateReq.getItem());
+                    asset.setQuantity(assetUpdateReq.getQuantity());
+                    asset.setLocalDate(assetUpdateReq.getLocalDate());
+                    asset.setDriver(driver); // Set the driver for this deduction
+                    assets.add(asset);
+                } else {
+                    throw new RuntimeException("Asset with ID " + assetUpdateReq.getId() + " not found.");
+                }
             }
-
-            // Update asset details from the request
-            asset.setItem(assetUpdateReq.getItem());
-            asset.setQuantity(assetUpdateReq.getQuantity());
-            asset.setLocalDate(assetUpdateReq.getLocalDate());
-            asset.setDriver(driver);
-
-            // Save or update the asset
-            assetsDao.save(asset);
+            assetsDao.saveAll(assets);
         }
+
     }
 
-    private void updateOtherDeductionsForDriver(Driver driver, UpdateDriverReq request) {
+    private void updateOtherDeductionsForDriverV2(Driver driver, UpdateDriverReq request) {
         if (request.getOtherDeduction() != null) {
-            List<OtherDeduction> existingDeductions = otherDeductionRepository.findByDriver(driver);
-            List<UpdateOtherDeductionReq> updatedDeductions = request.getOtherDeduction();
+            List<OtherDeduction> otherDeductions = new ArrayList<>();
+            for (UpdateOtherDeductionReq updateDeductionReq : request.getOtherDeduction()) {
+                OtherDeduction otherDeduction;
 
-            // Remove deductions that are no longer present in the updated list
-            List<OtherDeduction> toRemove = new ArrayList<>();
-            for (OtherDeduction existingDeduction : existingDeductions) {
-                boolean stillExists = updatedDeductions.stream()
-                        .anyMatch(updatedDeduction -> existingDeduction.getId().equals(updatedDeduction.getId()));
-                if (!stillExists) {
-                    toRemove.add(existingDeduction);
-                }
-            }
-            otherDeductionRepository.deleteAll(toRemove);
-
-            // Update existing deductions and add new ones
-            List<OtherDeduction> toSave = new ArrayList<>();
-            for (UpdateOtherDeductionReq otherDeductionRequest : updatedDeductions) {
-                OtherDeduction otherDeduction = existingDeductions.stream()
-                        .filter(existingDeduction -> existingDeduction.getId() != null &&
-                                existingDeduction.getId().equals(otherDeductionRequest.getId()))
-                        .findFirst()
-                        .orElse(new OtherDeduction());
-
-                // Preserve old values if fields are null
-                if (otherDeductionRequest.getOtherDeductionAmount() != null) {
-                    otherDeduction.setOtherDeductionAmount(otherDeductionRequest.getOtherDeductionAmount());
-                }
-                if (otherDeductionRequest.getOtherDeductionDescription() != null) {
-                    otherDeduction.setOtherDeductionDescription(otherDeductionRequest.getOtherDeductionDescription());
-                }
-                if (otherDeductionRequest.getOtherDeductionAmountStartDate() != null) {
-                    otherDeduction.setOtherDeductionAmountStartDate(otherDeductionRequest.getOtherDeductionAmountStartDate());
-                }
-                if (otherDeductionRequest.getOtherDeductionAmountEndDate() != null) {
-                    otherDeduction.setOtherDeductionAmountEndDate(otherDeductionRequest.getOtherDeductionAmountEndDate());
+                // If ID is provided, try to find the existing OtherDeduction, otherwise create a new one
+                if (updateDeductionReq.getId() != null) {
+                    otherDeduction = otherDeductionDao.findById(updateDeductionReq.getId());
+                } else {
+                    otherDeduction = new OtherDeduction(); // Create a new instance if ID is null
                 }
 
-                // Calculate EMI only if start date, end date, and amount are present
-                LocalDate startDate = otherDeductionRequest.getOtherDeductionAmountStartDate() != null ?
-                        otherDeductionRequest.getOtherDeductionAmountStartDate() : otherDeduction.getOtherDeductionAmountStartDate();
-                LocalDate endDate = otherDeductionRequest.getOtherDeductionAmountEndDate() != null ?
-                        otherDeductionRequest.getOtherDeductionAmountEndDate() : otherDeduction.getOtherDeductionAmountEndDate();
-                Double otherDeductionAmount = otherDeductionRequest.getOtherDeductionAmount() != null ?
-                        otherDeductionRequest.getOtherDeductionAmount() : otherDeduction.getOtherDeductionAmount();
+                // If the OtherDeduction exists or is newly created, update its details
+                if (otherDeduction != null) {
+                    otherDeduction.setOtherDeductionAmount(updateDeductionReq.getOtherDeductionAmount());
+                    otherDeduction.setOtherDeductionDescription(updateDeductionReq.getOtherDeductionDescription());
+                    otherDeduction.setOtherDeductionAmountStartDate(updateDeductionReq.getOtherDeductionAmountStartDate());
+                    otherDeduction.setOtherDeductionAmountEndDate(updateDeductionReq.getOtherDeductionAmountEndDate());
 
-                if (startDate != null && endDate != null && otherDeductionAmount != null) {
-                    long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
-                    if (daysBetween > 0) {
-                        double emi = otherDeductionAmount / daysBetween;
-                        otherDeduction.setOtherDeductionAmountEmi(emi);
-                    } else {
-                        throw new RuntimeException("Start date must be before end date.");
+                    LocalDate startDate = updateDeductionReq.getOtherDeductionAmountStartDate();
+                    LocalDate endDate = updateDeductionReq.getOtherDeductionAmountEndDate();
+                    Double otherDeductionAmount = updateDeductionReq.getOtherDeductionAmount();
+
+                    if (startDate != null && endDate != null && otherDeductionAmount != null) {
+                        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+                        if (daysBetween > 0) {
+                            double emi = otherDeductionAmount / daysBetween;
+                            otherDeduction.setOtherDeductionAmountEmi(emi);
+                        } else {
+                            throw new RuntimeException("Start date must be before end date.");
+                        }
                     }
-                }
 
-                otherDeduction.setDriver(driver);
-                toSave.add(otherDeduction);
+                    otherDeduction.setDriver(driver); // Set the driver for this deduction
+                    otherDeductions.add(otherDeduction);
+                } else {
+                    throw new RuntimeException("OtherDeduction with ID " + updateDeductionReq.getId() + " not found.");
+                }
             }
 
-            // Save updated and new deductions
-            otherDeductionRepository.saveAll(toSave);
+            // Save or update the other deductions
+            otherDeductionRepository.saveAll(otherDeductions);
         }
     }
 
@@ -727,7 +698,6 @@ public class DriverService {
         return new DriverDetails(totalDrivers, attendanceCount, ridersCount, driversCount);/*, visaTypeCount, flexiCount);*/
     }
 
-
     public ResponseEntity<ResponseStructure<Object>> fetchTopDriver() {
         try {
             logger.info("Fetching top drivers...");
@@ -770,7 +740,6 @@ public class DriverService {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     public ResponseEntity<InputStreamResource> generateCsvForDrivers() {
         try {
@@ -909,7 +878,6 @@ public class DriverService {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     public ResponseStructure<Map<String, Object>> getDriverAttendanceDetails() {
         try {
@@ -1144,7 +1112,6 @@ public class DriverService {
         }
     }
 
-
     @Transactional
     public ResponseEntity<ResponseStructure<Object>> deleteDriver(Long driverId) {
         try {
@@ -1161,12 +1128,11 @@ public class DriverService {
                 logger.info("Penalties deleted for Driver ID: {}", driverId);
             }
 
-      /*      //  Delete all FleetHistory associated with the driver
+            /*Delete all FleetHistory associated with the driver
             List<FleetHistory> fleetHistories = fleetHistoryDao.findByDriverId(driver.getId());
             if (fleetHistories != null && !fleetHistories.isEmpty()) {
                 fleetHistoryRepository.deleteAll(fleetHistories);
-                logger.info("FleetHistory deleted for Driver ID: {}", driverId);
-            }*/
+                logger.info("FleetHistory deleted for Driver ID: {}", driverId);}*/
 
             // Delete all FleetHistory associated with the driver
             fleetHistoryDao.deleteFleetHistoryByDriverId(driverId);

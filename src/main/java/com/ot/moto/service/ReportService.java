@@ -258,7 +258,7 @@ public class ReportService {
 
             long totalOrders = salary.getNoOfS1() + salary.getNoOfS2() + salary.getNoOfS3() + salary.getNoOfS4() + salary.getNoOfS5();
 
-            salary.setTotalOrders(totalOrders);
+            salary.setTotalOrders(Optional.ofNullable(salary.getTotalOrders()).orElse(0l) + totalOrders);
 
             salary.setS1Earnings(salary.getS1Earnings() + s1Master.getMotoPaid() * orders.getNoOfS1());
             salary.setS2Earnings(salary.getS2Earnings() + s2Master.getMotoPaid() * orders.getNoOfS2());

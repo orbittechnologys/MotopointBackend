@@ -9,4 +9,6 @@ import java.util.List;
 public interface OtherDeductionRepository extends JpaRepository<OtherDeduction, Long> {
 
     public List<OtherDeduction> findByDriver(Driver driver);
+
+    public List<OtherDeduction> findByDriverId(Long driverId);
 }

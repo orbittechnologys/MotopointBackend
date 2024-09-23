@@ -98,7 +98,6 @@ public class UpdateDriverReq {
     private LocalDate visaExpiryDate;
     private String consentDoc;
 
-    //visa & asset
     private List<AssetUpdateReq> assets;
 
     private List<UpdateOtherDeductionReq> otherDeduction;
