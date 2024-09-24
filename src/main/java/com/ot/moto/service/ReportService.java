@@ -338,7 +338,7 @@ public class ReportService {
     private String extractPhoneNumber(String description) {
         logger.info("Description being processed: " + description);
 
-        Pattern pattern = Pattern.compile("/PHONE/(\\d{10})");
+        Pattern pattern = Pattern.compile("/PHONE/(\\d{8})");
         Matcher matcher = pattern.matcher(description);
 
         if (matcher.find()) {
