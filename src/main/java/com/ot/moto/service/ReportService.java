@@ -287,7 +287,6 @@ public class ReportService {
 
     public ResponseEntity<ResponseStructure<Object>> uploadBankStatement(Sheet sheet) {
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             int rowStart = 1;
             int rowEnd = sheet.getLastRowNum();
             for (int i = rowStart; i <= rowEnd; i++) {
@@ -302,7 +301,7 @@ public class ReportService {
                 double amount = row.getCell(2).getNumericCellValue();
                 String paymentType = String.valueOf(BENEFIT);
 
-                String dateStr = row.getCell(0).toString();
+                String dateStr = row.getCell(0).toString().trim();
                 LocalDate date = LocalDate.parse(dateStr, formatter);
 
                 String phoneNumber = extractPhoneNumber(description);
