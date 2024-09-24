@@ -287,6 +287,7 @@ public class ReportService {
 
     public ResponseEntity<ResponseStructure<Object>> uploadBankStatement(Sheet sheet) {
         try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             int rowStart = 1;
             int rowEnd = sheet.getLastRowNum();
             for (int i = rowStart; i <= rowEnd; i++) {
