@@ -109,13 +109,13 @@ public class ReportService {
                             StringUtil.getLong(cellNoOfS2), StringUtil.getLong(cellNoOfS3), StringUtil.getLong(cellNoOfS4),
                             StringUtil.getLong(cellNoOfS5), StringUtil.getLong(cellDeliveries), Double.parseDouble(cellCodAmount),
                             Double.parseDouble(cellCredit), Double.parseDouble(cellDebit));
+
                     if (Objects.nonNull(orders)) {
                         logger.info("Saving order: " + orders.getDriverName() + ", " + orders.getDate().toString());
                         ordersList.add(orders);
                     }
                 } catch (Exception e) {
                     logger.error("Error processing row at index: " + i + " with date: " + cellDate, e);
-                    // Optionally continue processing other rows even if this one fails
                     continue;
                 }
             }

@@ -13,4 +13,6 @@ public interface MasterRepository extends JpaRepository<Master, Long> {
     public Optional<Master> findBySlab(String slab);
 
     public Page<Master> findAll(Pageable pageable);
+
+    public Master findByJahezPaid(Double jahezPaid);
 }

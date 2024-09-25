@@ -41,4 +41,8 @@ public class MasterDao {
     public Master updateMaster(Master existingMaster) {
         return masterRepository.save(existingMaster);
     }
+
+    public Master getMasterByJahezPaid(Double jahezPaid){
+        return masterRepository.findByJahezPaid(jahezPaid);
+    }
 }

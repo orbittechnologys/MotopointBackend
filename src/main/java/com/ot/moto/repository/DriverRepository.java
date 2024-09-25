@@ -61,4 +61,6 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
 
     @Query("SELECT d FROM Driver d WHERE d.vehicleType IN ('S-Rented','Rented')")
     public Page<Driver> findDriversByRentedSRentedVehicleType(Pageable pageable);
+
+    public Driver findByJahezId(Long jahezId);
 }

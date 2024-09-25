@@ -27,7 +27,6 @@ public class DriverController {
     @Autowired
     private DriverService driverService;
 
-
     @Operation(summary = "Save Driver", description = "Input is Create driver Request, returns Driver Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"),
             @ApiResponse(responseCode = "409", description = "Driver Already Exist"),
