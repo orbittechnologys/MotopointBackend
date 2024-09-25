@@ -277,5 +277,4 @@ public class OrderService {
             return ResponseStructure.errorResponse(null, 500, "Error fetching the top driver: " + e.getMessage());
         }
     }
-
 }
