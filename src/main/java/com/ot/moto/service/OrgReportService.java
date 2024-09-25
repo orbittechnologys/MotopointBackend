@@ -74,8 +74,10 @@ public class OrgReportService {
                     continue;
                 }
 
+                logger.info("parsing row {}" ,i);
                 OrgReports orgReport = parseRowToOrgReport(row);
 
+                logger.info("successfuly parsed {}" ,i);
                 if (orgReport == null || !isValidReport(orgReport)) {
                     logger.warn("Invalid or failed to parse row {}, skipping...", i);
                     continue;
@@ -371,6 +373,8 @@ public class OrgReportService {
 
     private OrgReports parseRowToOrgReport(Row row) {
         try {
+
+            logger.info("parsing row {}" ,row);
             Long no = parseLong(row.getCell(0));
             Long did = parseLong(row.getCell(1));
             Long refId = parseLong(row.getCell(2));
@@ -382,7 +386,11 @@ public class OrgReportService {
             Double driverDebitAmount = parseDouble(row.getCell(8));
             Double driverCreditAmount = parseDouble(row.getCell(9));
             Boolean isFreeOrder = parseBoolean(row.getCell(10));
+
+            logger.info("parsing date {}",row.getCell(11));
             LocalDateTime dispatchTime = parseDateTime(parseString(row.getCell(11)));
+
+
             String subscriber = parseString(row.getCell(12));
             Boolean driverPaidOrg = parseBoolean(row.getCell(13));
             Boolean orgSettled = parseBoolean(row.getCell(14));
