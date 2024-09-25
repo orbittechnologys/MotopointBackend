@@ -74,11 +74,11 @@ public class OrgReportService {
                     continue;
                 }
 
-                logger.info("parsing row {}" ,i);
+                logger.info("parsing row {}", i);
                 OrgReports orgReport = parseRowToOrgReport(row);
 
-                logger.info("successfuly parsed {}" ,i);
-                logger.info("org Reports {}",orgReport);
+                logger.info("successfuly parsed {}", i);
+                logger.info("org Reports {}", orgReport);
                 if (orgReport == null || !isValidReport(orgReport)) {
                     logger.warn("Invalid or failed to parse row {}, skipping...", i);
                     break;
@@ -203,11 +203,11 @@ public class OrgReportService {
             LocalDate localDate = LocalDate.parse(dateStr, formatter);
 
             Double totalOrders = slabs.get(0) + slabs.get(1) + slabs.get(2) + slabs.get(3) + slabs.get(4);
-             Orders orders = buildOrdersFromCellData(localDate, driver.getUsername(), Long.valueOf(slabs.get(0).toString()),
+            Orders orders = buildOrdersFromCellData(localDate, driver.getUsername(), Long.valueOf(slabs.get(0).toString()),
                     Long.valueOf(slabs.get(1).toString()), Long.valueOf(slabs.get(2).toString()), Long.valueOf(slabs.get(3).toString()),
                     Long.valueOf(slabs.get(4).toString()), Long.valueOf(totalOrders.toString()), slabs.get(5), 0.0, 0.0);
 
-             ordersList.add(orders);
+            ordersList.add(orders);
         }
         orderDao.createOrders(ordersList);
 
@@ -368,13 +368,13 @@ public class OrgReportService {
     }
 
     private boolean isValidReport(OrgReports orgReport) {
-        return orgReport.getDid() != null && orgReport.getDispatchTime() != null ;
+        return orgReport.getDid() != null && orgReport.getDispatchTime() != null;
     }
 
     private OrgReports parseRowToOrgReport(Row row) {
         try {
 
-            logger.info("parsing row {}" ,row);
+            logger.info("parsing row {}", row);
             Long no = parseLong(row.getCell(0));
             Long did = parseLong(row.getCell(1));
             Long refId = parseLong(row.getCell(2));
@@ -387,12 +387,12 @@ public class OrgReportService {
             Double driverCreditAmount = parseDouble(row.getCell(9));
             Boolean isFreeOrder = parseBoolean(row.getCell(10));
 
-            logger.info("parsing date {}",row.getCell(11));
-
+            logger.info("parsing date {}", row.getCell(11));
             String dateStr1 = parseString(row.getCell(11));
-            logger.info("dateStr1 {}",dateStr1);
-            LocalDateTime dispatchTime = parseDateTime(dateStr1);
 
+            logger.info("dateStr1 {}", dateStr1);
+            LocalDateTime dispatchTime = parseDateTime(String.valueOf(row.getCell(11)));
+            logger.info("dispatch time {}",dispatchTime);
 
             String subscriber = parseString(row.getCell(12));
             Boolean driverPaidOrg = parseBoolean(row.getCell(13));
