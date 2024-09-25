@@ -388,7 +388,10 @@ public class OrgReportService {
             Boolean isFreeOrder = parseBoolean(row.getCell(10));
 
             logger.info("parsing date {}",row.getCell(11));
-            LocalDateTime dispatchTime = parseDateTime(parseString(row.getCell(11)));
+
+            String dateStr1 = parseString(row.getCell(11));
+            logger.info("dateStr1 {}",dateStr1);
+            LocalDateTime dispatchTime = parseDateTime(dateStr1);
 
 
             String subscriber = parseString(row.getCell(12));
