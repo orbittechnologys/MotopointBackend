@@ -301,7 +301,7 @@ public class ReportService {
                 double amount = row.getCell(2).getNumericCellValue();
                 String paymentType = String.valueOf(BENEFIT);
 
-                String dateStr = row.getCell(0).toString();
+                String dateStr = row.getCell(0).toString().trim();
                 LocalDate date = LocalDate.parse(dateStr, formatter);
 
                 String phoneNumber = extractPhoneNumber(description);
@@ -338,7 +338,7 @@ public class ReportService {
     private String extractPhoneNumber(String description) {
         logger.info("Description being processed: " + description);
 
-        Pattern pattern = Pattern.compile("/PHONE/(\\d{10})");
+        Pattern pattern = Pattern.compile("/PHONE/(\\d{8})");
         Matcher matcher = pattern.matcher(description);
 
         if (matcher.find()) {
