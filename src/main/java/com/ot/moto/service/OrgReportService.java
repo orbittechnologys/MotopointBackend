@@ -59,7 +59,9 @@ public class OrgReportService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrgReportService.class);
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH);
+//    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH);
+
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
 
 
     public ResponseEntity<ResponseStructure<Object>> uploadOrgReports(Sheet sheet) {
@@ -392,7 +394,7 @@ public class OrgReportService {
 
             logger.info("dateStr1 {}", dateStr1);
             LocalDateTime dispatchTime = parseDateTime(String.valueOf(row.getCell(11)));
-            logger.info("dispatch time {}",dispatchTime);
+            logger.info("dispatch time {}", dispatchTime);
 
             String subscriber = parseString(row.getCell(12));
             Boolean driverPaidOrg = parseBoolean(row.getCell(13));
