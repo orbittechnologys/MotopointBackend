@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -162,7 +163,7 @@ public class OrderService {
         }
     }
 
-    public ResponseEntity<ResponseStructure<Object>> getTotalOrdersForAllDrivers() {
+/*    public ResponseEntity<ResponseStructure<Object>> getTotalOrdersForAllDrivers() {
         try {
             List<Object[]> results = ordersRepository.findTotalOrdersForAllDrivers();
 
@@ -170,7 +171,6 @@ public class OrderService {
                 logger.warn("No data available for total orders of drivers.");
                 return ResponseStructure.errorResponse(null, 404, "No data available for total orders of drivers.");
             }
-
             Map<String, Object> responseData = new HashMap<>();
             for (Object[] result : results) {
                 Long driverId = (Long) result[0];
@@ -199,7 +199,49 @@ public class OrderService {
             logger.error("Error fetching total orders for all drivers: {}", e.getMessage(), e);
             return ResponseStructure.errorResponse(null, 500, "Error fetching total orders for all drivers: " + e.getMessage());
         }
+    }*/
+
+    public ResponseEntity<ResponseStructure<Object>> getTotalOrdersForAllDrivers() {
+        try {
+            List<Object[]> results = ordersRepository.findTotalOrdersForAllDrivers();
+
+            if (results.isEmpty()) {
+                logger.warn("No data available for total orders of drivers.");
+                return ResponseStructure.errorResponse(null, 404, "No data available for total orders of drivers.");
+            }
+
+            // Change the responseData to a list instead of a map
+            List<Map<String, Object>> responseData = new ArrayList<>();
+            for (Object[] result : results) {
+                Long driverId = (Long) result[0];
+                String driverName = (String) result[1];
+                String profilePic = (String) result[2];
+                Long totalOrders = (Long) result[3];
+
+                Map<String, Object> driverData = new HashMap<>();
+                driverData.put("driverId", driverId);
+                driverData.put("driverName", driverName);
+                driverData.put("profilePic", profilePic);
+                driverData.put("totalOrders", totalOrders);
+
+                responseData.add(driverData);  // Add each driver's data to the list
+            }
+
+            if (responseData.isEmpty()) {
+                logger.warn("No drivers found in the system.");
+                return ResponseStructure.errorResponse(null, 404, "No drivers found in the system.");
+            }
+
+            logger.info("Total orders for all drivers retrieved successfully.");
+            return ResponseStructure.successResponse(responseData, "Total orders for all drivers retrieved successfully.");
+
+        } catch (Exception e) {
+            logger.error("Error fetching total orders for all drivers: {}", e.getMessage(), e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching total orders for all drivers: " + e.getMessage());
+        }
     }
+
+
 
     public ResponseEntity<ResponseStructure<Object>> getTopDriverWithHighestLifetimeOrders() {
         try {
