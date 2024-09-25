@@ -78,6 +78,7 @@ public class OrgReportService {
                 OrgReports orgReport = parseRowToOrgReport(row);
 
                 logger.info("successfuly parsed {}" ,i);
+                logger.info("org Reports {}",orgReport);
                 if (orgReport == null || !isValidReport(orgReport)) {
                     logger.warn("Invalid or failed to parse row {}, skipping...", i);
                     break;
@@ -367,8 +368,7 @@ public class OrgReportService {
     }
 
     private boolean isValidReport(OrgReports orgReport) {
-        return orgReport.getDid() != null && orgReport.getDispatchTime() != null && orgReport.getDriverId() != null
-                && orgReport.getAmount() != null && orgReport.getPrice()!= null;
+        return orgReport.getDid() != null && orgReport.getDispatchTime() != null ;
     }
 
     private OrgReports parseRowToOrgReport(Row row) {
