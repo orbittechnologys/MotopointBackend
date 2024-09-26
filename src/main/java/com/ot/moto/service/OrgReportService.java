@@ -194,11 +194,16 @@ public class OrgReportService {
             String key = entry.getKey();
             List<Double> slabs = entry.getValue();
 
-            String[] patternArray = key.split("|");
+           /* String[] patternArray = key.split("|");
             String jahezId = patternArray[0];
+            String dateStr = patternArray[1];*/
+
+            String[] patternArray = key.split("\\|"); // Use \\| to correctly split by pipe character
+            Long jahezId = Long.parseLong(patternArray[0]); // Convert String to Long
             String dateStr = patternArray[1];
 
-            Driver driver = driverDao.findByJahezId(Long.valueOf(jahezId));
+            Driver driver = driverDao.findByJahezId(jahezId);
+
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             LocalDate localDate = LocalDate.parse(dateStr, formatter);
 
