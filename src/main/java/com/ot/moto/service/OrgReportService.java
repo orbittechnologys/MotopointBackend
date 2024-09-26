@@ -61,10 +61,10 @@ public class OrgReportService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrgReportService.class);
 
-    /*private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH);
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);*/
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH);
+    /*private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");*/
 
     public ResponseEntity<ResponseStructure<Object>> uploadOrgReports(Sheet sheet) {
         List<OrgReports> orgReportsList = new ArrayList<>();
@@ -78,9 +78,9 @@ public class OrgReportService {
                 }
                 logger.info("parsing row {}", i);
                 OrgReports orgReport = parseRowToOrgReport(row);
-
                 logger.info("successfuly parsed {}", i);
                 logger.info("org Reports {}", orgReport);
+
                 if (orgReport == null || !isValidReport(orgReport)) {
                     logger.warn("Invalid or failed to parse row {}, skipping...", i);
                     break;
@@ -373,11 +373,12 @@ public class OrgReportService {
             Double driverCreditAmount = parseDouble(row.getCell(9));
             Boolean isFreeOrder = parseBoolean(row.getCell(10));
 
-          /*  logger.info("parsing date {}", row.getCell(11));
+/*
+            logger.info("parsing date {}", row.getCell(11));
             String dateStr1 = parseString(row.getCell(11));
             logger.info("dateStr1 {}", dateStr1);*/
 
-            LocalDateTime dispatchTime = parseDateTime(String.valueOf(row.getCell(11)));
+            LocalDateTime dispatchTime = parseDateTime(parseString(row.getCell(11)));
             logger.info("dispatch time {}", dispatchTime);
 
             String subscriber = parseString(row.getCell(12));
