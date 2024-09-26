@@ -124,8 +124,8 @@ public class DriverDao {
         return driverRepository.findDriversByRentedSRentedVehicleType(PageRequest.of(offset,pageSize).withSort(Sort.by(field).descending()));
     }
 
-    public Driver findByJahezId(String jahezId){
-        return driverRepository.findByJahezId(Long.parseLong(jahezId));
+    public Driver findByJahezId(Long jahezId){
+        return driverRepository.findByJahezId(jahezId);
 
     }
 }

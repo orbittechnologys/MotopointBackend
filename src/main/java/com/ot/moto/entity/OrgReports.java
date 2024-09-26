@@ -21,7 +21,7 @@ public class OrgReports {
     private Long refId;
     private String driverName;
     private String driverUsername;
-    private String driverId;
+    private Long driverId;
     private Double amount;
     private Double price;
     private Double driverDebitAmount;

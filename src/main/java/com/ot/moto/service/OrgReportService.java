@@ -94,7 +94,7 @@ public class OrgReportService {
                     continue;
                 }
 
-                String jahezId = orgReport.getDriverId();
+                Long jahezId = orgReport.getDriverId();
                 Driver driver = driverDao.findByJahezId(jahezId);
 
                 if (Objects.isNull(driver)) {
@@ -198,7 +198,7 @@ public class OrgReportService {
             String jahezId = patternArray[0];
             String dateStr = patternArray[1];
 
-            Driver driver = driverDao.findByJahezId(jahezId);
+            Driver driver = driverDao.findByJahezId(Long.valueOf(jahezId));
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             LocalDate localDate = LocalDate.parse(dateStr, formatter);
 
@@ -409,7 +409,7 @@ public class OrgReportService {
         orgReport.setRefId(refId);
         orgReport.setDriverName(driverName);
         orgReport.setDriverUsername(driverUsername);
-        orgReport.setDriverId(driverId);
+        orgReport.setDriverId(Long.valueOf(driverId));
         orgReport.setAmount(amount);
         orgReport.setPrice(price);
         orgReport.setDriverDebitAmount(driverDebitAmount);
