@@ -29,6 +29,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
+import static org.hibernate.validator.internal.engine.messageinterpolation.el.RootResolver.FORMATTER;
+
 @Service
 public class OrgReportService {
 
@@ -59,14 +61,13 @@ public class OrgReportService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrgReportService.class);
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);
-
-//    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH);
-//    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
+        /*private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH);
+        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
+        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);*/
+        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
 
     public ResponseEntity<ResponseStructure<Object>> uploadOrgReports(Sheet sheet) {
-
         List<OrgReports> orgReportsList = new ArrayList<>();
         HashMap<String, List<Double>> driverSlabMap = new HashMap<>(); // " jahezId | date " -> [total s1,total s2,total s3,total s4,total s5,totalCOD]
         try {
@@ -241,14 +242,13 @@ public class OrgReportService {
         }
     }
 
-    private Orders buildOrdersFromCellData(LocalDate date, String driverName, Long noOfS1, Long noOfS2, Long noOfS3, Long noOfS4,
-                                           Long noOfS5, Long deliveries, Double codAmount, Double credit, Double debit) {
+    private Orders buildOrdersFromCellData(LocalDate date, String driverName, Long noOfS1, Long noOfS2, Long noOfS3,
+                                           Long noOfS4, Long noOfS5, Long deliveries, Double codAmount, Double credit, Double debit) {
 
         Driver driver = driverDao.findByNameIgnoreCase(driverName);
         if (Objects.isNull(driver)) {
             return null;
         }
-
         Orders orders = new Orders();
         orders.setDate(date);
         orders.setDriverName(driverName);
@@ -313,17 +313,11 @@ public class OrgReportService {
             salary.setS4Earnings(s4Master.getMotoPaid() * salary.getNoOfS4());
             salary.setS5Earnings(s5Master.getMotoPaid() * salary.getNoOfS5());
 
-            salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
-                    + salary.getS4Earnings() + salary.getS5Earnings());
+            salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
 
             /*Add Driver Salary */
-            driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
-                    + salary.getS4Earnings() + salary.getS5Earnings());
-            Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() +
-                    s2Master.getJahezPaid() * salary.getNoOfS2() +
-                    s3Master.getJahezPaid() * salary.getNoOfS3() +
-                    s4Master.getJahezPaid() * salary.getNoOfS4() +
-                    s5Master.getJahezPaid() * salary.getNoOfS5();
+            driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
+            Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
             driver.setProfit(Optional.ofNullable(driver.getProfit()).orElse(0.0) + jahezAmount - driver.getSalaryAmount());
             driverDao.createDriver(driver);
 
@@ -351,17 +345,11 @@ public class OrgReportService {
             salary.setS4Earnings(salary.getS4Earnings() + s4Master.getMotoPaid() * orders.getNoOfS4());
             salary.setS5Earnings(salary.getS5Earnings() + s5Master.getMotoPaid() * orders.getNoOfS5());
 
-            salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
-                    + salary.getS4Earnings() + salary.getS5Earnings());
+            salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
 
             /*Add Driver Salary */
-            driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
-                    + salary.getS4Earnings() + salary.getS5Earnings());
-            Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() +
-                    s2Master.getJahezPaid() * salary.getNoOfS2() +
-                    s3Master.getJahezPaid() * salary.getNoOfS3() +
-                    s4Master.getJahezPaid() * salary.getNoOfS4() +
-                    s5Master.getJahezPaid() * salary.getNoOfS5();
+            driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
+            Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
             driver.setProfit(driver.getProfit() + jahezAmount - driver.getSalaryAmount());
             driverDao.createDriver(driver);
         }
@@ -376,7 +364,6 @@ public class OrgReportService {
 
     private OrgReports parseRowToOrgReport(Row row) {
         try {
-
             logger.info("parsing row {}", row);
             Long no = parseLong(row.getCell(0));
             Long did = parseLong(row.getCell(1));
@@ -585,11 +572,7 @@ public class OrgReportService {
             Sheet sheet = workbook.createSheet("Org Reports");
 
             Row headerRow = sheet.createRow(0);
-            String[] headers = {
-                    "ID", "No", "DID", "Ref ID", "Driver Name", "Driver Username", "Driver ID",
-                    "Amount", "Price", "Driver Debit Amount", "Driver Credit Amount", "Is Free Order",
-                    "Dispatch Time", "Subscriber", "Driver Paid Org", "Org Settled", "Driver Settled"
-            };
+            String[] headers = {"ID", "No", "DID", "Ref ID", "Driver Name", "Driver Username", "Driver ID", "Amount", "Price", "Driver Debit Amount", "Driver Credit Amount", "Is Free Order", "Dispatch Time", "Subscriber", "Driver Paid Org", "Org Settled", "Driver Settled"};
             for (int i = 0; i < headers.length; i++) {
                 headerRow.createCell(i).setCellValue(headers[i]);
             }
@@ -626,11 +609,7 @@ public class OrgReportService {
             headers1.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=org_reports.xlsx");
             headers1.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
 
-            return ResponseEntity.ok()
-                    .headers(headers1)
-                    .contentLength(outputStream.size())
-                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                    .body(resource);
+            return ResponseEntity.ok().headers(headers1).contentLength(outputStream.size()).contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")).body(resource);
 
         } catch (IOException e) {
             return ResponseEntity.internalServerError().build();
