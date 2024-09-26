@@ -12,7 +12,7 @@ public interface OrgReportsRepository extends JpaRepository<OrgReports, Long> {
 
     public OrgReports findByDidAndDispatchTime(Long did, LocalDateTime dispatchTime);
 
-    public List<OrgReports> findByDriverId(String driverId);
+    public List<OrgReports> findByDriverId(Long driverId);
 
     public List<OrgReports> findByDriverNameContaining(String name);
 

@@ -503,7 +503,7 @@ public class OrgReportService {
 
     public ResponseEntity<ResponseStructure<Object>> getOrgByDriverID(String driverId) {
         try {
-            List<OrgReports> orgReports = orgReportsDao.findByDriverId(driverId);
+            List<OrgReports> orgReports = orgReportsDao.findByDriverId(Long.valueOf(driverId));
             if (orgReports == null) {
                 logger.warn("No OrgReports found for Driver ID: " + driverId);
                 return ResponseStructure.errorResponse(null, 404, "No reports found for Driver ID: " + driverId);

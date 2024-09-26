@@ -28,7 +28,7 @@ public class OrgReportsDao {
         return orgReportsRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
 
-    public List<OrgReports> findByDriverId(String driverId) {
+    public List<OrgReports> findByDriverId(Long driverId) {
         return orgReportsRepository.findByDriverId(driverId);
     }
 
