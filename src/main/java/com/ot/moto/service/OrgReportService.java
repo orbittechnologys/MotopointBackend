@@ -83,7 +83,7 @@ public class OrgReportService {
 
                 if (orgReport == null || !isValidReport(orgReport)) {
                     logger.warn("Invalid or failed to parse row {}, skipping...", i);
-                    break;
+                    continue;
                 }
 
                 Double price = orgReport.getPrice();
