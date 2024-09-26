@@ -61,11 +61,10 @@ public class OrgReportService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrgReportService.class);
 
-        /*private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH);
-        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
-        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);*/
-        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-
+    /*private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH);
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);*/
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     public ResponseEntity<ResponseStructure<Object>> uploadOrgReports(Sheet sheet) {
         List<OrgReports> orgReportsList = new ArrayList<>();
@@ -77,7 +76,6 @@ public class OrgReportService {
                     logger.warn("Row {} is null, skipping...", i);
                     continue;
                 }
-
                 logger.info("parsing row {}", i);
                 OrgReports orgReport = parseRowToOrgReport(row);
 
@@ -169,7 +167,6 @@ public class OrgReportService {
                     }
                     driverSlabMap.put(key, slabList);
                 }
-
                 logger.info("Saving report for driver: {} at time: {}", orgReport.getDriverName(), orgReport.getDispatchTime());
                 orgReportsList.add(orgReport);
             }
@@ -182,7 +179,6 @@ public class OrgReportService {
             } else {
                 logger.info("No valid reports to save.");
             }
-
             return ResponseStructure.successResponse(null, "Successfully Parsed");
 
         } catch (Exception e) {
@@ -377,10 +373,10 @@ public class OrgReportService {
             Double driverCreditAmount = parseDouble(row.getCell(9));
             Boolean isFreeOrder = parseBoolean(row.getCell(10));
 
-            logger.info("parsing date {}", row.getCell(11));
+          /*  logger.info("parsing date {}", row.getCell(11));
             String dateStr1 = parseString(row.getCell(11));
+            logger.info("dateStr1 {}", dateStr1);*/
 
-            logger.info("dateStr1 {}", dateStr1);
             LocalDateTime dispatchTime = parseDateTime(String.valueOf(row.getCell(11)));
             logger.info("dispatch time {}", dispatchTime);
 
