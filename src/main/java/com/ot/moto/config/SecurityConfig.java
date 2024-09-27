@@ -273,9 +273,7 @@ public class SecurityConfig {
                 );
 
         httpSecurity.authenticationProvider(authenticationProvider());
-
         httpSecurity.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
-
         return httpSecurity.build();
     }
 }

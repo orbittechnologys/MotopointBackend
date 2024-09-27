@@ -62,9 +62,6 @@ public class OrgReportService {
     private static final Logger logger = LoggerFactory.getLogger(OrgReportService.class);
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH);
-    /*private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");*/
 
     public ResponseEntity<ResponseStructure<Object>> uploadOrgReports(Sheet sheet) {
         List<OrgReports> orgReportsList = new ArrayList<>();
@@ -73,13 +70,14 @@ public class OrgReportService {
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (row == null) {
+
                     logger.warn("Row {} is null, skipping...", i);
                     continue;
                 }
-                logger.info("parsing row {}", i);
+                logger.info("Parsing row {}", i);
                 OrgReports orgReport = parseRowToOrgReport(row);
-                logger.info("successfuly parsed {}", i);
-                logger.info("org Reports {}", orgReport);
+                logger.info("Successfully parsed row {}", i);
+                logger.info("Org Reports: {}", orgReport);
 
                 if (orgReport == null || !isValidReport(orgReport)) {
                     logger.warn("Invalid or failed to parse row {}, skipping...", i);
@@ -90,7 +88,7 @@ public class OrgReportService {
                 Master master = masterDao.getMasterByJahezPaid(price);
 
                 if (Objects.isNull(master)) {
-                    logger.warn("could not find master for price {}", price);
+                    logger.warn("Could not find master for price {}", price);
                     continue;
                 }
 
@@ -98,7 +96,7 @@ public class OrgReportService {
                 Driver driver = driverDao.findByJahezId(jahezId);
 
                 if (Objects.isNull(driver)) {
-                    logger.warn("could not find driver by jahezId {}", jahezId);
+                    logger.warn("Could not find driver by jahezId {}", jahezId);
                     continue;
                 }
 
@@ -194,12 +192,8 @@ public class OrgReportService {
             String key = entry.getKey();
             List<Double> slabs = entry.getValue();
 
-           /* String[] patternArray = key.split("|");
-            String jahezId = patternArray[0];
-            String dateStr = patternArray[1];*/
-
-            String[] patternArray = key.split("\\|"); // Use \\| to correctly split by pipe character
-            Long jahezId = Long.parseLong(patternArray[0]); // Convert String to Long
+            String[] patternArray = key.split("\\|");
+            Long jahezId = Long.parseLong(patternArray[0]);
             String dateStr = patternArray[1];
 
             Driver driver = driverDao.findByJahezId(jahezId);
@@ -208,18 +202,24 @@ public class OrgReportService {
             LocalDate localDate = LocalDate.parse(dateStr, formatter);
 
             Double totalOrders = slabs.get(0) + slabs.get(1) + slabs.get(2) + slabs.get(3) + slabs.get(4);
-            Orders orders = buildOrdersFromCellData(localDate, driver.getUsername(), Long.valueOf(slabs.get(0).toString()),
-                    Long.valueOf(slabs.get(1).toString()), Long.valueOf(slabs.get(2).toString()), Long.valueOf(slabs.get(3).toString()),
-                    Long.valueOf(slabs.get(4).toString()), Long.valueOf(totalOrders.toString()), slabs.get(5), 0.0, 0.0);
+            Orders orders = buildOrdersFromCellData(localDate, driver.getUsername(),
+                    slabs.get(0).longValue(),  // S1 value as Long
+                    slabs.get(1).longValue(),  // S2 value as Long
+                    slabs.get(2).longValue(),  // S3 value as Long
+                    slabs.get(3).longValue(),  // S4 value as Long
+                    slabs.get(4).longValue(),  // S5 value as Long
+                    totalOrders.longValue(),   // Total orders as Long
+                    slabs.get(5),  // COD amount (as Double, assuming no conversion needed)
+                    0.0, 0.0);
 
             ordersList.add(orders);
         }
-        orderDao.createOrders(ordersList);
+        ordersList = orderDao.createOrders(ordersList);
 
         for (Orders orders : ordersList) {
             long totalOrders = orderDao.getTotalOrdersForCurrentMonthByDriver(orders.getDriver().getId());
 
-            // Fetch the highest bonus based on deliveryCount
+            // Fetch the highest bonus based on delivery count
             Bonus bonusForCount = bonusDao.findTopByDeliveryCountLessThanEqualOrderByDeliveryCountDesc(totalOrders);
 
             // Fetch the bonus based on specialDate
@@ -359,8 +359,12 @@ public class OrgReportService {
         return salary;
     }
 
-    private boolean isValidReport(OrgReports orgReport) {
-        return orgReport.getDid() != null && orgReport.getDispatchTime() != null;
+    private boolean isValidReport(OrgReports report) {
+        return report.getDriverId() != null && report.getDriverName() != null && report.getDispatchTime() != null;
+    }
+
+    private boolean isDuplicateReport(OrgReports orgReport) {
+        return orgReportsRepository.findByDidAndDispatchTime(orgReport.getDid(), orgReport.getDispatchTime()) != null;
     }
 
     private OrgReports parseRowToOrgReport(Row row) {
@@ -371,15 +375,14 @@ public class OrgReportService {
             Long refId = parseLong(row.getCell(2));
             String driverName = parseString(row.getCell(3));
             String driverUsername = parseString(row.getCell(4));
-            String driverId = parseString(row.getCell(5));
+            Long driverId = parseLong(row.getCell(5));
             Double amount = parseDouble(row.getCell(6));
             Double price = parseDouble(row.getCell(7));
             Double driverDebitAmount = parseDouble(row.getCell(8));
             Double driverCreditAmount = parseDouble(row.getCell(9));
             Boolean isFreeOrder = parseBoolean(row.getCell(10));
 
-/*
-            logger.info("parsing date {}", row.getCell(11));
+            /*logger.info("parsing date {}", row.getCell(11));
             String dateStr1 = parseString(row.getCell(11));
             logger.info("dateStr1 {}", dateStr1);*/
 
@@ -399,11 +402,7 @@ public class OrgReportService {
         }
     }
 
-    private boolean isDuplicateReport(OrgReports orgReport) {
-        return orgReportsRepository.findByDidAndDispatchTime(orgReport.getDid(), orgReport.getDispatchTime()) != null;
-    }
-
-    private OrgReports buildOrgReport(Long no, Long did, Long refId, String driverName, String driverUsername, String driverId,
+    private OrgReports buildOrgReport(Long no, Long did, Long refId, String driverName, String driverUsername, Long driverId,
                                       Double amount, Double price, Double driverDebitAmount, Double driverCreditAmount,
                                       Boolean isFreeOrder, LocalDateTime dispatchTime, String subscriber, Boolean driverPaidOrg,
                                       Boolean orgSettled, Boolean driverSettled) {
@@ -438,6 +437,16 @@ public class OrgReportService {
             return null;
         }
     }
+
+/*    private Long parseLong(Object value) {
+        if (value instanceof Double) {
+            return ((Double) value).longValue();
+        } else if (value instanceof Float) {
+            return ((Float) value).longValue();
+        } else {
+            return Long.valueOf(value.toString().split("\\.")[0]); // Remove the decimal part if present
+        }
+    }*/
 
     private String parseString(Cell cell) {
         if (cell == null) return null;
@@ -490,7 +499,6 @@ public class OrgReportService {
             return null;
         }
     }
-
 
     public ResponseEntity<ResponseStructure<Object>> getAllOrg(int page, int size, String field) {
         try {
@@ -594,10 +602,10 @@ public class OrgReportService {
                 row.createCell(10).setCellValue(report.getDriverCreditAmount() != null ? report.getDriverCreditAmount() : 0.0);
                 row.createCell(11).setCellValue(report.getIsFreeOrder() != null && report.getIsFreeOrder() ? "Yes" : "No");
                 row.createCell(12).setCellValue(report.getDispatchTime() != null ? report.getDispatchTime().toString() : "");
-                row.createCell(13).setCellValue(report.getSubscriber());
+                /*row.createCell(13).setCellValue(report.getSubscriber());
                 row.createCell(14).setCellValue(report.getDriverPaidOrg() != null && report.getDriverPaidOrg() ? "Yes" : "No");
                 row.createCell(15).setCellValue(report.getOrgSettled() != null && report.getOrgSettled() ? "Yes" : "No");
-                row.createCell(16).setCellValue(report.getDriverSettled() != null && report.getDriverSettled() ? "Yes" : "No");
+                row.createCell(16).setCellValue(report.getDriverSettled() != null && report.getDriverSettled() ? "Yes" : "No");*/
             }
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -649,4 +657,436 @@ public class OrgReportService {
             return ResponseStructure.errorResponse(null, 500, "Error fetching the top driver: " + e.getMessage());
         }
     }
+
+    /*private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");*/
+
+    //    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH);
+//
+//    public ResponseEntity<ResponseStructure<Object>> uploadOrgReports(Sheet sheet) {
+//        List<OrgReports> orgReportsList = new ArrayList<>();
+//        HashMap<String, List<Double>> driverSlabMap = new HashMap<>(); // " jahezId | date " -> [total s1,total s2,total s3,total s4,total s5,totalCOD]
+//        try {
+//            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+//                Row row = sheet.getRow(i);
+//                if (row == null) {
+//                    logger.warn("Row {} is null, skipping...", i);
+//                    continue;
+//                }
+//                logger.info("parsing row {}", i);
+//                OrgReports orgReport = parseRowToOrgReport(row);
+//                logger.info("successfuly parsed {}", i);
+//                logger.info("org Reports {}", orgReport);
+//
+//                if (orgReport == null || !isValidReport(orgReport)) {
+//                    logger.warn("Invalid or failed to parse row {}, skipping...", i);
+//                    continue;
+//                }
+//
+//                Double price = orgReport.getPrice();
+//                Master master = masterDao.getMasterByJahezPaid(price);
+//
+//                if (Objects.isNull(master)) {
+//                    logger.warn("could not find master for price {}", price);
+//                    continue;
+//                }
+//
+//                Long jahezId = orgReport.getDriverId();
+//                Driver driver = driverDao.findByJahezId(jahezId);
+//
+//                if (Objects.isNull(driver)) {
+//                    logger.warn("could not find driver by jahezId {}", jahezId);
+//                    continue;
+//                }
+//
+//                LocalDate date = orgReport.getDispatchTime().toLocalDate();
+//                String dateStr = date.toString();
+//
+//                if (isDuplicateReport(orgReport)) {
+//                    logger.info("Duplicate entry for DID: {} at dispatch time: {}", orgReport.getDid(), orgReport.getDispatchTime());
+//                    continue;
+//                }
+//
+//                String key = jahezId + "|" + dateStr;
+//                Double codAmount = orgReport.getAmount();
+//
+//                if (driverSlabMap.containsKey(key)) {
+//                    List<Double> slabList = driverSlabMap.get(key);
+//                    String masterSlab = master.getSlab();
+//
+//                    switch (masterSlab) {
+//                        case "S1":
+//                            slabList.set(0, slabList.get(0) + 1);
+//                            slabList.set(5, slabList.get(5) + codAmount);
+//                            break;
+//                        case "S2":
+//                            slabList.set(1, slabList.get(1) + 1);
+//                            slabList.set(5, slabList.get(5) + codAmount);
+//                            break;
+//                        case "S3":
+//                            slabList.set(2, slabList.get(2) + 1);
+//                            slabList.set(5, slabList.get(5) + codAmount);
+//                            break;
+//                        case "S4":
+//                            slabList.set(3, slabList.get(3) + 1);
+//                            slabList.set(5, slabList.get(5) + codAmount);
+//                            break;
+//                        case "S5":
+//                            slabList.set(4, slabList.get(4) + 1);
+//                            slabList.set(5, slabList.get(5) + codAmount);
+//                            break;
+//                    }
+//                } else {
+//                    List<Double> slabList = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+//                    String masterSlab = master.getSlab();
+//
+//                    switch (masterSlab) {
+//                        case "S1":
+//                            slabList.set(0, 1.0);
+//                            slabList.set(5, codAmount);
+//                            break;
+//                        case "S2":
+//                            slabList.set(1, 1.0);
+//                            slabList.set(5, codAmount);
+//                            break;
+//                        case "S3":
+//                            slabList.set(2, 1.0);
+//                            slabList.set(5, codAmount);
+//                            break;
+//                        case "S4":
+//                            slabList.set(3, 1.0);
+//                            slabList.set(5, codAmount);
+//                            break;
+//                        case "S5":
+//                            slabList.set(4, 1.0);
+//                            slabList.set(5, codAmount);
+//                            break;
+//                    }
+//                    driverSlabMap.put(key, slabList);
+//                }
+//                logger.info("Saving report for driver: {} at time: {}", orgReport.getDriverName(), orgReport.getDispatchTime());
+//                orgReportsList.add(orgReport);
+//            }
+//
+//            processDriverSlabMap(driverSlabMap);
+//
+//            if (!orgReportsList.isEmpty()) {
+//                orgReportsDao.saveAll(orgReportsList);
+//                logger.info("Successfully saved {} reports.", orgReportsList.size());
+//            } else {
+//                logger.info("No valid reports to save.");
+//            }
+//            return ResponseStructure.successResponse(null, "Successfully Parsed");
+//
+//        } catch (Exception e) {
+//            logger.error("Error parsing Excel OrgReports", e);
+//            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+//        }
+//    }
+//
+//    private void processDriverSlabMap(HashMap<String, List<Double>> driverSlabMap) {
+//        List<Orders> ordersList = new ArrayList<>();
+//
+//        for (Map.Entry<String, List<Double>> entry : driverSlabMap.entrySet()) {
+//            String key = entry.getKey();
+//            List<Double> slabs = entry.getValue();
+//
+//            String[] patternArray = key.split("|");
+//            String jahezId = patternArray[0];
+//            String dateStr = patternArray[1];
+//
+//            String[] patternArray = key.split("\\|");
+//            Long jahezId = Long.parseLong(patternArray[0]);
+//            String dateStr = patternArray[1];
+//
+//            Driver driver = driverDao.findByJahezId(jahezId);
+//
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//            LocalDate localDate = LocalDate.parse(dateStr, formatter);
+//
+//            Double totalOrders = slabs.get(0) + slabs.get(1) + slabs.get(2) + slabs.get(3) + slabs.get(4);
+//            Orders orders = buildOrdersFromCellData(localDate, driver.getUsername(), Long.valueOf(slabs.get(0).toString()),
+//                    Long.valueOf(slabs.get(1).toString()), Long.valueOf(slabs.get(2).toString()), Long.valueOf(slabs.get(3).toString()),
+//                    Long.valueOf(slabs.get(4).toString()), Long.valueOf(totalOrders.toString()), slabs.get(5), 0.0, 0.0);
+//
+//            ordersList.add(orders);
+//        }
+//        orderDao.createOrders(ordersList);
+//
+//        for (Orders orders : ordersList) {
+//            long totalOrders = orderDao.getTotalOrdersForCurrentMonthByDriver(orders.getDriver().getId());
+//
+//            // Fetch the highest bonus based on deliveryCount
+//            Bonus bonusForCount = bonusDao.findTopByDeliveryCountLessThanEqualOrderByDeliveryCountDesc(totalOrders);
+//
+//            // Fetch the bonus based on specialDate
+//            Bonus bonusForDate = bonusDao.findTopBySpecialDate(orders.getDate());
+//
+//            double totalBonus = 0.0;
+//            if (bonusForCount != null) {
+//                totalBonus += bonusForCount.getBonusAmount();
+//            }
+//            if (bonusForDate != null) {
+//                totalBonus += bonusForDate.getDateBonusAmount();
+//            }
+//
+//            // Now, update the driver's bonus in the order or driver entity
+//            if (totalBonus > 0) {
+//                double preBonus = orders.getDriver().getBonus() != null ? orders.getDriver().getBonus() : 0.0;
+//                double currentBonus = preBonus + totalBonus;
+//                orders.getDriver().setBonus(currentBonus);
+//                driverRepository.save(orders.getDriver());
+//            }
+//        }
+//    }
+//
+//    private Orders buildOrdersFromCellData(LocalDate date, String driverName, Long noOfS1, Long noOfS2, Long noOfS3,
+//                                           Long noOfS4, Long noOfS5, Long deliveries, Double codAmount, Double credit, Double debit) {
+//
+//        Driver driver = driverDao.findByNameIgnoreCase(driverName);
+//        if (Objects.isNull(driver)) {
+//            return null;
+//        }
+//        Orders orders = new Orders();
+//        orders.setDate(date);
+//        orders.setDriverName(driverName);
+//        orders.setNoOfS1(noOfS1);
+//        orders.setNoOfS2(noOfS2);
+//        orders.setNoOfS3(noOfS3);
+//        orders.setNoOfS4(noOfS4);
+//        orders.setNoOfS5(noOfS5);
+//        orders.setTotalOrders(deliveries);
+//        orders.setCodAmount(codAmount);
+//        orders.setDebit(debit);
+//        orders.setCredit(credit);
+//        orders.setDriver(driver);
+//
+//        addDriverDeliveries(codAmount, deliveries, driver);
+//        createSalaryFromOrders(orders, driver);
+//
+//        return orders;
+//    }
+//
+//    public Driver addDriverDeliveries(Double codAmount, Long deliveries, Driver driver) {
+//        driver.setAmountPending(driver.getAmountPending() + codAmount);
+//        driver.setCodAmount(Optional.ofNullable(driver.getCodAmount()).orElse(0.0) + codAmount);
+//        driver.setTotalOrders(driver.getTotalOrders() + deliveries);
+//        driver.setCurrentOrders(deliveries);
+//        return driverDao.createDriver(driver);
+//    }
+//
+//    public Salary createSalaryFromOrders(Orders orders, Driver driver) {
+//        LocalDate localDate = orders.getDate();
+//        int year = localDate.getYear();
+//        int month = localDate.getMonthValue();
+//
+//        Salary salary = salaryDao.getSalaryByMonthAndYearAndDriver((long) month, (long) year, orders.getDriver());
+//
+//        boolean newRecord = Objects.isNull(salary);
+//        Master s1Master = masterDao.getMasterBySlab("S1");
+//        Master s2Master = masterDao.getMasterBySlab("S2");
+//        Master s3Master = masterDao.getMasterBySlab("S3");
+//        Master s4Master = masterDao.getMasterBySlab("S4");
+//        Master s5Master = masterDao.getMasterBySlab("S5");
+//
+//        if (newRecord) {
+//            salary = new Salary();
+//            salary.setMonth((long) month);
+//            salary.setYear((long) year);
+//            salary.setDriver(orders.getDriver());
+//
+//            salary.setNoOfS1(orders.getNoOfS1());
+//            salary.setNoOfS2(orders.getNoOfS2());
+//            salary.setNoOfS3(orders.getNoOfS3());
+//            salary.setNoOfS4(orders.getNoOfS4());
+//            salary.setNoOfS5(orders.getNoOfS5());
+//
+//            long totalOrders = orders.getNoOfS1() + orders.getNoOfS2() + orders.getNoOfS3() + orders.getNoOfS4() + orders.getNoOfS5();
+//
+//            salary.setTotalOrders(totalOrders);
+//
+//            salary.setS1Earnings(s1Master.getMotoPaid() * salary.getNoOfS1());
+//            salary.setS2Earnings(s2Master.getMotoPaid() * salary.getNoOfS2());
+//            salary.setS3Earnings(s3Master.getMotoPaid() * salary.getNoOfS3());
+//            salary.setS4Earnings(s4Master.getMotoPaid() * salary.getNoOfS4());
+//            salary.setS5Earnings(s5Master.getMotoPaid() * salary.getNoOfS5());
+//
+//            salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
+//
+//
+//            /*    Add Driver Salary */
+//            driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
+//            Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
+//            driver.setProfit(Optional.ofNullable(driver.getProfit()).orElse(0.0) + jahezAmount - driver.getSalaryAmount());
+//            driverDao.createDriver(driver);
+//
+//            salary.setTotalDeductions(0.0);
+//            salary.setVisaCharges(0.0);
+//            salary.setOtherCharges(0.0);
+//            salary.setBonus(0.0);
+//            salary.setIncentives(0.0);
+//            salary.setStatus("NOT_SETTLED");
+//
+//        } else {
+//            salary.setNoOfS1(salary.getNoOfS1() + orders.getNoOfS1());
+//            salary.setNoOfS2(salary.getNoOfS2() + orders.getNoOfS2());
+//            salary.setNoOfS3(salary.getNoOfS3() + orders.getNoOfS3());
+//            salary.setNoOfS4(salary.getNoOfS4() + orders.getNoOfS4());
+//            salary.setNoOfS5(salary.getNoOfS5() + orders.getNoOfS5());
+//
+//            long totalOrders = salary.getNoOfS1() + salary.getNoOfS2() + salary.getNoOfS3() + salary.getNoOfS4() + salary.getNoOfS5();
+//
+//            salary.setTotalOrders(Optional.ofNullable(salary.getTotalOrders()).orElse(0l) + totalOrders);
+//
+//            salary.setS1Earnings(salary.getS1Earnings() + s1Master.getMotoPaid() * orders.getNoOfS1());
+//            salary.setS2Earnings(salary.getS2Earnings() + s2Master.getMotoPaid() * orders.getNoOfS2());
+//            salary.setS3Earnings(salary.getS3Earnings() + s3Master.getMotoPaid() * orders.getNoOfS3());
+//            salary.setS4Earnings(salary.getS4Earnings() + s4Master.getMotoPaid() * orders.getNoOfS4());
+//            salary.setS5Earnings(salary.getS5Earnings() + s5Master.getMotoPaid() * orders.getNoOfS5());
+//
+//            salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
+//
+//            /*Add Driver Salary */
+//            driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
+//            Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
+//            driver.setProfit(driver.getProfit() + jahezAmount - driver.getSalaryAmount());
+//            driverDao.createDriver(driver);
+//        }
+//
+//        salary = salaryDao.saveSalary(salary);
+//        return salary;
+//    }
+//
+//    private boolean isValidReport(OrgReports orgReport) {
+//        return orgReport.getDid() != null && orgReport.getDispatchTime() != null;
+//    }
+//
+//    private OrgReports parseRowToOrgReport(Row row) {
+//        try {
+//            logger.info("parsing row {}", row);
+//            Long no = parseLong(row.getCell(0));
+//            Long did = parseLong(row.getCell(1));
+//            Long refId = parseLong(row.getCell(2));
+//            String driverName = parseString(row.getCell(3));
+//            String driverUsername = parseString(row.getCell(4));
+//            String driverId = parseString(row.getCell(5));
+//            Double amount = parseDouble(row.getCell(6));
+//            Double price = parseDouble(row.getCell(7));
+//            Double driverDebitAmount = parseDouble(row.getCell(8));
+//            Double driverCreditAmount = parseDouble(row.getCell(9));
+//            Boolean isFreeOrder = parseBoolean(row.getCell(10));
+//
+//            *//*logger.info("parsing date {}", row.getCell(11));
+//            String dateStr1 = parseString(row.getCell(11));
+//            logger.info("dateStr1 {}", dateStr1);*//*
+//
+//            LocalDateTime dispatchTime = parseDateTime(parseString(row.getCell(11)));
+//            logger.info("dispatch time {}", dispatchTime);
+//
+//            String subscriber = parseString(row.getCell(12));
+//            Boolean driverPaidOrg = parseBoolean(row.getCell(13));
+//            Boolean orgSettled = parseBoolean(row.getCell(14));
+//            Boolean driverSettled = parseBoolean(row.getCell(15));
+//
+//            return buildOrgReport(no, did, refId, driverName, driverUsername, driverId, amount, price, driverDebitAmount,
+//                    driverCreditAmount, isFreeOrder, dispatchTime, subscriber, driverPaidOrg, orgSettled, driverSettled);
+//        } catch (Exception e) {
+//            logger.error("Error parsing row: {}", row.getRowNum(), e);
+//            return null;
+//        }
+//    }
+//
+//    private boolean isDuplicateReport(OrgReports orgReport) {
+//        return orgReportsRepository.findByDidAndDispatchTime(orgReport.getDid(), orgReport.getDispatchTime()) != null;
+//    }
+//
+//    private OrgReports buildOrgReport(Long no, Long did, Long refId, String driverName, String driverUsername, String driverId,
+//                                      Double amount, Double price, Double driverDebitAmount, Double driverCreditAmount,
+//                                      Boolean isFreeOrder, LocalDateTime dispatchTime, String subscriber, Boolean driverPaidOrg,
+//                                      Boolean orgSettled, Boolean driverSettled) {
+//
+//        OrgReports orgReport = new OrgReports();
+//        orgReport.setNo(no);
+//        orgReport.setDid(did);
+//        orgReport.setRefId(refId);
+//        orgReport.setDriverName(driverName);
+//        orgReport.setDriverUsername(driverUsername);
+//        orgReport.setDriverId(Long.valueOf(driverId));
+//        orgReport.setAmount(amount);
+//        orgReport.setPrice(price);
+//        orgReport.setDriverDebitAmount(driverDebitAmount);
+//        orgReport.setDriverCreditAmount(driverCreditAmount);
+//        //orgReport.setIsFreeOrder(isFreeOrder);
+//        orgReport.setDispatchTime(dispatchTime);
+//        *//*orgReport.setSubscriber(subscriber);
+//        orgReport.setDriverPaidOrg(driverPaidOrg);
+//        orgReport.setOrgSettled(orgSettled);
+//        orgReport.setDriverSettled(driverSettled);*//*
+//
+//        return orgReport;
+//    }
+//
+//    private Long parseLong(Cell cell) {
+//        if (cell == null) return null;
+//        try {
+//            return cell.getCellType() == CellType.NUMERIC ? (long) cell.getNumericCellValue() : Long.parseLong(cell.getStringCellValue().trim());
+//        } catch (NumberFormatException e) {
+//            logger.error("Error parsing long from cell at row {}", cell.getRowIndex(), e);
+//            return null;
+//        }
+//    }
+//
+//    private String parseString(Cell cell) {
+//        if (cell == null) return null;
+//        try {
+//            switch (cell.getCellType()) {
+//                case STRING:
+//                    return cell.getStringCellValue().trim();
+//                case NUMERIC:
+//                    return String.valueOf(cell.getNumericCellValue());
+//                default:
+//                    return cell.toString().trim();
+//            }
+//        } catch (Exception e) {
+//            logger.error("Error parsing string from cell at row {}", cell.getRowIndex(), e);
+//            return null;
+//        }
+//    }
+//
+//    private Double parseDouble(Cell cell) {
+//        if (cell == null) return null;
+//        try {
+//            return cell.getCellType() == CellType.NUMERIC ? cell.getNumericCellValue() : Double.parseDouble(cell.getStringCellValue().trim());
+//        } catch (NumberFormatException e) {
+//            logger.error("Error parsing double from cell at row {}", cell.getRowIndex(), e);
+//            return null;
+//        }
+//    }
+//
+//    private Boolean parseBoolean(Cell cell) {
+//        if (cell == null) return null;
+//        try {
+//            String cellValue = cell.toString().trim().toLowerCase();
+//            return "true".equals(cellValue) || "1".equals(cellValue) || "yes".equals(cellValue);
+//        } catch (Exception e) {
+//            logger.error("Error parsing boolean from cell at row {}", cell.getRowIndex(), e);
+//            return null;
+//        }
+//    }
+//
+//    private LocalDateTime parseDateTime(String dateTimeStr) {
+//        if (dateTimeStr == null || dateTimeStr.trim().isEmpty()) {
+//            logger.warn("Date time string is null or empty");
+//            return null;
+//        }
+//        try {
+//            logger.info("Parsing date time: {}", dateTimeStr);
+//            return LocalDateTime.parse(dateTimeStr, FORMATTER);
+//        } catch (DateTimeParseException e) {
+//            logger.error("Failed to parse date time: {}", dateTimeStr, e);
+//            return null;
+//        }
+//    }
+
 }

@@ -27,10 +27,10 @@ public class OrgReports {
     private Double driverDebitAmount;
     private Double driverCreditAmount;
     private Boolean isFreeOrder;
+    private LocalDateTime dispatchDate;
     private LocalDateTime dispatchTime;
     private String subscriber;
     private Boolean driverPaidOrg;
     private Boolean orgSettled;
     private Boolean driverSettled;
-
 }

@@ -15,15 +15,15 @@ public class Orders {
     private Long id;
     private String driverName;
     private LocalDate date;
-    private long noOfS1;
-    private long noOfS2;
-    private long noOfS3;
-    private long noOfS4;
-    private long noOfS5;
-    private long totalOrders;
-    private double codAmount;
-    private double credit;
-    private double debit;
+    private Long noOfS1;
+    private Long noOfS2;
+    private Long noOfS3;
+    private Long noOfS4;
+    private Long noOfS5;
+    private Long totalOrders;
+    private Double codAmount;
+    private Double credit;
+    private Double debit;
 
     @ManyToOne
     @JoinColumn

@@ -238,41 +238,5 @@ public class OrderService {
             return ResponseStructure.errorResponse(null, 500, "Error fetching the top driver: " + e.getMessage());
         }
     }
-/*    public ResponseEntity<ResponseStructure<Object>> getTotalOrdersForAllDrivers() {
-        try {
-            List<Object[]> results = ordersRepository.findTotalOrdersForAllDrivers();
 
-            if (results.isEmpty()) {
-                logger.warn("No data available for total orders of drivers.");
-                return ResponseStructure.errorResponse(null, 404, "No data available for total orders of drivers.");
-            }
-            Map<String, Object> responseData = new HashMap<>();
-            for (Object[] result : results) {
-                Long driverId = (Long) result[0];
-                String driverName = (String) result[1];
-                String profilePic = (String) result[2];
-                Long totalOrders = (Long) result[3];
-
-                Map<String, Object> driverData = new HashMap<>();
-                driverData.put("driverId", driverId);
-                driverData.put("driverName", driverName);
-                driverData.put("profilePic", profilePic);
-                driverData.put("totalOrders", totalOrders);
-
-                responseData.put(driverId.toString(), driverData);
-            }
-
-            if (responseData.isEmpty()) {
-                logger.warn("No drivers found in the system.");
-                return ResponseStructure.errorResponse(null, 404, "No drivers found in the system.");
-            }
-
-            logger.info("Total orders for all drivers retrieved successfully.");
-            return ResponseStructure.successResponse(responseData, "Total orders for all drivers retrieved successfully.");
-
-        } catch (Exception e) {
-            logger.error("Error fetching total orders for all drivers: {}", e.getMessage(), e);
-            return ResponseStructure.errorResponse(null, 500, "Error fetching total orders for all drivers: " + e.getMessage());
-        }
-    }*/
 }
