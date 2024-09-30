@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -31,9 +32,13 @@ public class DriverDao {
         return driverRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
 
-    public Driver findByNameIgnoreCase(String driverName) {
+   public Driver findByNameIgnoreCase(String driverName) {
         Optional<Driver> driverOptional = driverRepository.findByNameIgnoreCase(driverName);
         return driverOptional.orElse(null);
+    }
+
+    public List<Driver> findByNameIgnoreCaseList(String username){
+        return driverRepository.findByNameIgnoreCaseList(username);
     }
 
     public long countFlexiVisa() {

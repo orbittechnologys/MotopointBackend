@@ -12,13 +12,15 @@ import java.util.Optional;
 
 public interface DriverRepository extends JpaRepository<Driver, Long> {
 
-
     public Driver findByPhone(String phone);
 
     public List<Driver> findByUsernameContaining(String username);
 
     @Query("SELECT d FROM Driver d WHERE LOWER(d.username) = LOWER(:username)")
     public Optional<Driver> findByNameIgnoreCase(@Param("username") String username);
+
+    @Query("SELECT d FROM Driver d JOIN User u ON d.id = u.id WHERE LOWER(u.username) = LOWER(:username)")
+    public List<Driver> findByNameIgnoreCaseList(@Param("username") String username);
 
     @Query("SELECT COUNT(d) FROM Driver d WHERE d.visa.visaName = 'COMPANY'")
     public Long countDriversWithCompanyVisa();
