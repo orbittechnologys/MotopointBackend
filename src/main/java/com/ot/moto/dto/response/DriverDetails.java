@@ -13,6 +13,4 @@ public class DriverDetails {
     private long attendance;
     private long riders;
     private long drivers;
-/*    private long visaType;
-    private long flexi;*/
 }

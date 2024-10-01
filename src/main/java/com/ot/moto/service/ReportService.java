@@ -2,8 +2,7 @@ package com.ot.moto.service;
 
 import com.ot.moto.dao.*;
 import com.ot.moto.dto.ResponseStructure;
-import com.ot.moto.dto.request.AddBonusDate;
-import com.ot.moto.dto.request.AddBonusOrders;
+import com.ot.moto.dto.response.DriverAnalysisSum;
 import com.ot.moto.entity.*;
 import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.PaymentRepository;
@@ -25,12 +24,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static com.ot.moto.entity.Payment.PAYMENT_TYPE.BENEFIT;
 
@@ -562,7 +559,8 @@ public class ReportService {
         }
     }
 
-    public ResponseEntity<ResponseStructure<Object>> getAllAnalysis(LocalDate startDate, LocalDate endDate, int page, int size, String field) {
+    public ResponseEntity<ResponseStructure<Object>> getAllAnalysis(LocalDate startDate, LocalDate endDate, int page,
+                                                                    int size, String field) {
         try {
             Page<Orders> orders = orderDao.findAllAnalysis(startDate, endDate, page, size, field);
 
@@ -576,6 +574,81 @@ public class ReportService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
+
+    public ResponseEntity<ResponseStructure<DriverAnalysisSum>> getAnalysisSum(
+            LocalDate startDate, LocalDate endDate, int page, int size, String field) {
+        ResponseStructure<DriverAnalysisSum> responseStructure = new ResponseStructure<>();
+        try {
+            // Fetch paginated orders between date range
+            Page<Orders> ordersPage = orderDao.findAllAnalysis(startDate, endDate, page, size, field);
+
+            if (ordersPage.isEmpty()) {
+                responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
+                responseStructure.setMessage("No Order Found Between Date");
+                responseStructure.setData(null);
+                return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
+            }
+
+            // Initialize total sum object with default values
+            DriverAnalysisSum totalSum = new DriverAnalysisSum();
+            totalSum.setCodAmount(0.0);
+            totalSum.setTotalOrders(0.0);
+            totalSum.setBonus(0.0);
+            totalSum.setPenalties(0.0);
+            totalSum.setOther(0.0);
+            totalSum.setDriverAmountPending(0.0);
+            totalSum.setBike(0.0);
+            totalSum.setVisa(0.0);
+
+            // Iterate through all orders to sum driver details
+            for (Orders order : ordersPage.getContent()) {
+                Driver driver = driverDao.getById(order.getDriver().getId());
+
+                // Add the COD amount from the driver
+                totalSum.setCodAmount(totalSum.getCodAmount() + driver.getCodAmount());
+
+                // Add the total orders
+                totalSum.setTotalOrders(totalSum.getTotalOrders() + driver.getTotalOrders());
+
+                // Add the bonus
+                totalSum.setBonus(totalSum.getBonus() + driver.getBonus());
+
+                // Sum up penalties for the driver
+                double totalPenalties = driver.getPenalties().stream()
+                        .mapToDouble(Penalty::getAmount)
+                        .sum();
+                totalSum.setPenalties(totalSum.getPenalties() + totalPenalties);
+
+                // Sum up other deductions
+                double totalOtherDeductions = driver.getOtherDeductions().stream()
+                        .mapToDouble(OtherDeduction::getOtherDeductionAmount)
+                        .sum();
+                totalSum.setOther(totalSum.getOther() + totalOtherDeductions);
+
+                // Add the pending amount for the driver
+                totalSum.setDriverAmountPending(totalSum.getDriverAmountPending() + driver.getAmountPending());
+
+                totalSum.setBike(totalSum.getBike() + driver.getBikeRentAmountEmi());
+
+                totalSum.setVisa(totalSum.getVisa() + driver.getVisaAmountEmi());
+            }
+
+            // Set success response
+            responseStructure.setStatus(HttpStatus.OK.value());
+            responseStructure.setMessage("All the Sum Of Driver");
+            responseStructure.setData(totalSum);
+            return new ResponseEntity<>(responseStructure, HttpStatus.OK);
+
+        } catch (Exception e) {
+            logger.error("Error fetching driver analysis sum: ", e);
+            responseStructure.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            responseStructure.setMessage(e.getMessage());
+            responseStructure.setData(null);
+            return new ResponseEntity<>(responseStructure, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 }
 
 

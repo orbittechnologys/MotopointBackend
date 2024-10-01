@@ -1,6 +1,7 @@
 package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
+import com.ot.moto.dto.response.DriverAnalysisSum;
 import com.ot.moto.entity.OrgReports;
 import com.ot.moto.entity.Payment;
 import com.ot.moto.service.OrgReportService;
@@ -295,5 +296,17 @@ public class ReportController {
                                                                     @RequestParam(defaultValue = "10") int size,
                                                                     @RequestParam(defaultValue = "id") String field) {
         return reportService.getAllAnalysis(startDate, endDate, page, size, field);
+    }
+
+    @Operation(summary = "Fetch sum of all for analysis", description = "response is sum of all data from orders for analysis")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "sum Found"),
+            @ApiResponse(responseCode = "404", description = "sum Not Found")})
+    @GetMapping("/getAnalysisSum")
+    public ResponseEntity<ResponseStructure<DriverAnalysisSum>> getAnalysisSum(@RequestParam LocalDate startDate,
+                                                                               @RequestParam LocalDate endDate,
+                                                                               @RequestParam(defaultValue = "0") int page,
+                                                                               @RequestParam(defaultValue = "10") int size,
+                                                                               @RequestParam(defaultValue = "id") String field) {
+        return reportService.getAnalysisSum(startDate, endDate, page, size, field);
     }
 }

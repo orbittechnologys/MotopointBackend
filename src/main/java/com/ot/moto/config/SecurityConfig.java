@@ -222,7 +222,8 @@ public class SecurityConfig {
             "/bonus/getAllDateBonus",
             "/bonus/getAllOrderBonus",
             "/driver/delete",
-            "/report/getAllAnalysis"
+            "/report/getAllAnalysis",
+            "/report/getAnalysisSum"
     };
 
     private static final String[] ADMIN_WHITELIST = {};

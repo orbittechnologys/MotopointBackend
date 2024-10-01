@@ -680,22 +680,20 @@ public class DriverService {
 
         // long flexiCount = driverDao.countFlexiVisa();
         //  long otherVisaTypesCount = driverDao.countOtherVisaTypes();
-
         long ridersCount = driverDao.countTwoWheelerRiders();
-
         long driversCount = driverDao.countFourWheelerDrivers();
 
         LocalDate yesterday = LocalDate.now().minusDays(1);
         logger.info("Fetching attendance count for {}", yesterday);
         long attendanceCount = ordersRepository.countDriversWithOrdersOnDate(yesterday);
 
-//        long visaTypeCount = flexiCount + otherVisaTypesCount;
-
+        // long visaTypeCount = flexiCount + otherVisaTypesCount;
         logger.info("Returning DriverDetails with totalDrivers: {}, attendance: {}, riders: {}, drivers: {}, visaType: {}, flexi: {}",
                 totalDrivers, attendanceCount, ridersCount, driversCount);/*, *//*visaTypeCount, flexiCount*/
 
         return new DriverDetails(totalDrivers, attendanceCount, ridersCount, driversCount);/*, visaTypeCount, flexiCount);*/
     }
+
 
     public ResponseEntity<ResponseStructure<Object>> fetchTopDriver() {
         try {
