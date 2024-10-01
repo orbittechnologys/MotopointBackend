@@ -169,7 +169,7 @@ public class OrgReportService {
                 orgReportsList.add(orgReport);
             }
 
-            processDriverSlabMap(driverSlabMap);
+            processDriverSlabMap(driverSlabMap); //
 
             if (!orgReportsList.isEmpty()) {
                 orgReportsDao.saveAll(orgReportsList);
@@ -202,7 +202,7 @@ public class OrgReportService {
             LocalDate localDate = LocalDate.parse(dateStr, formatter);
 
             Double totalOrders = slabs.get(0) + slabs.get(1) + slabs.get(2) + slabs.get(3) + slabs.get(4);
-            Orders orders = buildOrdersFromCellData(localDate, driver.getUsername(),
+            Orders orders = buildOrdersFromCellData(localDate, jahezId, driver.getUsername(), //
                     slabs.get(0).longValue(),  // S1 value as Long
                     slabs.get(1).longValue(),  // S2 value as Long
                     slabs.get(2).longValue(),  // S3 value as Long
@@ -243,10 +243,11 @@ public class OrgReportService {
         }
     }
 
-    private Orders buildOrdersFromCellData(LocalDate date, String driverName, Long noOfS1, Long noOfS2, Long noOfS3,
+    private Orders buildOrdersFromCellData(LocalDate date, Long jahezId, String driverName, Long noOfS1, Long noOfS2, Long noOfS3,
                                            Long noOfS4, Long noOfS5, Long deliveries, Double codAmount, Double credit, Double debit) {
 
-        Driver driver = driverDao.findByNameIgnoreCase(driverName);
+        Driver driver = driverDao.findByJahezId(jahezId);
+
         if (Objects.isNull(driver)) {
             return null;
         }
@@ -283,7 +284,7 @@ public class OrgReportService {
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
 
-        Salary salary = salaryDao.getSalaryByMonthAndYearAndDriver((long) month, (long) year, orders.getDriver());
+        Salary salary = salaryDao.getSalaryByMonthAndYearAndDriver((long) month, (long) year, driver);
 
         boolean newRecord = Objects.isNull(salary);
         Master s1Master = masterDao.getMasterBySlab("S1");
@@ -437,16 +438,6 @@ public class OrgReportService {
             return null;
         }
     }
-
-/*    private Long parseLong(Object value) {
-        if (value instanceof Double) {
-            return ((Double) value).longValue();
-        } else if (value instanceof Float) {
-            return ((Float) value).longValue();
-        } else {
-            return Long.valueOf(value.toString().split("\\.")[0]); // Remove the decimal part if present
-        }
-    }*/
 
     private String parseString(Cell cell) {
         if (cell == null) return null;
