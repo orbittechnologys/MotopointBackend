@@ -678,9 +678,8 @@ public class DriverService {
 
         long totalDrivers = driverDao.countTotalDrivers();
 
-//        long flexiCount = driverDao.countFlexiVisa();
-
-        /*  long otherVisaTypesCount = driverDao.countOtherVisaTypes();*/
+        // long flexiCount = driverDao.countFlexiVisa();
+        //  long otherVisaTypesCount = driverDao.countOtherVisaTypes();
 
         long ridersCount = driverDao.countTwoWheelerRiders();
 

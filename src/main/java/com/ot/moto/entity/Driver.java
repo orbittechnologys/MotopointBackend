@@ -56,6 +56,8 @@ public class Driver extends User {
 
     private LocalDate passportExpiryDate;
 
+
+
     @Size(min = 9, max = 9, message = "CPR Number must be exactly 9 digits")
     @Pattern(regexp = "\\d{9}", message = "CPR Number must be exactly 9 digits")
     private String cprNumber;
@@ -139,7 +141,11 @@ public class Driver extends User {
     private Visa visa;
 
     @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference("otherdriver")
     private List<OtherDeduction> otherDeductions;
+
+    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("driverPenalty")
+    private List<Penalty> penalties;
 
 }

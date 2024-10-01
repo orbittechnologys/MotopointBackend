@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -284,4 +285,15 @@ public class ReportController {
         }
     }
 
+    @Operation(summary = "Fetch All from Order", description = "response is all data from orders for analysis")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Reports Found"),
+            @ApiResponse(responseCode = "404", description = "Reports Not Found")})
+    @GetMapping("/getAllAnalysis")
+    public ResponseEntity<ResponseStructure<Object>> getAllAnalysis(@RequestParam LocalDate startDate,
+                                                                    @RequestParam LocalDate endDate,
+                                                                    @RequestParam(defaultValue = "0") int page,
+                                                                    @RequestParam(defaultValue = "10") int size,
+                                                                    @RequestParam(defaultValue = "id") String field) {
+        return reportService.getAllAnalysis(startDate,endDate,page, size, field);
+    }
 }

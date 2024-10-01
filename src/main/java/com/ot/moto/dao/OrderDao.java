@@ -77,4 +77,18 @@ public class OrderDao {
 
         return ordersRepository.findTotalOrdersForCurrentMonthByDriver(driverId, startDate, endDate);
     }
+
+    public Orders findByOrderAndDriver(Driver driver, LocalDate localDate) {
+        Optional<Orders> orders = ordersRepository.findByDriverAndDate(driver, localDate);
+        return orders.orElse(null);
+    }
+
+    public Page<Orders> findAllAnalysis(LocalDate startDate, LocalDate endDate, int offset, int pageSize, String field) {
+        return ordersRepository.findAllByDateBetween(startDate, endDate, PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
+    }
+
+    /*public Page<Orders> findAllAnalysis(LocalDate startDate, LocalDate endDate, int offset, int pageSize, String field) {
+        return ordersRepository.findAllAnalysis(startDate, endDate, PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
+    }*/
+
 }

@@ -61,4 +61,14 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
     @Query("SELECT COALESCE(SUM(o.totalOrders), 0) FROM Orders o WHERE o.driver.id = :driverId AND o.date >= :startDate AND o.date <= :endDate")
     public Long findTotalOrdersForCurrentMonthByDriver(Long driverId, LocalDate startDate, LocalDate endDate);
+
+    public Optional<Orders> findByDriverAndDate(Driver driver, LocalDate date);
+
+    public Page<Orders> findAllByDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
+
+    /*@Query("SELECT o FROM Orders o " +
+            "JOIN FETCH o.driver d " +
+            "LEFT JOIN FETCH d.otherDeductions od " +
+            "WHERE o.date BETWEEN :startDate AND :endDate")
+    Page<Orders> findAllAnalysis(LocalDate startDate, LocalDate endDate, Pageable pageable);*/
 }

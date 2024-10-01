@@ -25,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -560,4 +561,21 @@ public class ReportService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
+
+    public ResponseEntity<ResponseStructure<Object>> getAllAnalysis(LocalDate startDate, LocalDate endDate, int page, int size, String field) {
+        try {
+            Page<Orders> orders = orderDao.findAllAnalysis(startDate, endDate, page, size, field);
+
+            if (orders.isEmpty()) {
+                return ResponseStructure.errorResponse(null, 404, "No orders found for the given date range.");
+            }
+
+            return ResponseStructure.successResponse(orders, "Orders fetched successfully.");
+        } catch (Exception e) {
+            logger.error("Error fetching All Orders ", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
 }
+
+
