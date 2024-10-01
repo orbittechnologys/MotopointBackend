@@ -294,6 +294,6 @@ public class ReportController {
                                                                     @RequestParam(defaultValue = "0") int page,
                                                                     @RequestParam(defaultValue = "10") int size,
                                                                     @RequestParam(defaultValue = "id") String field) {
-        return reportService.getAllAnalysis(startDate,endDate,page, size, field);
+        return reportService.getAllAnalysis(startDate, endDate, page, size, field);
     }
 }

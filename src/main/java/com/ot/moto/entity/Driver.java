@@ -56,8 +56,6 @@ public class Driver extends User {
 
     private LocalDate passportExpiryDate;
 
-
-
     @Size(min = 9, max = 9, message = "CPR Number must be exactly 9 digits")
     @Pattern(regexp = "\\d{9}", message = "CPR Number must be exactly 9 digits")
     private String cprNumber;
