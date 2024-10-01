@@ -2,6 +2,7 @@ package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.response.DriverAnalysisSum;
+import com.ot.moto.entity.Orders;
 import com.ot.moto.entity.OrgReports;
 import com.ot.moto.entity.Payment;
 import com.ot.moto.service.OrgReportService;
@@ -308,5 +309,26 @@ public class ReportController {
                                                                                @RequestParam(defaultValue = "10") int size,
                                                                                @RequestParam(defaultValue = "id") String field) {
         return reportService.getAnalysisSum(startDate, endDate, page, size, field);
+    }
+
+    @Operation(summary = "Fetch particular driver analysis", description = "response is particular driver analysis")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "driver analysis found "),
+            @ApiResponse(responseCode = "404", description = "driver analysis Not Found")})
+    @GetMapping("/getDriverAnalysis")
+    public ResponseEntity<ResponseStructure<List<Orders>>> getDriverAnalysis(@RequestParam Long driverId,
+                                                                             @RequestParam LocalDate startDate,
+                                                                             @RequestParam LocalDate endDate) {
+        return reportService.getDriverAnalysis(driverId, startDate, endDate);
+    }
+
+
+    @Operation(summary = "Fetch sum of all for analysis of a perticular driver", description = "response is sum of particular driver analysis")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "sum of particular driver analysis not Found"),
+            @ApiResponse(responseCode = "404", description = "sum of particular driver analysis Found")})
+    @GetMapping("/getDriverAnalysisSum")
+    public ResponseEntity<ResponseStructure<DriverAnalysisSum>> getDriverAnalysisSum(@RequestParam Long driverId,
+                                                                                     @RequestParam LocalDate startDate,
+                                                                                     @RequestParam LocalDate endDate) {
+        return reportService.getDriverAnalysisSum(driverId, startDate, endDate);
     }
 }

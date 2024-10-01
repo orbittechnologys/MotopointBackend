@@ -5,6 +5,7 @@ import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.response.DriverAnalysisSum;
 import com.ot.moto.entity.*;
 import com.ot.moto.repository.DriverRepository;
+import com.ot.moto.repository.OrdersRepository;
 import com.ot.moto.repository.PaymentRepository;
 import com.ot.moto.util.StringUtil;
 import org.apache.poi.ss.usermodel.*;
@@ -57,6 +58,9 @@ public class ReportService {
 
     @Autowired
     private BonusDao bonusDao;
+
+    @Autowired
+    private OrdersRepository ordersRepository;
 
 
     private static final Logger logger = LoggerFactory.getLogger(ReportService.class);
@@ -648,7 +652,83 @@ public class ReportService {
         }
     }
 
+    public ResponseEntity<ResponseStructure<List<Orders>>> getDriverAnalysis(Long driverId, LocalDate startDate, LocalDate endDate) {
+        ResponseStructure<List<Orders>> responseStructure = new ResponseStructure<>();
+        try {
+            List<Orders> orders = ordersRepository.findByDriverIdAndOrderDateBetween(driverId, startDate, endDate);
 
+            if (orders.isEmpty()) {
+                responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
+                responseStructure.setMessage("No orders found for the given date range for the driver");
+                responseStructure.setData(null);
+                return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
+            }
+            // Set success response
+            responseStructure.setStatus(HttpStatus.OK.value());
+            responseStructure.setMessage("Driver orders fetched successfully");
+            responseStructure.setData(orders);
+            return new ResponseEntity<>(responseStructure, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error fetching driver analysis sum: ", e);
+            responseStructure.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            responseStructure.setMessage(e.getMessage());
+            responseStructure.setData(null);
+            return new ResponseEntity<>(responseStructure, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<DriverAnalysisSum>> getDriverAnalysisSum(Long driverId, LocalDate startDate, LocalDate endDate) {
+        ResponseStructure<DriverAnalysisSum> responseStructure = new ResponseStructure<>();
+        try {
+            List<Orders> orders = ordersRepository.findByDriverIdAndOrderDateBetween(driverId, startDate, endDate);
+
+            if (orders.isEmpty()) {
+                responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
+                responseStructure.setMessage("No orders found for the given date range for the driver");
+                responseStructure.setData(null);
+                return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
+            }
+
+            DriverAnalysisSum totalSum = new DriverAnalysisSum();
+            totalSum.setCodAmount(0.0);
+            totalSum.setTotalOrders(0.0);
+            totalSum.setBonus(0.0);
+            totalSum.setPenalties(0.0);
+            totalSum.setOther(0.0);
+            totalSum.setDriverAmountPending(0.0);
+
+            for (Orders order : orders) {
+                Driver driver = driverDao.getById(order.getDriver().getId());
+
+                totalSum.setCodAmount(totalSum.getCodAmount() + (driver.getCodAmount() != null ? driver.getCodAmount() : 0.0));
+                totalSum.setTotalOrders(totalSum.getTotalOrders() + (driver.getTotalOrders() != null ? driver.getTotalOrders() : 0.0));
+                totalSum.setBonus(totalSum.getBonus() + (driver.getBonus() != null ? driver.getBonus() : 0.0));
+
+                double totalPenalties = driver.getPenalties() != null ? driver.getPenalties().stream()
+                        .mapToDouble(Penalty::getAmount)
+                        .sum() : 0.0;
+                totalSum.setPenalties(totalSum.getPenalties() + totalPenalties);
+
+                double totalOtherDeductions = driver.getOtherDeductions() != null ? driver.getOtherDeductions().stream()
+                        .mapToDouble(OtherDeduction::getOtherDeductionAmount)
+                        .sum() : 0.0;
+                totalSum.setOther(totalSum.getOther() + totalOtherDeductions);
+
+                totalSum.setDriverAmountPending(totalSum.getDriverAmountPending() + (driver.getAmountPending() != null ? driver.getAmountPending() : 0.0));
+            }
+
+            responseStructure.setStatus(HttpStatus.OK.value());
+            responseStructure.setMessage("sum of Driver analysis fetched successfully.");
+            responseStructure.setData(totalSum);
+            return new ResponseEntity<>(responseStructure, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error fetching sum of driver analysis : ", e);
+            responseStructure.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            responseStructure.setMessage(e.getMessage());
+            responseStructure.setData(null);
+            return new ResponseEntity<>(responseStructure, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
 
 

@@ -219,7 +219,9 @@ public class JwtFilter extends OncePerRequestFilter {
             "/bonus/getAllOrderBonus",
             "/driver/delete",
             "/report/getAllAnalysis",
-            "/report/getAnalysisSum"
+            "/report/getAnalysisSum",
+            "/report/getDriverAnalysis",
+            "/report/getDriverAnalysisSum"
     );
 
     @Override
