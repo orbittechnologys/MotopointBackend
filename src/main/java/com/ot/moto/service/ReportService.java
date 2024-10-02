@@ -618,9 +618,11 @@ public class ReportService {
                 totalSum.setBonus(totalSum.getBonus() + driver.getBonus());
 
                 // Sum up penalties for the driver
-                double totalPenalties = driver.getPenalties().stream()
-                        .mapToDouble(Penalty::getAmount)
-                        .sum();
+                double totalPenalties = driver.getPenalties() != null ?
+                        driver.getPenalties().stream()
+                                .filter(penalty -> penalty.getStatus() == Penalty.PenaltyStatus.NOT_SETTLED)
+                                .mapToDouble(Penalty::getAmount)
+                                .sum() : 0.0;
                 totalSum.setPenalties(totalSum.getPenalties() + totalPenalties);
 
                 // Sum up other deductions
@@ -704,9 +706,11 @@ public class ReportService {
                 totalSum.setTotalOrders(totalSum.getTotalOrders() + (driver.getTotalOrders() != null ? driver.getTotalOrders() : 0.0));
                 totalSum.setBonus(totalSum.getBonus() + (driver.getBonus() != null ? driver.getBonus() : 0.0));
 
-                double totalPenalties = driver.getPenalties() != null ? driver.getPenalties().stream()
-                        .mapToDouble(Penalty::getAmount)
-                        .sum() : 0.0;
+                double totalPenalties = (driver.getPenalties() != null && !driver.getPenalties().isEmpty()) ?
+                        driver.getPenalties().stream()
+                                .filter(penalty -> penalty.getStatus() == Penalty.PenaltyStatus.NOT_SETTLED)
+                                .mapToDouble(Penalty::getAmount)
+                                .sum() : 0.0;
                 totalSum.setPenalties(totalSum.getPenalties() + totalPenalties);
 
                 double totalOtherDeductions = driver.getOtherDeductions() != null ? driver.getOtherDeductions().stream()
@@ -729,6 +733,5 @@ public class ReportService {
             return new ResponseEntity<>(responseStructure, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 }
-
-
