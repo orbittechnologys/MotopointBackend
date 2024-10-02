@@ -135,12 +135,12 @@ public class DriverService {
         driver.setAmountReceived(0.0);
         driver.setTotalOrders(0L);
         driver.setCurrentOrders(0L);
-        driver.setSalaryAmount(0.0);
+
         driver.setCodAmount(0.0);
         driver.setBonus(0.0);
         driver.setPayToJahez(0.0);
         driver.setPaidByTam(0.0);
-        driver.setProfit(0.0);
+
         driver.setAddress(request.getAddress());
         driver.setReferenceLocation(request.getReferenceLocation());
         driver.setNationality(request.getNationality());
@@ -813,7 +813,7 @@ public class DriverService {
                         String.valueOf(driver.getCurrentOrders()),
                         String.valueOf(driver.getJahezId()),
                         driver.getVisaExpiryDate() != null ? driver.getVisaExpiryDate().toString() : "",
-                        String.valueOf(driver.getSalaryAmount()),
+
                         driver.getAddress(),
                         driver.getReferenceLocation(),
                         driver.getNationality(),
@@ -967,11 +967,10 @@ public class DriverService {
                 String[] data = {
                         driver.getUsername(), // Accessing username from the User superclass
                         driver.getOrders() != null ? String.valueOf(driver.getOrders().size()) : "0", // Assuming deliveries means the number of orders
-                        driver.getSalaryAmount() != null ? String.valueOf(driver.getSalaryAmount()) : "0",
-                        driver.getBonus() != null ? String.valueOf(driver.getBonus()) : "0",
+
                         driver.getPayToJahez() != null ? String.valueOf(driver.getPayToJahez()) : "0",
                         driver.getPaidByTam() != null ? String.valueOf(driver.getPaidByTam()) : "0",
-                        driver.getProfit() != null ? String.valueOf(driver.getProfit()) : "0"
+
                 };
                 csvWriter.writeNext(data);
             }

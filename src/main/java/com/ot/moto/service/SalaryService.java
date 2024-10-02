@@ -261,7 +261,7 @@ public class SalaryService {
 
                     /*Set Driver Salary to Zero When Status is SETTLED*/
                     Driver driver = driverDao.getById(salary.getDriver().getId());
-                    driver.setSalaryAmount(0.0);
+                   // driver.setSalaryAmount(0.0);
                     driver.setBonus(Optional.ofNullable(driver.getBonus()).orElse(0.0) + sal.getBonus());
                     driverDao.createDriver(driver);
 
