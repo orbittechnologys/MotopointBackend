@@ -66,6 +66,8 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
     public Page<Orders> findAllByDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
+    public Page<Orders> findAllByDateBetween(LocalDate startDate, LocalDate endDate);
+
     @Query("SELECT o FROM Orders o WHERE o.driver.id = :driverId AND o.date BETWEEN :startDate AND :endDate")
     public List<Orders> findByDriverIdAndOrderDateBetween(
             @Param("driverId") Long driverId,

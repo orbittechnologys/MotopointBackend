@@ -304,11 +304,8 @@ public class ReportController {
             @ApiResponse(responseCode = "404", description = "sum Not Found")})
     @GetMapping("/getAnalysisSum")
     public ResponseEntity<ResponseStructure<DriverAnalysisSum>> getAnalysisSum(@RequestParam LocalDate startDate,
-                                                                               @RequestParam LocalDate endDate,
-                                                                               @RequestParam(defaultValue = "0") int page,
-                                                                               @RequestParam(defaultValue = "10") int size,
-                                                                               @RequestParam(defaultValue = "id") String field) {
-        return reportService.getAnalysisSum(startDate, endDate, page, size, field);
+                                                                               @RequestParam LocalDate endDate) {
+        return reportService.getAnalysisSum(startDate, endDate);
     }
 
     @Operation(summary = "Fetch particular driver analysis", description = "response is particular driver analysis")

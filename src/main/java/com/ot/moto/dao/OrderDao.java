@@ -87,6 +87,10 @@ public class OrderDao {
         return ordersRepository.findAllByDateBetween(startDate, endDate, PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }
 
+    public Page<Orders> findAllAnalysis(LocalDate startDate, LocalDate endDate) {
+        return ordersRepository.findAllByDateBetween(startDate, endDate);
+    }
+
     /*public Page<Orders> findAllAnalysis(LocalDate startDate, LocalDate endDate, int offset, int pageSize, String field) {
         return ordersRepository.findAllAnalysis(startDate, endDate, PageRequest.of(offset, pageSize).withSort(Sort.by(field).descending()));
     }*/

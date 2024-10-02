@@ -580,11 +580,11 @@ public class ReportService {
     }
 
     public ResponseEntity<ResponseStructure<DriverAnalysisSum>> getAnalysisSum(
-            LocalDate startDate, LocalDate endDate, int page, int size, String field) {
+            LocalDate startDate, LocalDate endDate) {
         ResponseStructure<DriverAnalysisSum> responseStructure = new ResponseStructure<>();
         try {
             // Fetch paginated orders between date range
-            Page<Orders> ordersPage = orderDao.findAllAnalysis(startDate, endDate, page, size, field);
+            Page<Orders> ordersPage = orderDao.findAllAnalysis(startDate, endDate);
 
             if (ordersPage.isEmpty()) {
                 responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
