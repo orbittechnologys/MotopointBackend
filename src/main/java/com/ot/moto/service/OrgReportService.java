@@ -549,7 +549,7 @@ public class OrgReportService {
 
         List<DateTimeFormatter> formatters = Arrays.asList(
                 DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH),
-                DateTimeFormatter.ofPattern("d/M/yyyy hh:mm:ss a", Locale.ENGLISH),
+                DateTimeFormatter.ofPattern("d/M/yyyy hh:mm:ss a" ,Locale.ENGLISH),
                 DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH),
                 DateTimeFormatter.ofPattern("d/M/yyyy HH:mm:ss", Locale.ENGLISH),
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH),
@@ -557,7 +557,8 @@ public class OrgReportService {
                 DateTimeFormatter.ofPattern("MM-dd-yyyy hh:mm:ss a", Locale.ENGLISH),
                 DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss a", Locale.ENGLISH),
                 DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm:ss a", Locale.ENGLISH),
-                DateTimeFormatter.ofPattern("MMMM d, yyyy hh:mm:ss a", Locale.ENGLISH)
+                DateTimeFormatter.ofPattern("MMMM d, yyyy hh:mm:ss a", Locale.ENGLISH),
+                DateTimeFormatter.ofPattern("dd-MMM-yyyy")
         );
 
         for (DateTimeFormatter formatter : formatters) {
