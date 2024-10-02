@@ -30,7 +30,7 @@ public class Driver extends User {
 
     private Long currentOrders;
 
-    private Double salaryAmount;
+    /*private Double salaryAmount = 0.0;*/
 
     private Double payToJahez = 0.0;
 
@@ -40,7 +40,7 @@ public class Driver extends User {
 
     private Double paidByTam = 0.0;
 
-    private Double profit = 0.0;
+    /*private Double profit = 0.0;*/
 
     private Long jahezId;
 

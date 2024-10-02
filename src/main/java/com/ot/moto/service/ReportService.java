@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -181,7 +182,7 @@ public class ReportService {
         orders.setDriver(driver);
 
         addDriverDeliveries(codAmount, deliveries, driver);
-        createSalaryFromOrders(orders, driver);
+        /*createSalaryFromOrders(orders, driver);*/
 
         return orders;
     }
@@ -194,7 +195,7 @@ public class ReportService {
         return driverDao.createDriver(driver);
     }
 
-    public Salary createSalaryFromOrders(Orders orders, Driver driver) {
+    /*public Salary createSalaryFromOrders(Orders orders, Driver driver) {
         LocalDate localDate = orders.getDate();
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
@@ -233,7 +234,7 @@ public class ReportService {
             salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
                     + salary.getS4Earnings() + salary.getS5Earnings());
 
-            /*Add Driver Salary */
+            *//*Add Driver Salary *//*
             driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
                     + salary.getS4Earnings() + salary.getS5Earnings());
             Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() +
@@ -271,7 +272,7 @@ public class ReportService {
             salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
                     + salary.getS4Earnings() + salary.getS5Earnings());
 
-            /*Add Driver Salary */
+            *//*Add Driver Salary *//*
             driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
                     + salary.getS4Earnings() + salary.getS5Earnings());
             Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() +
@@ -285,7 +286,7 @@ public class ReportService {
 
         salary = salaryDao.saveSalary(salary);
         return salary;
-    }
+    }*/
 
     public ResponseEntity<ResponseStructure<Object>> uploadBankStatement(Sheet sheet) {
         try {
@@ -304,7 +305,20 @@ public class ReportService {
                 String paymentType = String.valueOf(BENEFIT);
 
                 String dateStr = row.getCell(0).toString().trim();
-                LocalDate date = LocalDate.parse(dateStr, formatter);
+
+                // Ensure the date string is not empty and valid
+                if (dateStr.isEmpty()) {
+                    logger.warn("Date is missing or empty in row " + i + ". Skipping this row.");
+                    continue;
+                }
+
+                LocalDate date;
+                try {
+                    date = LocalDate.parse(dateStr, formatter);
+                } catch (DateTimeParseException e) {
+                    logger.error("Invalid date format in row " + i + ": " + dateStr + ". Skipping this row.", e);
+                    continue;
+                }
 
                 String phoneNumber = extractPhoneNumber(description);
                 logger.info("Extracted phone number: " + phoneNumber);
@@ -312,7 +326,6 @@ public class ReportService {
                 Driver driver = driverDao.findByPhoneNumber(phoneNumber);
 
                 if (Objects.nonNull(driver)) {
-
                     if (paymentRecordExists(driver.getId(), date)) {
                         logger.info("Payment record already exists for driver: " + driver.getPhone() + " on date: " + date + ". Skipping this entry.");
                         continue;
@@ -324,7 +337,6 @@ public class ReportService {
                     logger.info("No driver found with phone number: " + phoneNumber);
                 }
             }
-
 
         } catch (Exception e) {
             logger.error("Error parsing bank statement", e);

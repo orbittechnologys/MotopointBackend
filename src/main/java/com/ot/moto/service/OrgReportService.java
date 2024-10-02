@@ -257,15 +257,15 @@ public class OrgReportService {
         if (Objects.nonNull(order)) {
             order.setDate(date);
             order.setDriverName(driverName);
-            order.setNoOfS1(noOfS1);
-            order.setNoOfS2(noOfS2);
-            order.setNoOfS3(noOfS3);
-            order.setNoOfS4(noOfS4);
-            order.setNoOfS5(noOfS5);
-            order.setTotalOrders(deliveries);
-            order.setCodAmount(codAmount);
-            order.setDebit(debit);
-            order.setCredit(credit);
+            order.setNoOfS1(order.getNoOfS1() + noOfS1);
+            order.setNoOfS2(order.getNoOfS2() + noOfS2);
+            order.setNoOfS3(order.getNoOfS3() + noOfS3);
+            order.setNoOfS4(order.getNoOfS4() + noOfS4);
+            order.setNoOfS5(order.getNoOfS5() + noOfS5);
+            order.setTotalOrders(order.getTotalOrders() + deliveries);
+            order.setCodAmount(order.getCodAmount() + codAmount);
+            order.setDebit(order.getDebit() + debit);
+            order.setCredit(order.getCredit() + credit);
         } else {
             order = new Orders();
             order.setDate(date);
@@ -335,10 +335,12 @@ public class OrgReportService {
             salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
 
             /*Add Driver Salary */
-            driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
+            /*driver.setSalaryAmount(driver.getSalaryAmount() + salary.getTotalEarnings());//Driver Life Time Salary Amount
             Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
-            driver.setProfit(Optional.ofNullable(driver.getProfit()).orElse(0.0) + jahezAmount - driver.getSalaryAmount());
-            driverDao.createDriver(driver);
+            driver.setProfit(Optional.ofNullable(driver.getProfit()).orElse(0.0) + jahezAmount - salary.getTotalEarnings());
+            driverDao.createDriver(driver);*/
+            Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
+            salary.setProfit(jahezAmount - salary.getTotalEarnings());
 
             salary.setTotalDeductions(0.0);
             salary.setVisaCharges(0.0);
@@ -367,10 +369,14 @@ public class OrgReportService {
             salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
 
             /*Add Driver Salary */
-            driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
+            /*driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
             Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
             driver.setProfit(driver.getProfit() + jahezAmount - driver.getSalaryAmount());
-            driverDao.createDriver(driver);
+            driverDao.createDriver(driver);*/
+
+            Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
+            salary.setProfit(Optional.ofNullable(salary.getProfit()).orElse(0.0)+jahezAmount - salary.getTotalEarnings());
+
         }
 
         salary = salaryDao.saveSalary(salary);
@@ -446,7 +452,7 @@ public class OrgReportService {
         return orgReport;
     }
 
-    private Long parseLong(Cell cell) {
+    /*private Long parseLong(Cell cell) {
         if (cell == null) return null;
         try {
             return cell.getCellType() == CellType.NUMERIC ? (long) cell.getNumericCellValue() : Long.parseLong(cell.getStringCellValue().trim());
@@ -454,7 +460,28 @@ public class OrgReportService {
             logger.error("Error parsing long from cell at row {}", cell.getRowIndex(), e);
             return null;
         }
+    }*/
+
+    private Long parseLong(Cell cell) {
+        if (cell == null || cell.getCellType() == CellType.BLANK) {
+            logger.warn("Cell is null or blank, returning null for Long");
+            return null;
+        }
+        try {
+            if (cell.getCellType() == CellType.NUMERIC) {
+                return (long) cell.getNumericCellValue();
+            } else if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().trim().isEmpty()) {
+                return Long.parseLong(cell.getStringCellValue().trim());
+            } else {
+                logger.warn("Cell at row {} contains non-numeric or empty string, returning null", cell.getRowIndex());
+                return null;
+            }
+        } catch (NumberFormatException e) {
+            logger.error("Error parsing long from cell at row {}", cell.getRowIndex(), e);
+            return null;
+        }
     }
+
 
     private String parseString(Cell cell) {
         if (cell == null) return null;
@@ -473,10 +500,30 @@ public class OrgReportService {
         }
     }
 
-    private Double parseDouble(Cell cell) {
+    /*private Double parseDouble(Cell cell) {
         if (cell == null) return null;
         try {
             return cell.getCellType() == CellType.NUMERIC ? cell.getNumericCellValue() : Double.parseDouble(cell.getStringCellValue().trim());
+        } catch (NumberFormatException e) {
+            logger.error("Error parsing double from cell at row {}", cell.getRowIndex(), e);
+            return null;
+        }
+    }*/
+
+    private Double parseDouble(Cell cell) {
+        if (cell == null || cell.getCellType() == CellType.BLANK) {
+            logger.warn("Cell is null or blank, returning null");
+            return null;
+        }
+        try {
+            if (cell.getCellType() == CellType.NUMERIC) {
+                return cell.getNumericCellValue();
+            } else if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().trim().isEmpty()) {
+                return Double.parseDouble(cell.getStringCellValue().trim());
+            } else {
+                logger.warn("Cell at row {} contains non-numeric or empty string", cell.getRowIndex());
+                return null;
+            }
         } catch (NumberFormatException e) {
             logger.error("Error parsing double from cell at row {}", cell.getRowIndex(), e);
             return null;
@@ -499,13 +546,31 @@ public class OrgReportService {
             logger.warn("Date time string is null or empty");
             return null;
         }
-        try {
-            logger.info("Parsing date time: {}", dateTimeStr);
-            return LocalDateTime.parse(dateTimeStr, FORMATTER);
-        } catch (DateTimeParseException e) {
-            logger.error("Failed to parse date time: {}", dateTimeStr, e);
-            return null;
+
+        List<DateTimeFormatter> formatters = Arrays.asList(
+                DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH),
+                DateTimeFormatter.ofPattern("d/M/yyyy hh:mm:ss a", Locale.ENGLISH),
+                DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH),
+                DateTimeFormatter.ofPattern("d/M/yyyy HH:mm:ss", Locale.ENGLISH),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH),
+                DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss", Locale.ENGLISH),
+                DateTimeFormatter.ofPattern("MM-dd-yyyy hh:mm:ss a", Locale.ENGLISH),
+                DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss a", Locale.ENGLISH),
+                DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm:ss a", Locale.ENGLISH),
+                DateTimeFormatter.ofPattern("MMMM d, yyyy hh:mm:ss a", Locale.ENGLISH)
+        );
+
+        for (DateTimeFormatter formatter : formatters) {
+            try {
+                logger.info("Trying to parse date time: {} with format: {}", dateTimeStr, formatter);
+                return LocalDateTime.parse(dateTimeStr, formatter);
+            } catch (DateTimeParseException e) {
+                logger.warn("Failed to parse with format: {}", formatter);
+            }
         }
+
+        logger.error("Failed to parse date time with all formats: {}", dateTimeStr);
+        return null;
     }
 
     public ResponseEntity<ResponseStructure<Object>> getAllOrg(int page, int size, String field) {

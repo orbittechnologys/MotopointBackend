@@ -55,6 +55,8 @@ public class Salary {
 
     private String status;
 
+    private Double profit = 0.0;
+
     @ManyToOne
     @JoinColumn
     private Driver driver;
