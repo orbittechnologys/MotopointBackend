@@ -65,29 +65,4 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
     public Page<Driver> findDriversByRentedSRentedVehicleType(Pageable pageable);
 
     public Driver findByJahezId(Long jahezId);
-
-
-    /*@Query("SELECT SUM(o.codAmount) FROM Orders o")
-    public Double sumCodAmount();
-
-    @Query("SELECT COUNT(o) FROM Orders o")
-    public Long sumTotalOrders(); // Use COUNT if totalOrders is derived from the count of orders.
-
-    @Query("SELECT SUM(b.bonus) FROM Bonus b")
-    public Double sumBonus();*/
-
-   /* @Query("SELECT SUM(p.penalties) FROM Penalty p")
-    public Double sumPenalties();*/
-
-    /*@Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType = 'bike'")
-    public Long countByVehicleTypeBike();
-
-    @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType = 'visa'")
-    public Long countByVehicleTypeVisa();
-
-    @Query("SELECT COUNT(d) FROM Driver d WHERE d.vehicleType != 'bike' AND d.vehicleType != 'visa'")
-    public Long countByVehicleTypeOther();
-
-    @Query("SELECT SUM(d.driverAmountPending) FROM Driver d")
-    public Double sumDriverAmountPending();*/
 }

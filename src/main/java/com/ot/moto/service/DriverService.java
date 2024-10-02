@@ -4,6 +4,7 @@ import com.opencsv.CSVWriter;
 import com.ot.moto.dao.*;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.*;
+import com.ot.moto.dto.response.DriverAnalysisSum;
 import com.ot.moto.dto.response.DriverDetails;
 import com.ot.moto.dto.response.TopDrivers;
 import com.ot.moto.entity.*;
@@ -1146,6 +1147,34 @@ public class DriverService {
         } catch (Exception e) {
             logger.error("Error deleting Driver", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<List<DriverNamesReq>>> getAllDriverNames() {
+        ResponseStructure<List<DriverNamesReq>> responseStructure = new ResponseStructure<>();
+        try {
+            List<Driver> drivers = driverDao.getAllDrivers();
+            if (drivers.isEmpty()) {
+                logger.warn("No Driver found.");
+                responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
+                responseStructure.setMessage("No Driver found.");
+                responseStructure.setData(null);
+                return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
+            }
+
+            List<DriverNamesReq> DriverNamesReqs = drivers.stream()
+                    .map(driver -> new DriverNamesReq(driver.getId(), driver.getUsername()))
+                    .collect(Collectors.toList());
+            responseStructure.setStatus(HttpStatus.OK.value());
+            responseStructure.setMessage("Driver Names fetched successfully.");
+            responseStructure.setData(DriverNamesReqs);
+            return new ResponseEntity<>(responseStructure, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error fetching driver names : ", e);
+            responseStructure.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            responseStructure.setMessage(e.getMessage());
+            responseStructure.setData(null);
+            return new ResponseEntity<>(responseStructure, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
