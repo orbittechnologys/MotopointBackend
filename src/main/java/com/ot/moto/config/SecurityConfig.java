@@ -225,7 +225,8 @@ public class SecurityConfig {
             "/report/getAllAnalysis",
             "/report/getAnalysisSum",
             "/report/getDriverAnalysis",
-            "/report/getDriverAnalysisSum"
+            "/report/getDriverAnalysisSum",
+            "/driver/getAllDriverNames"
     };
 
     private static final String[] ADMIN_WHITELIST = {};

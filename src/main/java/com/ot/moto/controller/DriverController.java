@@ -2,6 +2,7 @@ package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.CreateDriverReq;
+import com.ot.moto.dto.request.DriverNamesReq;
 import com.ot.moto.dto.request.UpdateDriverReq;
 import com.ot.moto.dto.response.DriverDetails;
 import com.ot.moto.entity.Driver;
@@ -200,5 +201,10 @@ public class DriverController {
                                                                          @RequestParam(defaultValue = "10") int size,
                                                                          @RequestParam(defaultValue = "id") String field) {
         return driverService.rentedSRentedVeichleType(page, size, field);
+    }
+
+    @GetMapping("/getAllDriverNames")
+    public ResponseEntity<ResponseStructure<List<DriverNamesReq>>> getAllDriverNames() {
+        return driverService.getAllDriverNames();
     }
 }
