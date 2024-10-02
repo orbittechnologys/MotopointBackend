@@ -584,7 +584,7 @@ public class ReportService {
         ResponseStructure<DriverAnalysisSum> responseStructure = new ResponseStructure<>();
         try {
             // Fetch paginated orders between date range
-            Page<Orders> ordersPage = orderDao.findAllAnalysis(startDate, endDate);
+            List<Orders> ordersPage = orderDao.findAllAnalysis(startDate, endDate);
 
             if (ordersPage.isEmpty()) {
                 responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
@@ -605,7 +605,7 @@ public class ReportService {
             totalSum.setVisa(0.0);
 
             // Iterate through all orders to sum driver details
-            for (Orders order : ordersPage.getContent()) {
+            for (Orders order : ordersPage) {
                 Driver driver = driverDao.getById(order.getDriver().getId());
 
                 // Add the COD amount from the driver
