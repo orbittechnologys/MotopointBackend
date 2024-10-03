@@ -221,7 +221,7 @@ public class SalaryService {
         }
     }
 
-    @Transactional
+    /*@Transactional
     public ResponseEntity<ResponseStructure<Object>> settleSalaries(SettleSalariesReq request) {
         try {
             List<Salary> settledSalaries = new ArrayList<>();
@@ -257,6 +257,70 @@ public class SalaryService {
                     driver.setBonus(Optional.ofNullable(driver.getBonus()).orElse(0.0) + sal.getBonus());
                     driverDao.createDriver(driver);
 
+                    settledSalaries.add(salary);
+                } else {
+                    logger.warn("No Salary found. Invalid ID: " + sal.getId());
+                }
+            }
+
+            if (!settledSalaries.isEmpty()) {
+                salaryDao.saveAll(settledSalaries);
+            }
+
+            return ResponseStructure.successResponse(settledSalaries, "Salaries settled successfully");
+        } catch (Exception e) {
+            logger.error("Error settling Salaries", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }*/
+
+    @Transactional
+    public ResponseEntity<ResponseStructure<Object>> settleSalaries(SettleSalariesReq request) {
+        try {
+            List<Salary> settledSalaries = new ArrayList<>();
+
+            for (SettleSalary sal : request.getSalaries()) {
+                Salary salary = salaryDao.getById(sal.getId());
+                if (salary != null) {
+                    // Get bonus and incentives from the request (if present) or use defaults
+                    Double bonus = sal.getBonus() != null ? sal.getBonus() : 0.0;
+                    Double incentives = sal.getIncentives() != null ? sal.getIncentives() : 0.0;
+
+                    // Get the current values from the salary (if present) or default
+                    Double currentBonus = salary.getBonus() != null ? salary.getBonus() : 0.0;
+                    Double currentIncentives = salary.getIncentives() != null ? salary.getIncentives() : 0.0;
+
+                    // Calculating deductions
+                    Double emiPerDayCharges = salary.getEmiPerDay() * sal.getNumberOfDaysSalarySettled();
+                    Double penaltiesOfDriver = salary.getFleetPenalty();
+                    Double driverCODAmount = salary.getDriver().getAmountPending();
+
+                    // Update bonus and incentives
+                    salary.setBonus(currentBonus + bonus);
+                    salary.setIncentives(currentIncentives + incentives);
+
+                    // Calculate the total settled amount (after applying deductions)
+                    Double settledAmount = salary.getS1Earnings()
+                            + salary.getS2Earnings()
+                            + salary.getS3Earnings()
+                            + salary.getS4Earnings()
+                            + salary.getS5Earnings()
+                            - emiPerDayCharges
+                            - penaltiesOfDriver
+                            - driverCODAmount
+                            + bonus // Add new bonus
+                            + incentives; // Add new incentives
+
+                    salary.setStatus(Salary.status.SETTLED.name());
+                    salary.setTotalEarnings(settledAmount);
+                    salary.setTotalDeductions(emiPerDayCharges + penaltiesOfDriver + driverCODAmount);
+
+                    // Update the driver's bonus
+                    Driver driver = driverDao.getById(salary.getDriver().getId());
+                    driver.setBonus(Optional.ofNullable(driver.getBonus()).orElse(0.0) + bonus);
+                    driverDao.createDriver(driver);
+
+                    // Add to the list of settled salaries
                     settledSalaries.add(salary);
                 } else {
                     logger.warn("No Salary found. Invalid ID: " + sal.getId());
