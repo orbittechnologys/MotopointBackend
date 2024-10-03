@@ -6,6 +6,7 @@ import com.ot.moto.entity.*;
 import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.OrgReportsRepository;
 import com.ot.moto.util.StringUtil;
+import jakarta.transaction.Transactional;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -63,6 +64,7 @@ public class OrgReportService {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH);
 
+    @Transactional
     public ResponseEntity<ResponseStructure<Object>> uploadOrgReports(Sheet sheet) {
         List<OrgReports> orgReportsList = new ArrayList<>();
         HashMap<String, List<Double>> driverSlabMap = new HashMap<>(); // " jahezId | date " -> [total s1,total s2,total s3,total s4,total s5,totalCOD]
@@ -169,16 +171,15 @@ public class OrgReportService {
                 orgReportsList.add(orgReport);
             }
 
-            processDriverSlabMap(driverSlabMap); //
-
             if (!orgReportsList.isEmpty()) {
                 orgReportsDao.saveAll(orgReportsList);
                 logger.info("Successfully saved {} reports.", orgReportsList.size());
             } else {
                 logger.info("No valid reports to save.");
             }
-            return ResponseStructure.successResponse(null, "Successfully Parsed");
 
+            processDriverSlabMap(driverSlabMap);
+            return ResponseStructure.successResponse(null, "Successfully Parsed");
         } catch (Exception e) {
             logger.error("Error parsing Excel OrgReports", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
