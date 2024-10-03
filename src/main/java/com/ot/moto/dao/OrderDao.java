@@ -25,6 +25,10 @@ public class OrderDao {
         return ordersRepository.saveAll(ordersList);
     }
 
+    public Orders save(Orders orders) {
+        return ordersRepository.save(orders);
+    }
+
     public Orders checkOrderValid(String driverName, LocalDate date) {
         Optional<Orders> orders = ordersRepository.findByDateAndDriverName(date, driverName);
         return orders.orElse(null);
@@ -78,8 +82,8 @@ public class OrderDao {
         return ordersRepository.findTotalOrdersForCurrentMonthByDriver(driverId, startDate, endDate);
     }
 
-    public Orders findByOrderAndDriver(Driver driver, LocalDate localDate) {
-        Optional<Orders> orders = ordersRepository.findByDriverAndDate(driver, localDate);
+    public Orders findByOrderAndDriver(String driverName, LocalDate date) {
+        Optional<Orders> orders = ordersRepository.findByDriverNameAndDate(driverName, date);
         return orders.orElse(null);
     }
 

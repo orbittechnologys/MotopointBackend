@@ -186,7 +186,7 @@ public class OrgReportService {
     }
 
     private void processDriverSlabMap(HashMap<String, List<Double>> driverSlabMap) {
-        List<Orders> ordersList = new ArrayList<>();
+        /*List<Orders> ordersList = new ArrayList<>();*/
 
         for (Map.Entry<String, List<Double>> entry : driverSlabMap.entrySet()) {
             String key = entry.getKey();
@@ -212,11 +212,11 @@ public class OrgReportService {
                     slabs.get(5),  // COD amount (as Double, assuming no conversion needed)
                     0.0, 0.0);
 
-            ordersList.add(orders);
+            /*ordersList.add(orders);*/
         }
-        ordersList = orderDao.createOrders(ordersList);
+        /*ordersList = orderDao.createOrders(ordersList);*/
 
-        for (Orders orders : ordersList) {
+        /*for (Orders orders : ordersList) {
             long totalOrders = orderDao.getTotalOrdersForCurrentMonthByDriver(orders.getDriver().getId());
 
             // Fetch the highest bonus based on delivery count
@@ -240,7 +240,7 @@ public class OrgReportService {
                 orders.getDriver().setBonus(currentBonus);
                 driverRepository.save(orders.getDriver());
             }
-        }
+        }*/
     }
 
     private Orders buildOrdersFromCellData(LocalDate date, Long jahezId, String driverName, Long noOfS1, Long noOfS2, Long noOfS3,
@@ -249,43 +249,74 @@ public class OrgReportService {
         Driver driver = driverDao.findByJahezId(jahezId);
 
         if (Objects.isNull(driver)) {
+            System.out.println("Driver not found for jahezId: " + jahezId);
             return null;
         }
 
-        Orders order = orderDao.findByOrderAndDriver(driver, date);
+        Orders existingOrder = orderDao.findByOrderAndDriver(driver.getUsername(), date);
 
-        if (Objects.nonNull(order)) {
-            order.setDate(date);
-            order.setDriverName(driverName);
-            order.setNoOfS1(order.getNoOfS1() + noOfS1);
-            order.setNoOfS2(order.getNoOfS2() + noOfS2);
-            order.setNoOfS3(order.getNoOfS3() + noOfS3);
-            order.setNoOfS4(order.getNoOfS4() + noOfS4);
-            order.setNoOfS5(order.getNoOfS5() + noOfS5);
-            order.setTotalOrders(order.getTotalOrders() + deliveries);
-            order.setCodAmount(order.getCodAmount() + codAmount);
-            order.setDebit(order.getDebit() + debit);
-            order.setCredit(order.getCredit() + credit);
+        boolean newRecord = Objects.isNull(existingOrder);
+
+        if (newRecord) {
+            System.out.println("Creating a new order for driver: " + driver.getJahezId() + " on date: " + date);
+            existingOrder = new Orders();
+            existingOrder.setDate(date);
+            existingOrder.setDriverName(driverName);
+            existingOrder.setNoOfS1(noOfS1);
+            existingOrder.setNoOfS2(noOfS2);
+            existingOrder.setNoOfS3(noOfS3);
+            existingOrder.setNoOfS4(noOfS4);
+            existingOrder.setNoOfS5(noOfS5);
+            existingOrder.setTotalOrders(deliveries);
+            existingOrder.setCodAmount(codAmount);
+            existingOrder.setDebit(debit);
+            existingOrder.setCredit(credit);
+            existingOrder.setDriver(driver);
         } else {
-            order = new Orders();
-            order.setDate(date);
-            order.setDriverName(driverName);
-            order.setNoOfS1(noOfS1);
-            order.setNoOfS2(noOfS2);
-            order.setNoOfS3(noOfS3);
-            order.setNoOfS4(noOfS4);
-            order.setNoOfS5(noOfS5);
-            order.setTotalOrders(deliveries);
-            order.setCodAmount(codAmount);
-            order.setDebit(debit);
-            order.setCredit(credit);
-            order.setDriver(driver);
+            System.out.println("Updating existing order for driver: " + driver.getJahezId() + " on date: " + date);
+            existingOrder.setDate(date);
+            existingOrder.setDriverName(driverName);
+            existingOrder.setNoOfS1(existingOrder.getNoOfS1() + noOfS1);
+            existingOrder.setNoOfS2(existingOrder.getNoOfS2() + noOfS2);
+            existingOrder.setNoOfS3(existingOrder.getNoOfS3() + noOfS3);
+            existingOrder.setNoOfS4(existingOrder.getNoOfS4() + noOfS4);
+            existingOrder.setNoOfS5(existingOrder.getNoOfS5() + noOfS5);
+            existingOrder.setTotalOrders(existingOrder.getTotalOrders() + deliveries);
+            existingOrder.setCodAmount(existingOrder.getCodAmount() + codAmount);
+            existingOrder.setDebit(existingOrder.getDebit() + debit);
+            existingOrder.setCredit(existingOrder.getCredit() + credit);
         }
 
         addDriverDeliveries(codAmount, deliveries, driver);
-        createSalaryFromOrders(order, driver);
+        createSalaryFromOrders(existingOrder, driver);
 
-        return order;
+        existingOrder = orderDao.save(existingOrder);
+
+        long totalOrders = orderDao.getTotalOrdersForCurrentMonthByDriver(existingOrder.getDriver().getId());
+
+        // Fetch the highest bonus based on delivery count
+        Bonus bonusForCount = bonusDao.findTopByDeliveryCountLessThanEqualOrderByDeliveryCountDesc(totalOrders);
+
+        // Fetch the bonus based on specialDate
+        Bonus bonusForDate = bonusDao.findTopBySpecialDate(existingOrder.getDate());
+
+        double totalBonus = 0.0;
+        if (bonusForCount != null) {
+            totalBonus += bonusForCount.getBonusAmount();
+        }
+        if (bonusForDate != null) {
+            totalBonus += bonusForDate.getDateBonusAmount();
+        }
+
+        // Now, update the driver's bonus in the order or driver entity
+        if (totalBonus > 0) {
+            double preBonus = existingOrder.getDriver().getBonus() != null ? existingOrder.getDriver().getBonus() : 0.0;
+            double currentBonus = preBonus + totalBonus;
+            existingOrder.getDriver().setBonus(currentBonus);
+            driverRepository.save(existingOrder.getDriver());
+        }
+
+        return existingOrder;
     }
 
     public Driver addDriverDeliveries(Double codAmount, Long deliveries, Driver driver) {
