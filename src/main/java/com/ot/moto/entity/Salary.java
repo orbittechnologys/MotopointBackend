@@ -3,6 +3,8 @@ package com.ot.moto.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Entity
 @Data
 public class Salary {
@@ -56,6 +58,14 @@ public class Salary {
     private String status;
 
     private Double profit = 0.0;
+
+    private Double emiPerDay = 0.0;
+
+    private Double fleetPenalty = 0.0;
+
+    private LocalDate salaryCreditDate;
+
+    private Long numberOfDaysSalarySettled;
 
     @ManyToOne
     @JoinColumn

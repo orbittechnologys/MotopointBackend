@@ -373,6 +373,22 @@ public class OrgReportService {
             Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
             salary.setProfit(jahezAmount - salary.getTotalEarnings());
 
+            Double emiAmount =
+                    (driver.getVisaAmountEmi() != null ? driver.getVisaAmountEmi() : 0.0) +
+                            (driver.getBikeRentAmountEmi() != null ? driver.getBikeRentAmountEmi() : 0.0) +
+                            (driver.getOtherDeductions() != null ? driver.getOtherDeductions().stream()
+                                    .mapToDouble(OtherDeduction::getOtherDeductionAmountEmi)
+                                    .sum() : 0.0);
+
+            Double penaltyAmount = ((driver.getPenalties() != null && !driver.getPenalties().isEmpty()) ?
+                    driver.getPenalties().stream()
+                            .filter(penalty -> penalty.getStatus() == Penalty.PenaltyStatus.NOT_SETTLED)
+                            .mapToDouble(Penalty::getAmount)
+                            .sum() : 0.0);
+
+            salary.setFleetPenalty(penaltyAmount);
+            salary.setEmiPerDay(emiAmount);
+            salary.setSalaryCreditDate(LocalDate.now());
             salary.setTotalDeductions(0.0);
             salary.setVisaCharges(0.0);
             salary.setOtherCharges(0.0);
@@ -404,10 +420,15 @@ public class OrgReportService {
             Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
             driver.setProfit(driver.getProfit() + jahezAmount - driver.getSalaryAmount());
             driverDao.createDriver(driver);*/
-
+            salary.setSalaryCreditDate(LocalDate.now());
             Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
-            salary.setProfit(Optional.ofNullable(salary.getProfit()).orElse(0.0)+jahezAmount - salary.getTotalEarnings());
-
+            salary.setProfit(Optional.ofNullable(salary.getProfit()).orElse(0.0) + jahezAmount - salary.getTotalEarnings());
+            Double penaltyAmount = ((driver.getPenalties() != null && !driver.getPenalties().isEmpty()) ?
+                    driver.getPenalties().stream()
+                            .filter(penalty -> penalty.getStatus() == Penalty.PenaltyStatus.NOT_SETTLED)
+                            .mapToDouble(Penalty::getAmount)
+                            .sum() : 0.0);
+            salary.setFleetPenalty(penaltyAmount);
         }
 
         salary = salaryDao.saveSalary(salary);
@@ -580,7 +601,7 @@ public class OrgReportService {
 
         List<DateTimeFormatter> formatters = Arrays.asList(
                 DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH),
-                DateTimeFormatter.ofPattern("d/M/yyyy hh:mm:ss a" ,Locale.ENGLISH),
+                DateTimeFormatter.ofPattern("d/M/yyyy hh:mm:ss a", Locale.ENGLISH),
                 DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH),
                 DateTimeFormatter.ofPattern("d/M/yyyy HH:mm:ss", Locale.ENGLISH),
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH),

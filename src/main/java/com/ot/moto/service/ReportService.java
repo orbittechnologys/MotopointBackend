@@ -641,7 +641,7 @@ public class ReportService {
 
                 // Sum up other deductions
                 double totalOtherDeductions = driver.getOtherDeductions().stream()
-                        .mapToDouble(OtherDeduction::getOtherDeductionAmount)
+                        .mapToDouble(OtherDeduction::getOtherDeductionAmountEmi)
                         .sum();
                 totalSum.setOther(totalSum.getOther() + totalOtherDeductions);
 
@@ -728,7 +728,7 @@ public class ReportService {
                 totalSum.setPenalties(totalSum.getPenalties() + totalPenalties);
 
                 double totalOtherDeductions = driver.getOtherDeductions() != null ? driver.getOtherDeductions().stream()
-                        .mapToDouble(OtherDeduction::getOtherDeductionAmount)
+                        .mapToDouble(OtherDeduction::getOtherDeductionAmountEmi)
                         .sum() : 0.0;
                 totalSum.setOther(totalSum.getOther() + totalOtherDeductions);
 
