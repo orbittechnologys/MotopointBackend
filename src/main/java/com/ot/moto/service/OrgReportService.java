@@ -365,11 +365,6 @@ public class OrgReportService {
 
             salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
 
-            /*Add Driver Salary */
-            /*driver.setSalaryAmount(driver.getSalaryAmount() + salary.getTotalEarnings());//Driver Life Time Salary Amount
-            Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
-            driver.setProfit(Optional.ofNullable(driver.getProfit()).orElse(0.0) + jahezAmount - salary.getTotalEarnings());
-            driverDao.createDriver(driver);*/
             Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
             salary.setProfit(jahezAmount - salary.getTotalEarnings());
 
@@ -390,8 +385,6 @@ public class OrgReportService {
             salary.setEmiPerDay(emiAmount);
             salary.setSalaryCreditDate(LocalDate.now());
             salary.setTotalDeductions(0.0);
-            salary.setVisaCharges(0.0);
-            salary.setOtherCharges(0.0);
             salary.setBonus(0.0);
             salary.setIncentives(0.0);
             salary.setStatus("NOT_SETTLED");
@@ -415,11 +408,6 @@ public class OrgReportService {
 
             salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
 
-            /*Add Driver Salary */
-            /*driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
-            Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
-            driver.setProfit(driver.getProfit() + jahezAmount - driver.getSalaryAmount());
-            driverDao.createDriver(driver);*/
             salary.setSalaryCreditDate(LocalDate.now());
             Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
             salary.setProfit(Optional.ofNullable(salary.getProfit()).orElse(0.0) + jahezAmount - salary.getTotalEarnings());
@@ -429,6 +417,26 @@ public class OrgReportService {
                             .mapToDouble(Penalty::getAmount)
                             .sum() : 0.0);
             salary.setFleetPenalty(penaltyAmount);
+        }
+
+        long totalOrders = orderDao.getTotalOrdersForCurrentMonthByDriver(driver.getId());
+
+        Bonus bonusForCount = bonusDao.findTopByDeliveryCountLessThanEqualOrderByDeliveryCountDesc(totalOrders);
+
+        Bonus bonusForDate = bonusDao.findTopBySpecialDate(orders.getDate());
+
+        double totalBonus = 0.0;
+
+        if (bonusForCount != null) {
+            totalBonus += bonusForCount.getBonusAmount();
+        }
+        if (bonusForDate != null) {
+            totalBonus += bonusForDate.getDateBonusAmount();
+        }
+        if (totalBonus > 0) {
+            double preBonus = salary.getBonus() != null ? salary.getBonus() : 0.0;
+            double currentBonus = preBonus + totalBonus;
+            salary.setBonus(currentBonus);
         }
 
         salary = salaryDao.saveSalary(salary);
@@ -504,16 +512,6 @@ public class OrgReportService {
         return orgReport;
     }
 
-    /*private Long parseLong(Cell cell) {
-        if (cell == null) return null;
-        try {
-            return cell.getCellType() == CellType.NUMERIC ? (long) cell.getNumericCellValue() : Long.parseLong(cell.getStringCellValue().trim());
-        } catch (NumberFormatException e) {
-            logger.error("Error parsing long from cell at row {}", cell.getRowIndex(), e);
-            return null;
-        }
-    }*/
-
     private Long parseLong(Cell cell) {
         if (cell == null || cell.getCellType() == CellType.BLANK) {
             logger.warn("Cell is null or blank, returning null for Long");
@@ -551,16 +549,6 @@ public class OrgReportService {
             return null;
         }
     }
-
-    /*private Double parseDouble(Cell cell) {
-        if (cell == null) return null;
-        try {
-            return cell.getCellType() == CellType.NUMERIC ? cell.getNumericCellValue() : Double.parseDouble(cell.getStringCellValue().trim());
-        } catch (NumberFormatException e) {
-            logger.error("Error parsing double from cell at row {}", cell.getRowIndex(), e);
-            return null;
-        }
-    }*/
 
     private Double parseDouble(Cell cell) {
         if (cell == null || cell.getCellType() == CellType.BLANK) {

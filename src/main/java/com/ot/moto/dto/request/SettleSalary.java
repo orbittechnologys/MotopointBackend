@@ -9,9 +9,7 @@ public class SettleSalary {
 
     private Long id;
 
-    private Double visaCharges;
-
-    private Double otherCharges;
+    private Long numberOfDaysSalarySettled;
 
     private Double bonus;
 

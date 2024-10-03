@@ -47,10 +47,6 @@ public class Salary {
 
     private Double totalDeductions;
 
-    private Double visaCharges;
-
-    private Double otherCharges;
-
     private Double bonus = 0.0;
 
     private Double incentives;

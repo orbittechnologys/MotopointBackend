@@ -157,8 +157,6 @@ public class SalaryService {
                 row.createCell(13).setCellValue(salary.getS5Earnings() != null ? salary.getS5Earnings() : 0.0);
                 row.createCell(14).setCellValue(salary.getTotalEarnings() != null ? salary.getTotalEarnings() : 0.0);
                 row.createCell(15).setCellValue(salary.getTotalDeductions() != null ? salary.getTotalDeductions() : 0.0);
-                row.createCell(16).setCellValue(salary.getVisaCharges() != null ? salary.getVisaCharges() : 0.0);
-                row.createCell(17).setCellValue(salary.getOtherCharges() != null ? salary.getOtherCharges() : 0.0);
                 row.createCell(18).setCellValue(salary.getBonus() != null ? salary.getBonus() : 0.0);
                 row.createCell(19).setCellValue(salary.getIncentives() != null ? salary.getIncentives() : 0.0);
                 row.createCell(20).setCellValue(salary.getStatus());
@@ -232,38 +230,30 @@ public class SalaryService {
                 Salary salary = salaryDao.getById(sal.getId());
                 if (salary != null) {
 
-                    Double visaCharges = sal.getVisaCharges() != null ? sal.getVisaCharges() : 0.0;
-                    Double otherCharges = sal.getOtherCharges() != null ? sal.getOtherCharges() : 0.0;
                     Double bonus = sal.getBonus() != null ? sal.getBonus() : 0.0;
                     Double incentives = sal.getIncentives() != null ? sal.getIncentives() : 0.0;
 
-
-                    Double currentVisaCharges = salary.getVisaCharges() != null ? salary.getVisaCharges() : 0.0;
-                    Double currentOtherCharges = salary.getOtherCharges() != null ? salary.getOtherCharges() : 0.0;
                     Double currentBonus = salary.getBonus() != null ? salary.getBonus() : 0.0;
                     Double currentIncentives = salary.getIncentives() != null ? salary.getIncentives() : 0.0;
+                    Double emiPerDayCharges = salary.getEmiPerDay() * sal.getNumberOfDaysSalarySettled();
+                    Double penaltiesOfDriver = salary.getFleetPenalty();
+                    Double driverCODAmount = salary.getDriver().getAmountPending();
 
-
-                    salary.setVisaCharges(currentVisaCharges + visaCharges);
-                    salary.setOtherCharges(currentOtherCharges + otherCharges);
                     salary.setBonus(currentBonus + bonus);
                     salary.setIncentives(currentIncentives + incentives);
 
-
                     Double settledAmount = salary.getTotalEarnings()
-                            - (currentVisaCharges + visaCharges)
-                            - (currentOtherCharges + otherCharges)
+                            - emiPerDayCharges
+                            - penaltiesOfDriver
+                            - driverCODAmount
                             + (currentIncentives + incentives)
                             + (currentBonus + bonus);
 
                     salary.setStatus(Salary.status.SETTLED.name());
                     salary.setTotalEarnings(settledAmount);
-                    salary.setTotalDeductions(
-                            (currentVisaCharges + visaCharges) + (currentOtherCharges + otherCharges)
-                    );
+                    salary.setTotalDeductions(emiPerDayCharges + penaltiesOfDriver + driverCODAmount);
 
                     Driver driver = driverDao.getById(salary.getDriver().getId());
-                    // driver.setSalaryAmount(0.0);
                     driver.setBonus(Optional.ofNullable(driver.getBonus()).orElse(0.0) + sal.getBonus());
                     driverDao.createDriver(driver);
 
