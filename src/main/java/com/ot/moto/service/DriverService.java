@@ -29,6 +29,7 @@ import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -281,27 +282,6 @@ public class DriverService {
         } else {
             driver.setBikeRentAmountEmi(null);
         }
-
-        // Handle Other Deductions EMI calculation
-        /*driver.setOtherDeductionAmount(request.getOtherDeductionAmount());
-        driver.setOtherDeductionAmountStartDate(request.getOtherDeductionAmountStartDate());
-        driver.setOtherDeductionAmountEndDate(request.getOtherDeductionAmountEndDate());
-
-        LocalDate otherStartDate = request.getOtherDeductionAmountStartDate();
-        LocalDate otherEndDate = request.getOtherDeductionAmountEndDate();
-        Double otherDeductionAmount = request.getOtherDeductionAmount();
-
-        if (otherStartDate != null && otherEndDate != null && otherDeductionAmount != null) {
-            long otherDeductionDays = ChronoUnit.DAYS.between(otherStartDate, otherEndDate);
-            if (otherDeductionDays > 0) {
-                double emi = otherDeductionAmount / otherDeductionDays;
-                driver.setOtherDeductionsAmountEmi(emi);
-            } else {
-                throw new RuntimeException("Other deductions start date must be before end date.");
-            }
-        } else {
-            driver.setOtherDeductionsAmountEmi(null);
-        }*/
     }
 
     public ResponseEntity<ResponseStructure<Object>> updateDriver(UpdateDriverReq request) {
@@ -517,47 +497,54 @@ public class DriverService {
 
     private void updateOtherDeductionsForDriverV2(Driver driver, UpdateDriverReq request) {
         if (request.getOtherDeduction() != null) {
-            List<OtherDeduction> otherDeductions = new ArrayList<>();
+            List<OtherDeduction> existingDeductions = otherDeductionDao.findByDriverId(driver.getId());
+            List<OtherDeduction> deductionsToSave = new ArrayList<>();
+
+            // Create a map for quick lookup of existing deductions
+            Map<Long, OtherDeduction> existingDeductionMap = existingDeductions.stream()
+                    .collect(Collectors.toMap(OtherDeduction::getId, Function.identity()));
+
             for (UpdateOtherDeductionReq updateDeductionReq : request.getOtherDeduction()) {
                 OtherDeduction otherDeduction;
 
-                // If ID is provided, try to find the existing OtherDeduction, otherwise create a new one
+                // If ID is provided, try to find the existing OtherDeduction
                 if (updateDeductionReq.getId() != null) {
-                    otherDeduction = otherDeductionDao.findById(updateDeductionReq.getId());
+                    otherDeduction = existingDeductionMap.get(updateDeductionReq.getId());
+                    if (otherDeduction == null) {
+                        // If not found, create a new deduction
+                        otherDeduction = new OtherDeduction();
+                    }
                 } else {
                     otherDeduction = new OtherDeduction(); // Create a new instance if ID is null
                 }
 
-                // If the OtherDeduction exists or is newly created, update its details
-                if (otherDeduction != null) {
-                    otherDeduction.setOtherDeductionAmount(updateDeductionReq.getOtherDeductionAmount());
-                    otherDeduction.setOtherDeductionDescription(updateDeductionReq.getOtherDeductionDescription());
-                    otherDeduction.setOtherDeductionAmountStartDate(updateDeductionReq.getOtherDeductionAmountStartDate());
-                    otherDeduction.setOtherDeductionAmountEndDate(updateDeductionReq.getOtherDeductionAmountEndDate());
+                // Update otherDeduction properties
+                otherDeduction.setOtherDeductionAmount(updateDeductionReq.getOtherDeductionAmount());
+                otherDeduction.setOtherDeductionDescription(updateDeductionReq.getOtherDeductionDescription());
+                otherDeduction.setOtherDeductionAmountStartDate(updateDeductionReq.getOtherDeductionAmountStartDate());
+                otherDeduction.setOtherDeductionAmountEndDate(updateDeductionReq.getOtherDeductionAmountEndDate());
+                otherDeduction.setDriver(driver); // Set the driver for this deduction
 
-                    LocalDate startDate = updateDeductionReq.getOtherDeductionAmountStartDate();
-                    LocalDate endDate = updateDeductionReq.getOtherDeductionAmountEndDate();
-                    Double otherDeductionAmount = updateDeductionReq.getOtherDeductionAmount();
+                LocalDate startDate = updateDeductionReq.getOtherDeductionAmountStartDate();
+                LocalDate endDate = updateDeductionReq.getOtherDeductionAmountEndDate();
+                Double otherDeductionAmount = updateDeductionReq.getOtherDeductionAmount();
 
-                    if (startDate != null && endDate != null && otherDeductionAmount != null) {
-                        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
-                        if (daysBetween > 0) {
-                            double emi = otherDeductionAmount / daysBetween;
-                            otherDeduction.setOtherDeductionAmountEmi(emi);
-                        } else {
-                            throw new RuntimeException("Start date must be before end date.");
-                        }
+                // Calculate EMI if start and end dates and amount are provided
+                if (startDate != null && endDate != null && otherDeductionAmount != null) {
+                    long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+                    if (daysBetween > 0) {
+                        double emi = otherDeductionAmount / daysBetween;
+                        otherDeduction.setOtherDeductionAmountEmi(emi);
+                    } else {
+                        throw new RuntimeException("Start date must be before end date.");
                     }
-
-                    otherDeduction.setDriver(driver); // Set the driver for this deduction
-                    otherDeductions.add(otherDeduction);
-                } else {
-                    throw new RuntimeException("OtherDeduction with ID " + updateDeductionReq.getId() + " not found.");
                 }
-            }
 
-            // Save or update the other deductions
-            otherDeductionRepository.saveAll(otherDeductions);
+                // Add to the list of deductions to save (whether updated or newly created)
+                deductionsToSave.add(otherDeduction);
+            }
+            // Save or update the deductions to the repository
+            otherDeductionRepository.saveAll(deductionsToSave);
         }
     }
 
@@ -618,33 +605,6 @@ public class DriverService {
             driver.setBikeRentAmountEmi(driver.getBikeRentAmountEmi());
         }
 
-        // Other Deductions EMI Calculation
-       /* if (request.getOtherDeductionAmount() != null) {
-            driver.setOtherDeductionAmount(request.getOtherDeductionAmount());
-        }
-        if (request.getOtherDeductionAmountStartDate() != null) {
-            driver.setOtherDeductionAmountStartDate(request.getOtherDeductionAmountStartDate());
-        }
-        if (request.getOtherDeductionAmountEndDate() != null) {
-            driver.setOtherDeductionAmountEndDate(request.getOtherDeductionAmountEndDate());
-        }
-
-        LocalDate otherStartDate = request.getOtherDeductionAmountStartDate();
-        LocalDate otherEndDate = request.getOtherDeductionAmountEndDate();
-        Double otherDeductionAmount = request.getOtherDeductionAmount();
-
-        if (otherStartDate != null && otherEndDate != null && otherDeductionAmount != null) {
-            long otherDeductionDays = ChronoUnit.DAYS.between(otherStartDate, otherEndDate);
-            if (otherDeductionDays > 0) {
-                double emi = otherDeductionAmount / otherDeductionDays;
-                driver.setOtherDeductionsAmountEmi(emi);
-            } else {
-                throw new RuntimeException("Other deductions start date must be before end date.");
-            }
-        } else if (request.getOtherDeductionAmount() == null || request.getOtherDeductionAmountStartDate() == null || request.getOtherDeductionAmountEndDate() == null) {
-            // If any required field is missing, keep the old EMI value
-            driver.setOtherDeductionsAmountEmi(driver.getOtherDeductionsAmountEmi());
-        }*/
     }
 
     public ResponseEntity<ResponseStructure<Object>> getDriver(Long id) {
@@ -678,23 +638,17 @@ public class DriverService {
     public DriverDetails getDriverDetails() {
 
         long totalDrivers = driverDao.countTotalDrivers();
-
-        // long flexiCount = driverDao.countFlexiVisa();
-        //  long otherVisaTypesCount = driverDao.countOtherVisaTypes();
         long ridersCount = driverDao.countTwoWheelerRiders();
         long driversCount = driverDao.countFourWheelerDrivers();
-
         LocalDate yesterday = LocalDate.now().minusDays(1);
         logger.info("Fetching attendance count for {}", yesterday);
         long attendanceCount = ordersRepository.countDriversWithOrdersOnDate(yesterday);
 
-        // long visaTypeCount = flexiCount + otherVisaTypesCount;
         logger.info("Returning DriverDetails with totalDrivers: {}, attendance: {}, riders: {}, drivers: {}, visaType: {}, flexi: {}",
                 totalDrivers, attendanceCount, ridersCount, driversCount);/*, *//*visaTypeCount, flexiCount*/
 
         return new DriverDetails(totalDrivers, attendanceCount, ridersCount, driversCount);/*, visaTypeCount, flexiCount);*/
     }
-
 
     public ResponseEntity<ResponseStructure<Object>> fetchTopDriver() {
         try {
