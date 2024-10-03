@@ -72,7 +72,6 @@ public class OrgReportService {
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (row == null) {
-
                     logger.warn("Row {} is null, skipping...", i);
                     continue;
                 }
