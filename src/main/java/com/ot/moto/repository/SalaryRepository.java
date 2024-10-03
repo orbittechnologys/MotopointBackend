@@ -2,10 +2,13 @@ package com.ot.moto.repository;
 
 import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Salary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,4 +33,6 @@ public interface SalaryRepository extends JpaRepository<Salary, Long> {
     public Optional<Salary> findFirstByDriverIdOrderByYearDescMonthDesc(Long driverId);
 
     public Optional<Salary> findTopByDriverOrderByYearDescMonthDesc(Driver driver);
+
+    public Page<Salary> findBySalaryCreditDateBetweenAndStatus(LocalDate startDate, LocalDate endDate, String status, Pageable pageable);
 }

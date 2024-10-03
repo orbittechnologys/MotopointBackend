@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @RestController
 @RequestMapping("/salary")
 @CrossOrigin(origins = "*")
@@ -102,4 +104,15 @@ public class SalaryController {
         return salaryService.settleSalaries(request);
     }
 
+    @Operation(summary = "Get Salary", description = "returns List of Salary Object")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Salary Found"),
+            @ApiResponse(responseCode = "404", description = "Salary Not Found")})
+    @GetMapping("/getAllSalariesBetweenDates")
+    public ResponseEntity<ResponseStructure<Object>> getAllSalariesBetweenDates(@RequestParam LocalDate startDate,
+                                                                                @RequestParam LocalDate endDate,
+                                                                                @RequestParam(defaultValue = "0") int page,
+                                                                                @RequestParam(defaultValue = "10") int size,
+                                                                                @RequestParam(defaultValue = "id") String field) {
+        return salaryService.getAllSalariesBetweenDates(startDate, endDate, page, size, field);
+    }
 }

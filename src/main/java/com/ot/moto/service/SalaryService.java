@@ -17,6 +17,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +28,7 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -44,7 +48,6 @@ public class SalaryService {
     private SalaryRepository salaryRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(SalaryService.class);
-
 
     public ResponseEntity<ResponseStructure<Object>> getSalaryById(Long id) {
         try {
@@ -259,9 +262,8 @@ public class SalaryService {
                             (currentVisaCharges + visaCharges) + (currentOtherCharges + otherCharges)
                     );
 
-                    /*Set Driver Salary to Zero When Status is SETTLED*/
                     Driver driver = driverDao.getById(salary.getDriver().getId());
-                   // driver.setSalaryAmount(0.0);
+                    // driver.setSalaryAmount(0.0);
                     driver.setBonus(Optional.ofNullable(driver.getBonus()).orElse(0.0) + sal.getBonus());
                     driverDao.createDriver(driver);
 
@@ -290,6 +292,25 @@ public class SalaryService {
                 salaryDao.flush();
                 salaryDao.clear();
             }
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> getAllSalariesBetweenDates(LocalDate startDate, LocalDate endDate, int offset, int pageSize, String field) {
+        try {
+            Pageable pageable = PageRequest.of(offset, pageSize, Sort.by(field));
+
+            // Fetch only salaries with status "NOT_SETTLED"
+            Page<Salary> salaryPage = salaryRepository.findBySalaryCreditDateBetweenAndStatus(startDate, endDate, Salary.status.NOT_SETTLED.name(), pageable);
+
+            if (salaryPage.isEmpty()) {
+                logger.warn("No Salaries found between " + startDate + " and " + endDate);
+                return ResponseStructure.errorResponse(null, 404, "No salaries found between " + startDate + " and " + endDate);
+            }
+
+            return ResponseStructure.successResponse(salaryPage, "salaries found between " + startDate + " and " + endDate);
+        } catch (Exception e) {
+            logger.error("Error fetching salaries between dates", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
 }

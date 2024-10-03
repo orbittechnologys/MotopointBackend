@@ -70,6 +70,7 @@ public class JwtFilter extends OncePerRequestFilter {
             "/driver/findByUsernameContaining/{name}",
             "/tam/upload/tamSheet",
             "/tam/findAll",
+            "/salary/getAllSalariesBetweenDates",
 
             "/tam/getByJahezRiderId",
             "/tam/findByDriverName",
