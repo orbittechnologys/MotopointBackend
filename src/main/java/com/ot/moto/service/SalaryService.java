@@ -312,12 +312,15 @@ public class SalaryService {
                             + incentives; // Add new incentives
 
                     salary.setStatus(Salary.status.SETTLED.name());
-                    salary.setTotalEarnings(settledAmount);
+                    /*salary.setTotalEarnings(settledAmount);*/
                     salary.setTotalDeductions(emiPerDayCharges + penaltiesOfDriver + driverCODAmount);
+                    salary.setNumberOfDaysSalarySettled(sal.getNumberOfDaysSalarySettled());
+                    salary.setPayableAmount(settledAmount);
 
                     // Update the driver's bonus
                     Driver driver = driverDao.getById(salary.getDriver().getId());
                     driver.setBonus(Optional.ofNullable(driver.getBonus()).orElse(0.0) + bonus);
+                    driver.setAmountPending(0.0);
                     driverDao.createDriver(driver);
 
                     // Add to the list of settled salaries

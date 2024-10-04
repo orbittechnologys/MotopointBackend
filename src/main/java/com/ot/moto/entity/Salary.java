@@ -63,6 +63,8 @@ public class Salary {
 
     private Long numberOfDaysSalarySettled;
 
+    private Double payableAmount = 0.0;
+
     @ManyToOne
     @JoinColumn
     private Driver driver;
