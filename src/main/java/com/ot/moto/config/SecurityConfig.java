@@ -74,6 +74,7 @@ public class SecurityConfig {
             "/tam/upload/tamSheet",
             "/tam/findAll",
             "/salary/getAllSalariesBetweenDates",
+            "/salary/findSalariesOfParticularDriver",
 
             "/tam/getByJahezRiderId",
             "/tam/findByDriverName",

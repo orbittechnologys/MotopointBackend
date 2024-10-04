@@ -370,4 +370,21 @@ public class SalaryService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
+
+    public ResponseEntity<ResponseStructure<Object>> findSalariesOfParticularDriver(Long driverId, LocalDate startDate, LocalDate endDate) {
+        try {
+            // Fetch only salaries with status "NOT_SETTLED"
+            List<Salary> salaries = salaryRepository.findByDriverIdAndSalaryCreditDateBetweenAndStatus(driverId, startDate, endDate, Salary.status.NOT_SETTLED.name());
+
+            if (salaries.isEmpty()) {
+                logger.warn("No salaries found for driver ID " + driverId + " between " + startDate + " and " + endDate);
+                return ResponseStructure.errorResponse(null, 404, "No salaries found for the driver between " + startDate + " and " + endDate);
+            }
+
+            return ResponseStructure.successResponse(salaries, "Salaries found for driver between " + startDate + " and " + endDate);
+        } catch (Exception e) {
+            logger.error("Error fetching salaries for driver ID " + driverId + " between dates " + startDate + " and " + endDate, e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
 }

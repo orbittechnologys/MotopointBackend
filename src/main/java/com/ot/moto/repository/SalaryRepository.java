@@ -35,4 +35,7 @@ public interface SalaryRepository extends JpaRepository<Salary, Long> {
     public Optional<Salary> findTopByDriverOrderByYearDescMonthDesc(Driver driver);
 
     public Page<Salary> findBySalaryCreditDateBetweenAndStatus(LocalDate startDate, LocalDate endDate, String status, Pageable pageable);
+
+    public List<Salary> findByDriverIdAndSalaryCreditDateBetweenAndStatus(Long driverId, LocalDate startDate, LocalDate endDate, String status);
+
 }
