@@ -387,4 +387,21 @@ public class SalaryService {
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
+
+    public ResponseEntity<ResponseStructure<Object>> findAllBetweenDates(LocalDate startDate, LocalDate endDate, int offset, int pageSize, String field) {
+        try {
+            Pageable pageable = PageRequest.of(offset, pageSize, Sort.by(field));
+            Page<Salary> salaryPage = salaryRepository.findBySalaryCreditDateBetween(startDate, endDate, pageable);
+
+            if (salaryPage.isEmpty()) {
+                logger.warn("No Salaries found between " + startDate + " and " + endDate);
+                return ResponseStructure.errorResponse(null, 404, "No salaries found between " + startDate + " and " + endDate);
+            }
+
+            return ResponseStructure.successResponse(salaryPage, "salaries found between " + startDate + " and " + endDate);
+        } catch (Exception e) {
+            logger.error("Error fetching salaries between dates", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
 }
