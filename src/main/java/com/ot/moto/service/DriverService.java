@@ -495,7 +495,7 @@ public class DriverService {
 
     }
 
-    private void updateOtherDeductionsForDriverV2(Driver driver, UpdateDriverReq request) {
+    /*private void updateOtherDeductionsForDriverV2(Driver driver, UpdateDriverReq request) {
         if (request.getOtherDeduction() != null) {
             List<OtherDeduction> existingDeductions = otherDeductionDao.findByDriverId(driver.getId());
             List<OtherDeduction> deductionsToSave = new ArrayList<>();
@@ -545,6 +545,51 @@ public class DriverService {
             }
             // Save or update the deductions to the repository
             otherDeductionRepository.saveAll(deductionsToSave);
+        }
+    }*/
+
+    private void updateOtherDeductionsForDriverV2(Driver driver, UpdateDriverReq request) {
+        if (request.getOtherDeduction() != null) {
+            List<OtherDeduction> deductions = new ArrayList<>();
+
+            for (UpdateOtherDeductionReq deductionReq : request.getOtherDeduction()) {
+                OtherDeduction otherDeduction;
+
+                // If ID is provided, try to find the existing OtherDeduction, otherwise create a new one
+                if (deductionReq.getId() != null) {
+                    otherDeduction = otherDeductionDao.findById(deductionReq.getId());
+                } else {
+                    otherDeduction = new OtherDeduction(); // Create a new instance if ID is null
+                }
+
+                // Update otherDeduction properties
+                otherDeduction.setOtherDeductionAmount(deductionReq.getOtherDeductionAmount());
+                otherDeduction.setOtherDeductionDescription(deductionReq.getOtherDeductionDescription());
+                otherDeduction.setOtherDeductionAmountStartDate(deductionReq.getOtherDeductionAmountStartDate());
+                otherDeduction.setOtherDeductionAmountEndDate(deductionReq.getOtherDeductionAmountEndDate());
+                otherDeduction.setDriver(driver); // Set the driver for this deduction
+
+                LocalDate startDate = deductionReq.getOtherDeductionAmountStartDate();
+                LocalDate endDate = deductionReq.getOtherDeductionAmountEndDate();
+                Double otherDeductionAmount = deductionReq.getOtherDeductionAmount();
+
+                // Calculate EMI if start and end dates and amount are provided
+                if (startDate != null && endDate != null && otherDeductionAmount != null) {
+                    long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+                    if (daysBetween > 0) {
+                        double emi = otherDeductionAmount / daysBetween;
+                        otherDeduction.setOtherDeductionAmountEmi(emi);
+                    } else {
+                        throw new RuntimeException("Start date must be before end date.");
+                    }
+                }
+
+                // Add to the list of deductions to be saved or updated
+                deductions.add(otherDeduction);
+            }
+
+            // Save all the deductions (either new or updated)
+            otherDeductionRepository.saveAll(deductions);
         }
     }
 
