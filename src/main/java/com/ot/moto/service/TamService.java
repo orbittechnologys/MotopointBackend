@@ -273,7 +273,7 @@ public class TamService {
     private void deductAmountPending(long mobileNumber, double amount) {
         Driver driver = driverRepository.findByPhone(String.valueOf(mobileNumber));
         if (Objects.nonNull(driver)) {
-            driver.setPaidByTam(Optional.ofNullable(driver.getPaidByTam()).orElse(0.0) + amount);
+            driver.setPaidByTam(driver.getPaidByTam() + amount);
             driver.setPayToJahez(driver.getCodAmount() - amount); //cod ??
             driver.setAmountPending(driver.getAmountPending() - amount);
             driverRepository.save(driver);
