@@ -383,7 +383,7 @@ public class OrgReportService {
 
             salary.setFleetPenalty(penaltyAmount);
             salary.setEmiPerDay(emiAmount);
-            salary.setSalaryCreditDate(LocalDate.now());
+            salary.setSalaryCreditDate(orders.getDate());
             salary.setTotalDeductions(0.0);
             salary.setBonus(0.0);
             salary.setIncentives(0.0);
@@ -410,7 +410,7 @@ public class OrgReportService {
 
             salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings() + salary.getS4Earnings() + salary.getS5Earnings());
 
-            salary.setSalaryCreditDate(LocalDate.now());
+            salary.setSalaryCreditDate(orders.getDate());
             Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
             salary.setProfit(Optional.ofNullable(salary.getProfit()).orElse(0.0) + jahezAmount - salary.getTotalEarnings());
             Double penaltyAmount = ((driver.getPenalties() != null && !driver.getPenalties().isEmpty()) ?

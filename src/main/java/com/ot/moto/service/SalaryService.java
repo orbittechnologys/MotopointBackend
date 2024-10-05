@@ -1,11 +1,13 @@
 package com.ot.moto.service;
 
 import com.ot.moto.dao.DriverDao;
+import com.ot.moto.dao.PenaltyDao;
 import com.ot.moto.dao.SalaryDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.SettleSalariesReq;
 import com.ot.moto.dto.request.SettleSalary;
 import com.ot.moto.entity.Driver;
+import com.ot.moto.entity.Penalty;
 import com.ot.moto.entity.Salary;
 import com.ot.moto.repository.SalaryRepository;
 import jakarta.transaction.Transactional;
@@ -46,6 +48,9 @@ public class SalaryService {
 
     @Autowired
     private SalaryRepository salaryRepository;
+
+    @Autowired
+    private PenaltyDao penaltyDao;
 
     private static final Logger logger = LoggerFactory.getLogger(SalaryService.class);
 
@@ -316,13 +321,20 @@ public class SalaryService {
                     salary.setTotalDeductions(emiPerDayCharges + penaltiesOfDriver + driverCODAmount);
                     salary.setNumberOfDaysSalarySettled(sal.getNumberOfDaysSalarySettled());
                     salary.setPayableAmount(settledAmount);
+                    salary.setSalarySettleDate(LocalDate.now());
 
                     // Update the driver's bonus
                     Driver driver = driverDao.getById(salary.getDriver().getId());
                     driver.setBonus(Optional.ofNullable(driver.getBonus()).orElse(0.0) + bonus);
                     driver.setAmountPending(0.0);
-                    driverDao.createDriver(driver);
-
+                    driver = driverDao.createDriver(driver);
+                    List<Penalty> penalties = penaltyDao.findByDriverId(driver.getId());
+                    if (penalties != null && !penalties.isEmpty()) {
+                        for (Penalty penalty : penalties) {
+                            penalty.setStatus(Penalty.PenaltyStatus.SETTLED); // Set each penalty as SETTLED
+                        }
+                        penaltyDao.saveAll(penalties); // Save all updated penalties in a single batch
+                    }
                     // Add to the list of settled salaries
                     settledSalaries.add(salary);
                 } else {

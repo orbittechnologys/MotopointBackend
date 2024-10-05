@@ -61,6 +61,8 @@ public class Salary {
 
     private LocalDate salaryCreditDate;
 
+    private LocalDate salarySettleDate;
+
     private Long numberOfDaysSalarySettled;
 
     private Double payableAmount = 0.0;

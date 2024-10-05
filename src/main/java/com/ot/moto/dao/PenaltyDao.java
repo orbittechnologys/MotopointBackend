@@ -1,5 +1,6 @@
 package com.ot.moto.dao;
 
+import com.ot.moto.entity.OrgReports;
 import com.ot.moto.entity.Penalty;
 import com.ot.moto.repository.PenaltyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,10 @@ public class PenaltyDao {
 
     public Penalty save(Penalty penalty) {
         return penaltyRepository.save(penalty);
+    }
+
+    public List<Penalty> saveAll(List<Penalty> penalties) {
+        return penaltyRepository.saveAll(penalties);
     }
 
     public void delete(Penalty penalty) {
