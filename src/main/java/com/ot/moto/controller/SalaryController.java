@@ -125,4 +125,16 @@ public class SalaryController {
                                                                                     @RequestParam LocalDate endDate) {
         return salaryService.findSalariesOfParticularDriver(driverId, startDate, endDate);
     }
+
+    @Operation(summary = "Get All Salaries", description = "returns List of Salary Object")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Salary Found"),
+            @ApiResponse(responseCode = "404", description = "Salary Not Found")})
+    @GetMapping("/findAllBetweenDates")
+    public ResponseEntity<ResponseStructure<Object>> findAllBetweenDates(@RequestParam LocalDate startDate,
+                                                                         @RequestParam LocalDate endDate,
+                                                                         @RequestParam(defaultValue = "0") int offset,
+                                                                         @RequestParam(defaultValue = "10") int pageSize,
+                                                                         @RequestParam(defaultValue = "id") String field) {
+        return salaryService.findAllBetweenDates(startDate, endDate, offset, pageSize, field);
+    }
 }
