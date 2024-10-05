@@ -78,8 +78,7 @@ public class TamService {
 
                     Driver driver = driverRepository.findByPhone(String.valueOf(tam.getMobileNumber()));
 
-
-                } else {
+                 } else {
                     logger.warn("Invalid or failed to parse row " + i + ", skipping...");
                 }
             }
@@ -271,7 +270,7 @@ public class TamService {
         Driver driver = driverRepository.findByPhone(String.valueOf(mobileNumber));
         if (Objects.nonNull(driver)) {
             driver.setPaidByTam(Optional.ofNullable(driver.getPaidByTam()).orElse(0.0) + amount);
-            driver.setPayToJahez(driver.getCodAmount() - amount);
+            driver.setPayToJahez(driver.getCodAmount() - amount); //cod ??
             driver.setAmountPending(driver.getAmountPending() - amount);
             driverRepository.save(driver);
         }

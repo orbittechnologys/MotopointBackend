@@ -500,7 +500,6 @@ public class ReportService {
         }
     }
 
-
     public ResponseEntity<ResponseStructure<Object>> getSumForCurrentMonth() {
         LocalDate now = LocalDate.now();
         LocalDate startDate = now.withDayOfMonth(1);
