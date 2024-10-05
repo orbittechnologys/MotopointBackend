@@ -33,6 +33,7 @@ public class UserService {
     public ResponseEntity<ResponseStructure<String>> forgotPassword(String email) {
         ResponseStructure<String> responseStructure = new ResponseStructure<>();
         Optional<User> userOptional = userDao.getUserByEmail(email);
+
         if (userOptional.isEmpty()) {
             responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
             responseStructure.setMessage("Email does not exist: " + email);
@@ -42,10 +43,23 @@ public class UserService {
             String otp = String.valueOf((int) (Math.random() * (9999 - 1000) + 1000));
             user.setOtp(otp);
             userDao.save(user);
-            emailSender.sendEmail(user.getEmail(), "This is Your OTP \n" +
-                            " Don't Share OTP with Anyone\n " +
-                            "Enter this OTP To Update Password \n" + " -> OTP " + otp,
-                    "Your OTP To Update Password");
+
+            // HTML content for the email
+            String emailBody = "<div style=\"font-family: Arial, sans-serif; color: #333; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 5px;\">" +
+                    "<h2 style=\"text-align: center; color: #4CAF50;\">Password Reset Request</h2>" +
+                    "<p style=\"font-size: 16px; line-height: 1.5;\">Hello,</p>" +
+                    "<p style=\"font-size: 16px; line-height: 1.5;\">We received a request to reset your password. Use the OTP below to reset it:</p>" +
+                    "<div style=\"text-align: center; margin: 20px 0;\">" +
+                    "<span style=\"display: inline-block; font-size: 18px; background-color: #f7f7f7; padding: 10px 20px; border-radius: 5px; border: 1px solid #ccc;\">" +
+                    otp +
+                    "</span>" +
+                    "</div>" +
+                    "<p style=\"font-size: 16px; line-height: 1.5;\">If you did not request a password reset, please ignore this email or contact support if you have questions.</p>" +
+                    "<p style=\"font-size: 16px; line-height: 1.5;\">Thank you,<br/>The MotoPoint Team</p>" +
+                    "</div>";
+
+            emailSender.sendEmail(user.getEmail(), "Password Reset", emailBody);
+
             responseStructure.setStatus(HttpStatus.OK.value());
             responseStructure.setMessage("OTP sent to email ID: " + email);
             responseStructure.setData("OTP sent to the email of user");
