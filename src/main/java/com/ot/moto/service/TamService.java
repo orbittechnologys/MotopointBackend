@@ -184,7 +184,11 @@ public class TamService {
         tam.setDriverCompanyJahezId(driverCompanyJahezId);
         tam.setMobileNumber(mobileNumber);
         tam.setDriverName(driverName);
-
+        Driver driver = driverRepository.findByPhone(String.valueOf(mobileNumber));
+        if (Objects.nonNull(driver)) {
+            tam.setDriver(driver);
+            tam.setCprNumber(Long.valueOf(driver.getCprNumber()));
+        }
         return tam;
     }
 
