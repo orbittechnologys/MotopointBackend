@@ -47,4 +47,12 @@ public interface SalaryRepository extends JpaRepository<Salary, Long> {
 
     @Query("SELECT SUM(s.payableAmount) FROM Salary s WHERE s.status = 'NOT_SETTLED' AND s.salaryCreditDate BETWEEN :startDate AND :endDate")
     public Double getTotalPayableAmountNotSettledBetweenSalaryCreditDate(LocalDate startDate, LocalDate endDate);
+
+    @Query("SELECT SUM(s.payableAmount) FROM Salary s WHERE s.driver = :driver AND s.status = 'SETTLED' AND s.salaryCreditDate BETWEEN :startDate AND :endDate")
+    public Double getTotalPayableAmountSettledForDriverSalaryCreditedDate(@Param("driver") Driver driver, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT SUM(s.payableAmount) FROM Salary s WHERE s.driver = :driver AND s.status = 'NOT_SETTLED' AND s.salaryCreditDate BETWEEN :startDate AND :endDate")
+    public Double getTotalPayableAmountNotSettledForDriverBetweenSalaryCreditedDate(@Param("driver") Driver driver, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+
 }

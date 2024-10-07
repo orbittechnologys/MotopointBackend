@@ -143,4 +143,11 @@ public class SalaryController {
                                                                                        @RequestParam LocalDate endDate) {
         return salaryService.getTotalPayableAmountBetweenDates(startDate, endDate);
     }
+
+    @GetMapping("/total-payable-amount")
+    public ResponseEntity<ResponseStructure<Object>> getTotalPayableAmountBetweenDatesForParticularDriver(@RequestParam Long driverId,
+                                                                                                          @RequestParam LocalDate startDate,
+                                                                                                          @RequestParam LocalDate endDate) {
+        return salaryService.getTotalPayableAmountBetweenDatesForParticularDriver(driverId, startDate, endDate);
+    }
 }
