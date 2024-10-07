@@ -372,6 +372,8 @@ public class ReportService {
         driver.setAmountPending(newAmountPending);
         driverDao.createDriver(driver);
 
+
+
         logger.info("Updated pending amount for driver: " + driver.getPhone() + ". New amount pending: " + newAmountPending);
 
         savePaymentRecord(driver, amount, paymentType, date, description);
@@ -386,7 +388,19 @@ public class ReportService {
         payment.setDescription(description);
 
         paymentDao.save(payment);
+
         logger.info("Saved payment record for driver: " + driver.getPhone() + ". Amount: " + amount + ", Description: " + description);
+        updateSalary(driver,date,amount);
+    }
+
+    //TODO: to optimise it using hashmap
+    public void updateSalary(Driver driver,LocalDate date,Double amount){
+        Salary salary = salaryDao.getSalaryByDriverAndDate(driver,date);
+        if(Objects.nonNull(salary)){
+         salary.setCodCollected(salary.getCodCollected() + amount);
+         salary.setPayableAmount(salary.getPayableAmount() + amount);
+         salaryDao.saveSalary(salary);
+        }
     }
 
     public Map<String, Double> getTotalAmountByPaymentType() {

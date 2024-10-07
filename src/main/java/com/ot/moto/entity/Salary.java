@@ -67,8 +67,9 @@ public class Salary {
 
     private Double payableAmount = 0.0;
 
+    private Double codCollected = 0.0;
+
     @ManyToOne
     @JoinColumn
     private Driver driver;
-
 }

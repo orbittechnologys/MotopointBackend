@@ -1,8 +1,10 @@
 package com.ot.moto.service;
 
+import com.ot.moto.dao.SalaryDao;
 import com.ot.moto.dao.TamDao;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.entity.Driver;
+import com.ot.moto.entity.Salary;
 import com.ot.moto.entity.Tam;
 import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.TamRepository;
@@ -45,6 +47,9 @@ public class TamService {
     @Autowired
     private DriverRepository driverRepository;
 
+    @Autowired
+    private SalaryDao salaryDao;
+
 
     private static final Logger logger = LoggerFactory.getLogger(TamService.class);
 
@@ -77,8 +82,9 @@ public class TamService {
                     tamList.add(tam);
 
                     Driver driver = driverRepository.findByPhone(String.valueOf(tam.getMobileNumber()));
+                    updateSalary(driver, tam.getConfTrxnDateTime().toLocalDate(), tam.getPayInAmount());
 
-                 } else {
+                } else {
                     logger.warn("Invalid or failed to parse row " + i + ", skipping...");
                 }
             }
@@ -277,6 +283,16 @@ public class TamService {
             driver.setPayToJahez(driver.getCodAmount() - amount); //cod ??
             driver.setAmountPending(driver.getAmountPending() - amount);
             driverRepository.save(driver);
+        }
+    }
+
+    //TODO: to optimise it using hashmap
+    public void updateSalary(Driver driver, LocalDate date, Double amount) {
+        Salary salary = salaryDao.getSalaryByDriverAndDate(driver, date);
+        if (Objects.nonNull(salary)) {
+            salary.setCodCollected(salary.getCodCollected() + amount);
+            salary.setPayableAmount(salary.getPayableAmount() + amount);
+            salaryDao.saveSalary(salary);
         }
     }
 

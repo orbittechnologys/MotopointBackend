@@ -186,8 +186,6 @@ public class OrgReportService {
     }
 
     private void processDriverSlabMap(HashMap<String, List<Double>> driverSlabMap) {
-        /*List<Orders> ordersList = new ArrayList<>();*/
-
         for (Map.Entry<String, List<Double>> entry : driverSlabMap.entrySet()) {
             String key = entry.getKey();
             List<Double> slabs = entry.getValue();
@@ -332,7 +330,7 @@ public class OrgReportService {
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
 
-        Salary salary = salaryDao.getSalaryByDriverAndDate(driver,localDate);
+        Salary salary = salaryDao.getSalaryByDriverAndDate(driver, localDate);
 
         boolean newRecord = Objects.isNull(salary);
         Master s1Master = masterDao.getMasterBySlab("S1");
@@ -388,12 +386,13 @@ public class OrgReportService {
                     + salary.getS5Earnings()
                     - emiAmount
                     - penaltyAmount
-                    - orders.getCodAmount();
+                    - orders.getCodAmount()
+                    + salary.getCodCollected(); // codCollectedAdded
 
             salary.setFleetPenalty(penaltyAmount);
             salary.setEmiPerDay(emiAmount);
             salary.setSalaryCreditDate(orders.getDate());
-            salary.setTotalDeductions(emiAmount + penaltyAmount + orders.getCodAmount() );
+            salary.setTotalDeductions(emiAmount + penaltyAmount + orders.getCodAmount());
             salary.setBonus(0.0);
             salary.setIncentives(0.0);
             salary.setPayableAmount(payable);
