@@ -412,7 +412,7 @@ public class ReportService {
 
         if(Objects.nonNull(salary)){
          salary.setCodCollected(salary.getCodCollected() + amount);
-         salary.setPayableAmount(salary.getPayableAmount() + amount - emiAmount - penaltyAmount);
+         salary.setPayableAmount(salary.getPayableAmount() + amount);
          salaryDao.saveSalary(salary);
         }else{
             salary = new Salary();
