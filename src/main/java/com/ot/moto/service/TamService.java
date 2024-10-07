@@ -3,9 +3,7 @@ package com.ot.moto.service;
 import com.ot.moto.dao.SalaryDao;
 import com.ot.moto.dao.TamDao;
 import com.ot.moto.dto.ResponseStructure;
-import com.ot.moto.entity.Driver;
-import com.ot.moto.entity.Salary;
-import com.ot.moto.entity.Tam;
+import com.ot.moto.entity.*;
 import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.TamRepository;
 import org.apache.poi.ss.usermodel.*;
@@ -287,11 +285,57 @@ public class TamService {
     }
 
     //TODO: to optimise it using hashmap
-    public void updateSalary(Driver driver, LocalDate date, Double amount) {
-        Salary salary = salaryDao.getSalaryByDriverAndDate(driver, date);
-        if (Objects.nonNull(salary)) {
+    public void updateSalary(Driver driver,LocalDate date,Double amount){
+        Salary salary = salaryDao.getSalaryByDriverAndDate(driver,date);
+
+        Double emiAmount =
+                (driver.getVisaAmountEmi() != null ? driver.getVisaAmountEmi() : 0.0) +
+                        (driver.getBikeRentAmountEmi() != null ? driver.getBikeRentAmountEmi() : 0.0) +
+                        (driver.getOtherDeductions() != null ? driver.getOtherDeductions().stream()
+                                .mapToDouble(OtherDeduction::getOtherDeductionAmountEmi)
+                                .sum() : 0.0);
+
+        Double penaltyAmount = ((driver.getPenalties() != null && !driver.getPenalties().isEmpty()) ?
+                driver.getPenalties().stream()
+                        .filter(penalty -> penalty.getStatus() == Penalty.PenaltyStatus.NOT_SETTLED)
+                        .mapToDouble(Penalty::getAmount)
+                        .sum() : 0.0);
+
+        if(Objects.nonNull(salary)){
             salary.setCodCollected(salary.getCodCollected() + amount);
-            salary.setPayableAmount(salary.getPayableAmount() + amount);
+            salary.setPayableAmount(salary.getPayableAmount() + amount - emiAmount - penaltyAmount);
+            salaryDao.saveSalary(salary);
+        }else{
+            salary = new Salary();
+            salary.setSalaryCreditDate(date);
+            salary.setCodCollected(amount);
+            salary.setPayableAmount(salary.getPayableAmount() + amount - emiAmount - penaltyAmount);
+
+            salary.setBonus(0.0);
+            salary.setIncentives(0.0);
+            salary.setMonth((long) date.getMonthValue());
+            salary.setYear((long) date.getYear());
+            salary.setNoOfS1(0l);
+            salary.setNoOfS2(0l);
+            salary.setNoOfS3(0l);
+            salary.setNoOfS4(0l);
+            salary.setNoOfS5(0l);
+
+            salary.setS1Earnings(0.0);
+            salary.setS2Earnings(0.0);
+            salary.setS3Earnings(0.0);
+            salary.setS4Earnings(0.0);
+            salary.setS5Earnings(0.0);
+
+            salary.setStatus(Salary.status.NOT_SETTLED.name());
+            salary.setTotalDeductions(0.0);
+            salary.setTotalEarnings(0.0);
+            salary.setTotalOrders(0l);
+            salary.setProfit(0.0);
+            salary.setFleetPenalty(penaltyAmount);
+            salary.setEmiPerDay(emiAmount);
+            salary.setDriver(driver);
+
             salaryDao.saveSalary(salary);
         }
     }
