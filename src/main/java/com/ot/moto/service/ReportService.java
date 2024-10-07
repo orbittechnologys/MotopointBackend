@@ -328,10 +328,6 @@ public class ReportService {
                 Driver driver = driverDao.findByPhoneNumber(phoneNumber);
 
                 if (Objects.nonNull(driver)) {
-                    if (paymentRecordExists(driver.getId(), date)) {
-                        logger.info("Payment record already exists for driver: " + driver.getPhone() + " on date: " + date + ". Skipping this entry.");
-                        continue;
-                    }
 
                     updateDriverPendingAmount(driver, amount, paymentType, date, description);
 
