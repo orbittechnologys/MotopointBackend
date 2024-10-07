@@ -417,11 +417,9 @@ public class SalaryService {
     public ResponseEntity<ResponseStructure<Object>> getTotalPayableAmountBetweenDates(
             LocalDate startDate, LocalDate endDate) {
         try {
-            // Fetch totals for settled and not settled salaries
             Double totalSettledPayableAmount = salaryDao.getTotalPayableAmountSettledBetweenDates(startDate, endDate);
             Double totalNotSettledPayableAmount = salaryDao.getTotalPayableAmountNotSettledBetweenDates(startDate, endDate);
 
-            // Handle null values (no salaries found)
             totalSettledPayableAmount = totalSettledPayableAmount != null ? totalSettledPayableAmount : 0.0;
             totalNotSettledPayableAmount = totalNotSettledPayableAmount != null ? totalNotSettledPayableAmount : 0.0;
 
