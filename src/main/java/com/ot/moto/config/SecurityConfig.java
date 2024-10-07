@@ -119,6 +119,7 @@ public class SecurityConfig {
             "/salary/salaryCredited",
             "/salary/settle-salaries",
             "/salary/total-payable-amount",
+            "/salary/total-payable-amount-driver",
             "/driver/attendance/details",
             "/summary/findAll",
             "/summary/download",
