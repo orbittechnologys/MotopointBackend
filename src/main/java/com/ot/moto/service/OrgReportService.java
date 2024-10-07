@@ -332,7 +332,7 @@ public class OrgReportService {
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
 
-        Salary salary = salaryDao.getSalaryByMonthAndYearAndDriver((long) month, (long) year, driver);
+        Salary salary = salaryDao.getSalaryByDriverAndDate(driver,localDate);
 
         boolean newRecord = Objects.isNull(salary);
         Master s1Master = masterDao.getMasterBySlab("S1");
@@ -381,12 +381,22 @@ public class OrgReportService {
                             .mapToDouble(Penalty::getAmount)
                             .sum() : 0.0);
 
+            Double payable = salary.getS1Earnings()
+                    + salary.getS2Earnings()
+                    + salary.getS3Earnings()
+                    + salary.getS4Earnings()
+                    + salary.getS5Earnings()
+                    - emiAmount
+                    - penaltyAmount
+                    - orders.getCodAmount();
+
             salary.setFleetPenalty(penaltyAmount);
             salary.setEmiPerDay(emiAmount);
             salary.setSalaryCreditDate(orders.getDate());
-            salary.setTotalDeductions(0.0);
+            salary.setTotalDeductions(emiAmount + penaltyAmount + orders.getCodAmount() );
             salary.setBonus(0.0);
             salary.setIncentives(0.0);
+            salary.setPayableAmount(payable);
             salary.setStatus("NOT_SETTLED");
 
         } else {
@@ -398,7 +408,6 @@ public class OrgReportService {
 
             long totalOrders = salary.getNoOfS1() + salary.getNoOfS2() + salary.getNoOfS3() + salary.getNoOfS4() + salary.getNoOfS5();
 
-            /*salary.setTotalOrders(Optional.ofNullable(salary.getTotalOrders()).orElse(0l) + totalOrders);*/
 
             salary.setTotalOrders(totalOrders);
 
@@ -419,6 +428,17 @@ public class OrgReportService {
                             .mapToDouble(Penalty::getAmount)
                             .sum() : 0.0);
             salary.setFleetPenalty(penaltyAmount);
+
+            Double payable = salary.getS1Earnings()
+                    + salary.getS2Earnings()
+                    + salary.getS3Earnings()
+                    + salary.getS4Earnings()
+                    + salary.getS5Earnings()
+                    - salary.getEmiPerDay()
+                    - penaltyAmount
+                    - orders.getCodAmount();
+
+            salary.setPayableAmount(payable);
         }
 
         long totalOrders = orderDao.getTotalOrdersForCurrentMonthByDriver(driver.getId());

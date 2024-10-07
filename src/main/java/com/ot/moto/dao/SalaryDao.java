@@ -34,6 +34,11 @@ public class SalaryDao {
         return salaryOptional.orElse(null);
     }
 
+    public Salary getSalaryByDriverAndDate(Driver driver, LocalDate date) {
+        Optional<Salary> salaryOptional = salaryRepository.findByDriverAndSalaryCreditDate(driver, date);
+        return salaryOptional.orElse(null);
+    }
+
     public Salary getById(Long id) {
         Optional<Salary> driver = salaryRepository.findById(id);
         return driver.orElse(null);
@@ -63,6 +68,14 @@ public class SalaryDao {
 
     public void saveAll(List<Salary> salaries) {
         salaryRepository.saveAll(salaries);
+    }
+
+    public Double getTotalPayableAmountSettledBetweenDates(LocalDate startDate, LocalDate endDate) {
+        return salaryRepository.getTotalPayableAmountSettledBetweenSalaryCreditDate(startDate, endDate);
+    }
+
+    public Double getTotalPayableAmountNotSettledBetweenDates(LocalDate startDate, LocalDate endDate) {
+        return salaryRepository.getTotalPayableAmountNotSettledBetweenSalaryCreditDate(startDate, endDate);
     }
 
     public void flush() {

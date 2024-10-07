@@ -137,4 +137,10 @@ public class SalaryController {
                                                                          @RequestParam(defaultValue = "id") String field) {
         return salaryService.findAllBetweenDates(startDate, endDate, offset, pageSize, field);
     }
+
+    @GetMapping("/total-payable-amount")
+    public ResponseEntity<ResponseStructure<Object>> getTotalPayableAmountBetweenDates(@RequestParam LocalDate startDate,
+                                                                                       @RequestParam LocalDate endDate) {
+        return salaryService.getTotalPayableAmountBetweenDates(startDate, endDate);
+    }
 }

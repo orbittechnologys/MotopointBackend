@@ -16,6 +16,8 @@ public interface SalaryRepository extends JpaRepository<Salary, Long> {
 
     public Optional<Salary> findByMonthAndYearAndDriver(Long month, Long year, Driver driver);
 
+    public Optional<Salary> findByDriverAndSalaryCreditDate(Driver driver,LocalDate salaryCreditedDate);
+
     @Query(value = "SELECT s FROM Salary s WHERE s.bonus = (SELECT MAX(bonus) FROM Salary)")
     public List<Salary> findHighestBonus();
 
@@ -38,6 +40,11 @@ public interface SalaryRepository extends JpaRepository<Salary, Long> {
 
     public Page<Salary> findBySalaryCreditDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-    public List<Salary> findByDriverIdAndSalaryCreditDateBetweenAndStatus(Long driverId, LocalDate startDate, LocalDate endDate, String status);
+    public List<Salary> findByDriverIdAndSalaryCreditDateBetween(Long driverId, LocalDate startDate, LocalDate endDate);
 
+    @Query("SELECT SUM(s.payableAmount) FROM Salary s WHERE s.status = 'SETTLED' AND s.salaryCreditDate BETWEEN :startDate AND :endDate")
+    public Double getTotalPayableAmountSettledBetweenSalaryCreditDate(LocalDate startDate, LocalDate endDate);
+
+    @Query("SELECT SUM(s.payableAmount) FROM Salary s WHERE s.status = 'NOT_SETTLED' AND s.salaryCreditDate BETWEEN :startDate AND :endDate")
+    public Double getTotalPayableAmountNotSettledBetweenSalaryCreditDate(LocalDate startDate, LocalDate endDate);
 }

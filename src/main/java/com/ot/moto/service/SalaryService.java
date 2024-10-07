@@ -31,10 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -385,8 +382,8 @@ public class SalaryService {
 
     public ResponseEntity<ResponseStructure<Object>> findSalariesOfParticularDriver(Long driverId, LocalDate startDate, LocalDate endDate) {
         try {
-            // Fetch only salaries with status "NOT_SETTLED"
-            List<Salary> salaries = salaryRepository.findByDriverIdAndSalaryCreditDateBetweenAndStatus(driverId, startDate, endDate, Salary.status.NOT_SETTLED.name());
+
+            List<Salary> salaries = salaryRepository.findByDriverIdAndSalaryCreditDateBetween(driverId, startDate, endDate);
 
             if (salaries.isEmpty()) {
                 logger.warn("No salaries found for driver ID " + driverId + " between " + startDate + " and " + endDate);
@@ -414,6 +411,35 @@ public class SalaryService {
         } catch (Exception e) {
             logger.error("Error fetching salaries between dates", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> getTotalPayableAmountBetweenDates(
+            LocalDate startDate, LocalDate endDate) {
+        try {
+            // Fetch totals for settled and not settled salaries
+            Double totalSettledPayableAmount = salaryDao.getTotalPayableAmountSettledBetweenDates(startDate, endDate);
+            Double totalNotSettledPayableAmount = salaryDao.getTotalPayableAmountNotSettledBetweenDates(startDate, endDate);
+
+            // Handle null values (no salaries found)
+            totalSettledPayableAmount = totalSettledPayableAmount != null ? totalSettledPayableAmount : 0.0;
+            totalNotSettledPayableAmount = totalNotSettledPayableAmount != null ? totalNotSettledPayableAmount : 0.0;
+
+            // Combine both results into a map
+            Map<String, Object> response = new HashMap<>();
+            response.put("totalSettledPayableAmount", totalSettledPayableAmount);
+            response.put("totalNotSettledPayableAmount", totalNotSettledPayableAmount);
+
+            // Check if no results found for both
+            if (totalSettledPayableAmount == 0.0 && totalNotSettledPayableAmount == 0.0) {
+                return ResponseStructure.errorResponse(response, 404, "No salaries found between " + startDate + " and " + endDate);
+            }
+
+            return ResponseStructure.successResponse(response, "Total payable amounts calculated between " + startDate + " and " + endDate);
+
+        } catch (Exception e) {
+            // Log and return internal server error in case of any exception
+            return ResponseStructure.errorResponse(null, 500, "Error calculating total payable amounts: " + e.getMessage());
         }
     }
 }
