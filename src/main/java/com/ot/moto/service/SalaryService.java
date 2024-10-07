@@ -387,6 +387,7 @@ public class SalaryService {
 
         return ResponseStructure.successResponse(driverCountMap,"All settled suiiiii");
     }
+
     @Transactional
     public void saveAllSalaries(List<Salary> salaries) {
         for (int i = 0; i < salaries.size(); i++) {

@@ -76,6 +76,7 @@ public class SecurityConfig {
             "/salary/getAllSalariesBetweenDates",
             "/salary/findSalariesOfParticularDriver",
             "/salary/findAllBetweenDates",
+            "/salary/v2/settle",
 
             "/tam/getByJahezRiderId",
             "/tam/findByDriverName",

@@ -39,6 +39,7 @@ public interface SalaryRepository extends JpaRepository<Salary, Long> {
     public Page<Salary> findBySalaryCreditDateBetweenAndStatus(LocalDate startDate, LocalDate endDate, String status, Pageable pageable);
 
     public Page<Salary> findBySalaryCreditDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
+
     public List<Salary> findBySalaryCreditDateBetween(LocalDate startDate, LocalDate endDate);
 
     public List<Salary> findByDriverIdAndSalaryCreditDateBetween(Long driverId, LocalDate startDate, LocalDate endDate);
