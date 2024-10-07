@@ -156,4 +156,11 @@ public class SalaryController {
     public ResponseEntity<ResponseStructure<Object>> settleSalariesV2(@RequestBody SettleSalV2 request){
         return  salaryService.settleSalariesV2(request);
     }
+
+    @PostMapping("/v2/settleSalaryForDriver")
+    public ResponseEntity<ResponseStructure<Object>> settleSalaryForDriver(@RequestParam Long driverId,
+                                                                           @RequestBody SettleSalV2 request){
+
+        return  salaryService.settleSalaryForDriver(driverId,request);
+    }
 }

@@ -380,13 +380,54 @@ public class SalaryService {
                 }
             }
             driverCountMap.put(driverId,driverCountMap.getOrDefault(driverId,0) +1);
-            salary.setStatus(Salary.status.NOT_SETTLED.name());
+            salary.setStatus(Salary.status.SETTLED.name());
             salary.setSalarySettleDate(LocalDate.now());
         }
         salaryDao.saveAll(salaryList);
 
         return ResponseStructure.successResponse(driverCountMap,"All settled suiiiii");
     }
+
+    @Transactional
+    public ResponseEntity<ResponseStructure<Object>> settleSalaryForDriver(Long driverId, SettleSalV2 request) {
+        LocalDate startDate = request.getStartDate();
+        LocalDate endDate = request.getEndDate();
+
+        List<Salary> salaryList = salaryRepository.findByDriverIdAndSalaryCreditDateBetween(driverId, startDate, endDate);
+
+        if (salaryList.isEmpty()) {
+            return ResponseStructure.errorResponse(null, 404, "No salaries found for the driver between " + startDate + " and " + endDate);
+        }
+
+        HashMap<Long, Integer> driverCountMap = new HashMap<>();
+
+        for (Salary salary : salaryList) {
+            salary.setBonus(request.getBonus());
+            salary.setIncentives(request.getIncentive());
+            salary.setPayableAmount(salary.getPayableAmount() + request.getBonus() + request.getIncentive());
+
+            Driver driver = driverDao.getById(driverId);
+            driver.setBonus(Optional.ofNullable(driver.getBonus()).orElse(0.0) + request.getBonus());
+            driver.setAmountPending(0.0);  // Assuming we set amount pending to zero after settlement
+            driver = driverDao.createDriver(driver);  // Save updated driver details
+
+            List<Penalty> penalties = penaltyDao.findByDriverId(driver.getId());
+            if (penalties != null && !penalties.isEmpty()) {
+                for (Penalty penalty : penalties) {
+                    penalty.setStatus(Penalty.PenaltyStatus.SETTLED);  // Mark each penalty as settled
+                }
+                penaltyDao.saveAll(penalties);  // Save all updated penalties in batch
+            }
+
+            salary.setStatus(Salary.status.SETTLED.name());
+            salary.setSalarySettleDate(LocalDate.now());
+            driverCountMap.put(driverId, driverCountMap.getOrDefault(driverId, 0) + 1);
+        }
+        salaryDao.saveAll(salaryList);
+
+        return ResponseStructure.successResponse(driverCountMap, "Salary settled successfully for the driver.");
+    }
+
 
     @Transactional
     public void saveAllSalaries(List<Salary> salaries) {
