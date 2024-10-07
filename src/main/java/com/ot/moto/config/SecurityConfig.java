@@ -120,6 +120,7 @@ public class SecurityConfig {
             "/salary/settle-salaries",
             "/salary/total-payable-amount",
             "/salary/total-payable-amount-driver",
+            "/salary/v2/settle",
             "/driver/attendance/details",
             "/summary/findAll",
             "/summary/download",

@@ -1,6 +1,7 @@
 package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
+import com.ot.moto.dto.request.SettleSalV2;
 import com.ot.moto.dto.request.SettleSalariesReq;
 import com.ot.moto.service.SalaryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -149,5 +150,10 @@ public class SalaryController {
                                                                                                           @RequestParam LocalDate startDate,
                                                                                                           @RequestParam LocalDate endDate) {
         return salaryService.getTotalPayableAmountBetweenDatesForParticularDriver(driverId, startDate, endDate);
+    }
+
+    @PostMapping("/v2/settle")
+    public ResponseEntity<ResponseStructure<Object>> settleSalariesV2(@RequestBody SettleSalV2 request){
+        return  salaryService.settleSalariesV2(request);
     }
 }
