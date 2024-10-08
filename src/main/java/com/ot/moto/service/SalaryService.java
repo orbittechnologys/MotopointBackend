@@ -523,8 +523,8 @@ public class SalaryService {
         try {
 
             Driver driver = driverDao.getById(driverId);
-            Double totalSettledPayableAmount = salaryRepository.getTotalPayableAmountNotSettledForDriverBetweenSalaryCreditedDate(driver, startDate, endDate);
-            Double totalNotSettledPayableAmount = salaryRepository.getTotalPayableAmountSettledForDriverSalaryCreditedDate(driver, startDate, endDate);
+            Double totalNotSettledPayableAmount = salaryRepository.getTotalPayableAmountNotSettledForDriverBetweenSalaryCreditedDate(driver, startDate, endDate);
+            Double totalSettledPayableAmount = salaryRepository.getTotalPayableAmountSettledForDriverSalaryCreditedDate(driver, startDate, endDate);
 
             totalSettledPayableAmount = totalSettledPayableAmount != null ? totalSettledPayableAmount : 0.0;
             totalNotSettledPayableAmount = totalNotSettledPayableAmount != null ? totalNotSettledPayableAmount : 0.0;
