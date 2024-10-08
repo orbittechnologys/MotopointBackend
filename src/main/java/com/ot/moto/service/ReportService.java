@@ -4,9 +4,7 @@ import com.ot.moto.dao.*;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.response.DriverAnalysisSum;
 import com.ot.moto.entity.*;
-import com.ot.moto.repository.DriverRepository;
-import com.ot.moto.repository.OrdersRepository;
-import com.ot.moto.repository.PaymentRepository;
+import com.ot.moto.repository.*;
 import com.ot.moto.util.StringUtil;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -25,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -61,7 +60,16 @@ public class ReportService {
     private BonusDao bonusDao;
 
     @Autowired
+    private TamDao tamDao;
+
+    @Autowired
     private OrdersRepository ordersRepository;
+
+    @Autowired
+    private TamRepository tamRepository;
+
+    @Autowired
+    private OrgReportsRepository orgReportsRepository;
 
 
     private static final Logger logger = LoggerFactory.getLogger(ReportService.class);
@@ -369,7 +377,6 @@ public class ReportService {
         driverDao.createDriver(driver);
 
 
-
         logger.info("Updated pending amount for driver: " + driver.getPhone() + ". New amount pending: " + newAmountPending);
 
         savePaymentRecord(driver, amount, paymentType, date, description);
@@ -386,12 +393,12 @@ public class ReportService {
         paymentDao.save(payment);
 
         logger.info("Saved payment record for driver: " + driver.getPhone() + ". Amount: " + amount + ", Description: " + description);
-        updateSalary(driver,date,amount);
+        updateSalary(driver, date, amount);
     }
 
     //TODO: to optimise it using hashmap
-    public void updateSalary(Driver driver,LocalDate date,Double amount){
-        Salary salary = salaryDao.getSalaryByDriverAndDate(driver,date);
+    public void updateSalary(Driver driver, LocalDate date, Double amount) {
+        Salary salary = salaryDao.getSalaryByDriverAndDate(driver, date);
 
         Double emiAmount =
                 (driver.getVisaAmountEmi() != null ? driver.getVisaAmountEmi() : 0.0) +
@@ -406,11 +413,11 @@ public class ReportService {
                         .mapToDouble(Penalty::getAmount)
                         .sum() : 0.0);
 
-        if(Objects.nonNull(salary)){
-         salary.setCodCollected(salary.getCodCollected() + amount);
-         salary.setPayableAmount(salary.getPayableAmount() + amount);
-         salaryDao.saveSalary(salary);
-        }else{
+        if (Objects.nonNull(salary)) {
+            salary.setCodCollected(salary.getCodCollected() + amount);
+            salary.setPayableAmount(salary.getPayableAmount() + amount);
+            salaryDao.saveSalary(salary);
+        } else {
             salary = new Salary();
             salary.setSalaryCreditDate(date);
             salary.setCodCollected(amount);
@@ -803,4 +810,43 @@ public class ReportService {
         }
     }
 
+    public ResponseEntity<ResponseStructure<Object>> getTotalCombinedAmountsForToday() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
+
+        logger.info("Fetching total amounts for today ({})", today);
+
+        try {
+            Double totalAmountPayment = paymentRepository.getTotalAmountForToday(today);
+
+            Double totalPayInAmountTam = tamRepository.getTotalPayInAmountForToday(startOfDay, endOfDay);
+
+            Double totalAmountOrgReports = orgReportsRepository.getTotalAmountForToday(startOfDay, endOfDay);
+
+            // Handle null values if there are no records
+            totalAmountPayment = (totalAmountPayment == null) ? 0.0 : totalAmountPayment;
+            totalPayInAmountTam = (totalPayInAmountTam == null) ? 0.0 : totalPayInAmountTam;
+            totalAmountOrgReports = (totalAmountOrgReports == null) ? 0.0 : totalAmountOrgReports;
+
+            // Add total amounts from Payment and Tam
+            Double combinedPaymentAndTamTotal = totalAmountPayment + totalPayInAmountTam;
+
+            // Subtract OrgReports total from the combined total of Payment and Tam
+            Double finalResult = combinedPaymentAndTamTotal - totalAmountOrgReports;
+
+            // Combine all amounts and the final result in the response
+            Map<String, Double> result = new HashMap<>();
+            result.put("totalAmountPayment", totalAmountPayment);
+            result.put("totalPayInAmountTam", totalPayInAmountTam);
+            result.put("totalAmountOrgReports", totalAmountOrgReports);
+            result.put("combinedPaymentAndTamTotal", combinedPaymentAndTamTotal);
+            result.put("finalResult", finalResult);
+
+            return ResponseStructure.successResponse(result, "Total amounts for today retrieved and OrgReports subtracted successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching total amounts for today ({})", today, e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching total amounts for today: " + e.getMessage());
+        }
+    }
 }

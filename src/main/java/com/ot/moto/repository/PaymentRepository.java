@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
@@ -24,4 +25,12 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Query("SELECT p FROM Payment p JOIN p.driver d WHERE LOWER(TRIM(d.username)) LIKE LOWER(CONCAT('%', :username, '%'))")
     public List<Payment> findPaymentsByDriverNameContaining(@Param("username") String username);
+
+    @Query("SELECT SUM(t.payInAmount) FROM Tam t WHERE t.dateTime >= :startOfDay AND t.dateTime < :endOfDay")
+    public Double sumPayInAmountForYesterday(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
+
+    @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.date = :today")
+    public Double getTotalAmountForToday(@Param("today") LocalDate today);
+
+
 }

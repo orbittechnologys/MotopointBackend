@@ -103,8 +103,6 @@ public class ReportController {
     }
 
 
-//    _____
-
     @Operation(summary = "Payment Type from PAYMENT(bank statement)", description = "Returns the total amount for each payment type (BENEFIT, TAM, CASH)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
@@ -140,17 +138,6 @@ public class ReportController {
                                                                   @RequestParam(defaultValue = "10") int size,
                                                                   @RequestParam(defaultValue = "id") String field) {
         return reportService.getAllReport(page, size, field);
-    }
-
-    //    __
-    @Operation(summary = "Total amount of a date ORDERS(jahez)", description = "Input is date, returns Success/Failure Object")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "SUCCESS"),
-            @ApiResponse(responseCode = "500", description = "Failure occured")
-    })
-    @GetMapping("/getArrearsForToday")
-    public ResponseEntity<ResponseStructure<Object>> getArrearsForToday() {
-        return reportService.getArrearsForToday();
     }
 
 
@@ -327,5 +314,10 @@ public class ReportController {
                                                                                      @RequestParam LocalDate startDate,
                                                                                      @RequestParam LocalDate endDate) {
         return reportService.getDriverAnalysisSum(driverId, startDate, endDate);
+    }
+
+    @GetMapping("/getTotalCombinedAmountsForToday")
+    public ResponseEntity<ResponseStructure<Object>> getTotalCombinedAmountsForToday() {
+        return reportService.getTotalCombinedAmountsForToday();
     }
 }

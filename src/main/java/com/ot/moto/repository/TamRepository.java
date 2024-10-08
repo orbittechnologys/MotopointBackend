@@ -23,16 +23,20 @@ public interface TamRepository extends JpaRepository<Tam, Long> {
     public List<Tam> findByDriverNameContaining(String name);
 
     @Query("SELECT SUM(t.payInAmount) FROM Tam t WHERE t.dateTime >= :startDate AND t.dateTime <= :endDate")
-    Double sumPayInAmountOnDate(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    public Double sumPayInAmountOnDate(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     @Query("SELECT SUM(t.payInAmount) FROM Tam t WHERE t.dateTime >= :startDate AND t.dateTime <= :endDate")
-    Double sumPayInAmountForCurrentMonth(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    public Double sumPayInAmountForCurrentMonth(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     // Custom query method to find the sum of PayToJahez by driver
     @Query("SELECT SUM(t.payInAmount) FROM Tam t WHERE t.driver = :driver")
-    Double findSumPayToJahezByDriver(@Param("driver") Driver driver);
+    public Double findSumPayToJahezByDriver(@Param("driver") Driver driver);
 
     // Custom query method to find the sum of PaidByTam by driver
     @Query("SELECT SUM(t.payInAmount) FROM Tam t WHERE t.driver = :driver")
-    Double findSumPaidByTamByDriver(@Param("driver") Driver driver);
+    public Double findSumPaidByTamByDriver(@Param("driver") Driver driver);
+
+    @Query("SELECT SUM(t.payInAmount) FROM Tam t WHERE t.dateTime >= :startOfDay AND t.dateTime <= :endOfDay")
+    public  Double getTotalPayInAmountForToday(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
+
 }
