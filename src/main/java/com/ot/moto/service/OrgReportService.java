@@ -67,7 +67,7 @@ public class OrgReportService {
     @Transactional
     public ResponseEntity<ResponseStructure<Object>> uploadOrgReports(Sheet sheet) {
         List<OrgReports> orgReportsList = new ArrayList<>();
-        HashMap<String, List<Double>> driverSlabMap = new HashMap<>(); // " jahezId | date " -> [total s1,total s2,total s3,total s4,total s5,totalCOD]
+        HashMap<String, List<Double>> driverSlabMap = new HashMap<>(); // " jahezId | date " -> [total s1,total s2,total s3,total s4,total s5,totalCOD,totalDebit, totalCredit]
         try {
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
@@ -87,6 +87,9 @@ public class OrgReportService {
 
                 Double price = orgReport.getPrice();
                 Master master = masterDao.getMasterByJahezPaid(price);
+
+                Double debit = orgReport.getDriverDebitAmount();
+                Double credit = orgReport.getDriverCreditAmount();
 
                 if (Objects.isNull(master)) {
                     logger.warn("Could not find master for price {}", price);
@@ -115,53 +118,44 @@ public class OrgReportService {
                 if (driverSlabMap.containsKey(key)) {
                     List<Double> slabList = driverSlabMap.get(key);
                     String masterSlab = master.getSlab();
-
+                    slabList.set(5, slabList.get(5) + codAmount);
+                    slabList.set(6,slabList.get(6)+debit);
+                    slabList.set(7,slabList.get(7)+credit);
                     switch (masterSlab) {
                         case "S1":
                             slabList.set(0, slabList.get(0) + 1);
-                            slabList.set(5, slabList.get(5) + codAmount);
                             break;
                         case "S2":
                             slabList.set(1, slabList.get(1) + 1);
-                            slabList.set(5, slabList.get(5) + codAmount);
                             break;
                         case "S3":
                             slabList.set(2, slabList.get(2) + 1);
-                            slabList.set(5, slabList.get(5) + codAmount);
                             break;
                         case "S4":
                             slabList.set(3, slabList.get(3) + 1);
-                            slabList.set(5, slabList.get(5) + codAmount);
                             break;
                         case "S5":
                             slabList.set(4, slabList.get(4) + 1);
-                            slabList.set(5, slabList.get(5) + codAmount);
                             break;
                     }
                 } else {
-                    List<Double> slabList = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+                    List<Double> slabList = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, codAmount,debit,credit);
                     String masterSlab = master.getSlab();
-
                     switch (masterSlab) {
                         case "S1":
                             slabList.set(0, 1.0);
-                            slabList.set(5, codAmount);
                             break;
                         case "S2":
                             slabList.set(1, 1.0);
-                            slabList.set(5, codAmount);
                             break;
                         case "S3":
                             slabList.set(2, 1.0);
-                            slabList.set(5, codAmount);
                             break;
                         case "S4":
                             slabList.set(3, 1.0);
-                            slabList.set(5, codAmount);
                             break;
                         case "S5":
                             slabList.set(4, 1.0);
-                            slabList.set(5, codAmount);
                             break;
                     }
                     driverSlabMap.put(key, slabList);
@@ -208,7 +202,7 @@ public class OrgReportService {
                     slabs.get(4).longValue(),  // S5 value as Long
                     totalOrders.longValue(),   // Total orders as Long
                     slabs.get(5),  // COD amount (as Double, assuming no conversion needed)
-                    0.0, 0.0);
+                    slabs.get(7), slabs.get(6));
 
             /*ordersList.add(orders);*/
         }
