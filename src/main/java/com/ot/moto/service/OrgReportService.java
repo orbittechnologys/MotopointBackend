@@ -387,7 +387,9 @@ public class OrgReportService {
                     - emiAmount
                     - penaltyAmount
                     - orders.getCodAmount()
-                    + salary.getCodCollected(); // codCollectedAdded
+                    + salary.getCodCollected() // codCollectedAdded
+                    + orders.getCredit()
+                    - orders.getDebit();
 
             salary.setFleetPenalty(penaltyAmount);
             salary.setEmiPerDay(emiAmount);

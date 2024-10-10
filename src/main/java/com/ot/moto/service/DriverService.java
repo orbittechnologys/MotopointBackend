@@ -93,7 +93,7 @@ public class DriverService {
             // Check for existing user
             if (userDao.checkUserExists(request.getPhone())) {
                 logger.warn("Phone number already exists: {}", request.getPhone());
-                return ResponseStructure.errorResponse(null, 409, " Phone number already exists");
+                return ResponseStructure.errorResponse(null, 409, " Phone number " + request.getPhone() + " already exists.");
             }
 
             // Build the Driver entity from the request
@@ -115,7 +115,7 @@ public class DriverService {
             return ResponseStructure.successResponse(savedDriver, "Driver created successfully");
 
         } catch (Exception e) {
-            logger.error("Error Creating driver", e);
+            logger.error("Error Creating driver,please check all the fields properly", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }
@@ -223,7 +223,7 @@ public class DriverService {
                 Double otherDeductionAmount = otherDeductionRequest.getOtherDeductionAmount();
                 otherDeduction.setDriver(driver);
                 if (startDate != null && endDate != null && otherDeductionAmount != null) {
-                    long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+                    long daysBetween = ChronoUnit.DAYS.between(startDate, endDate) + 1;
                     if (daysBetween > 0) {
                         double emi = otherDeductionAmount / daysBetween;
                         otherDeduction.setOtherDeductionAmountEmi(emi);
@@ -251,7 +251,7 @@ public class DriverService {
         Double visaAmount = request.getVisaAmount();
 
         if (startDate != null && endDate != null && visaAmount != null) {
-            long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+            long daysBetween = ChronoUnit.DAYS.between(startDate, endDate) + 1;
             if (daysBetween > 0) {
                 double emi = visaAmount / daysBetween;
                 driver.setVisaAmountEmi(emi);
@@ -272,7 +272,7 @@ public class DriverService {
         Double bikeAmount = request.getBikeRentAmount();
 
         if (bikeStartDate != null && bikeEndDate != null && bikeAmount != null) {
-            long bikeDays = ChronoUnit.DAYS.between(bikeStartDate, bikeEndDate);
+            long bikeDays = ChronoUnit.DAYS.between(bikeStartDate, bikeEndDate) + 1;
             if (bikeDays > 0) {
                 double emi = bikeAmount / bikeDays;
                 driver.setBikeRentAmountEmi(emi);
@@ -575,7 +575,7 @@ public class DriverService {
 
                 // Calculate EMI if start and end dates and amount are provided
                 if (startDate != null && endDate != null && otherDeductionAmount != null) {
-                    long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+                    long daysBetween = ChronoUnit.DAYS.between(startDate, endDate) + 1;
                     if (daysBetween > 0) {
                         double emi = otherDeductionAmount / daysBetween;
                         otherDeduction.setOtherDeductionAmountEmi(emi);
@@ -610,7 +610,7 @@ public class DriverService {
         Double visaAmount = request.getVisaAmount();
 
         if (visaStartDate != null && visaEndDate != null && visaAmount != null) {
-            long daysBetween = ChronoUnit.DAYS.between(visaStartDate, visaEndDate);
+            long daysBetween = ChronoUnit.DAYS.between(visaStartDate, visaEndDate) + 1;
             if (daysBetween > 0) {
                 double emi = visaAmount / daysBetween;
                 driver.setVisaAmountEmi(emi);
@@ -638,7 +638,7 @@ public class DriverService {
         Double bikeAmount = request.getBikeRentAmount();
 
         if (bikeStartDate != null && bikeEndDate != null && bikeAmount != null) {
-            long bikeDays = ChronoUnit.DAYS.between(bikeStartDate, bikeEndDate);
+            long bikeDays = ChronoUnit.DAYS.between(bikeStartDate, bikeEndDate) + 1;
             if (bikeDays > 0) {
                 double emi = bikeAmount / bikeDays;
                 driver.setBikeRentAmountEmi(emi);
