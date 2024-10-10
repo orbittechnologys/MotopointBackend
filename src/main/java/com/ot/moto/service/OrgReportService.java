@@ -437,7 +437,9 @@ public class OrgReportService {
                     + salary.getS5Earnings()
                     - salary.getEmiPerDay()
                     - penaltyAmount
-                    - orders.getCodAmount();
+                    - orders.getCodAmount()
+                    + orders.getCredit()
+                    - orders.getDebit();
 
             salary.setPayableAmount(payable);
         }
