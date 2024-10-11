@@ -51,4 +51,14 @@ public class PaymentDao {
     public List<Payment> findPaymentByDriverNameContaining(String name) {
         return paymentRepository.findPaymentsByDriverNameContaining(name);
     }
+
+    public Double findTotalBenefitAmountByDriver(Long driverId){
+        Double amount = paymentRepository.findTotalAmount();
+        return Objects.isNull(amount) ? 0 : amount ;
+    }
+
+    public Double findTotalBenefitAmount(){
+        Double amount = paymentRepository.findTotalAmount();
+        return Objects.isNull(amount) ? 0 : amount ;
+    }
 }

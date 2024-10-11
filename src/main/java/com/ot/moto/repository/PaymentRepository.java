@@ -32,5 +32,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.date = :today")
     public Double getTotalAmountForToday(@Param("today") LocalDate today);
 
+    @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.driver.id = :driverId")
+    public Double findTotalAmountByDriver(@Param("driverId") Long driverId);
 
+    @Query("SELECT SUM(amount) FROM Payment")
+    public Double findTotalAmount();
 }

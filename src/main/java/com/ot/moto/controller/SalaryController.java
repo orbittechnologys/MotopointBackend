@@ -163,4 +163,24 @@ public class SalaryController {
 
         return  salaryService.settleSalaryForDriver(driverId,request);
     }
+
+    @Operation(summary = "OrgReports", description = "No Input, returns the Excel file for Org Reports")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SUCCESS"),
+            @ApiResponse(responseCode = "404", description = "Report not found"),
+            @ApiResponse(responseCode = "500", description = "Failure occurred")
+    })
+    @GetMapping("/downloadReport")
+    public ResponseEntity<InputStreamResource> generateExcelForSalaries() {
+        try {
+            ResponseEntity<InputStreamResource> responseEntity = salaryService.generateExcelForSalaries();
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                return responseEntity;
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

@@ -78,6 +78,9 @@ public class JwtFilter extends OncePerRequestFilter {
             "/salary/v2/settle",
             "/salary/v2/settleSalaryForDriver",
             "/report/getTotalCombinedAmountsForToday",
+            "/report/totalBenefitAmountCollected",
+            "/report/totalBenefitAmountCollectedByOneDriver",
+            "/salary/downloadReport",
 
             "/tam/getByJahezRiderId",
             "/tam/findByDriverName",

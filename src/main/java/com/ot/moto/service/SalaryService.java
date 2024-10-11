@@ -32,6 +32,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -352,16 +353,16 @@ public class SalaryService {
     }
 
     @Transactional
-    public ResponseEntity<ResponseStructure<Object>> settleSalariesV2(SettleSalV2 request){
+    public ResponseEntity<ResponseStructure<Object>> settleSalariesV2(SettleSalV2 request) {
         LocalDate startDate = request.getStartDate();
         LocalDate endDate = request.getEndDate();
-        HashMap<Long,Integer> driverCountMap = new HashMap<>();
+        HashMap<Long, Integer> driverCountMap = new HashMap<>();
 
-        List<Salary> salaryList = salaryRepository.findBySalaryCreditDateBetween(startDate,endDate);
+        List<Salary> salaryList = salaryRepository.findBySalaryCreditDateBetween(startDate, endDate);
 
-        for(Salary salary : salaryList){
+        for (Salary salary : salaryList) {
             Long driverId = salary.getDriver().getId();
-            if(!driverCountMap.containsKey(driverId)){
+            if (!driverCountMap.containsKey(driverId)) {
                 salary.setBonus(request.getBonus());
                 salary.setIncentives(request.getIncentive());
                 salary.setPayableAmount(salary.getPayableAmount() + request.getBonus() + request.getIncentive());
@@ -379,13 +380,13 @@ public class SalaryService {
                     penaltyDao.saveAll(penalties); // Save all updated penalties in a single batch
                 }
             }
-            driverCountMap.put(driverId,driverCountMap.getOrDefault(driverId,0) +1);
+            driverCountMap.put(driverId, driverCountMap.getOrDefault(driverId, 0) + 1);
             salary.setStatus(Salary.status.SETTLED.name());
             salary.setSalarySettleDate(LocalDate.now());
         }
         salaryDao.saveAll(salaryList);
 
-        return ResponseStructure.successResponse(driverCountMap,"All settled suiiiii");
+        return ResponseStructure.successResponse(driverCountMap, "All settled suiiiii");
     }
 
     @Transactional
@@ -542,6 +543,89 @@ public class SalaryService {
 
         } catch (Exception e) {
             return ResponseStructure.errorResponse(null, 500, "Error calculating total payable amounts: " + e.getMessage());
+        }
+    }
+
+    public ResponseEntity<InputStreamResource> generateExcelForSalaries() {
+        try {
+            List<Salary> salaryList = salaryRepository.findAll();
+            if (salaryList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Salary Reports");
+
+            // Create header row
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {
+                    "ID", "Month", "Year", "No. of S1", "No. of S2", "No. of S3", "No. of S4", "No. of S5",
+                    "Total Orders", "S1 Earnings", "S2 Earnings", "S3 Earnings", "S4 Earnings", "S5 Earnings",
+                    "Total Earnings", "Total Deductions", "Bonus", "Incentives", "Status", "Profit", "EMI per Day",
+                    "Fleet Penalty", "Salary Credit Date", "Salary Settle Date", "No. of Days Salary Settled",
+                    "Payable Amount", "COD Collected", "Driver Name", "Driver Phone"
+            };
+
+            for (int i = 0; i < headers.length; i++) {
+                headerRow.createCell(i).setCellValue(headers[i]);
+            }
+
+            // Fill data rows
+            int rowNum = 1;
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            for (Salary salary : salaryList) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(salary.getId());
+                row.createCell(1).setCellValue(salary.getMonth());
+                row.createCell(2).setCellValue(salary.getYear());
+                row.createCell(3).setCellValue(salary.getNoOfS1());
+                row.createCell(4).setCellValue(salary.getNoOfS2());
+                row.createCell(5).setCellValue(salary.getNoOfS3());
+                row.createCell(6).setCellValue(salary.getNoOfS4());
+                row.createCell(7).setCellValue(salary.getNoOfS5());
+                row.createCell(8).setCellValue(salary.getTotalOrders());
+                row.createCell(9).setCellValue(salary.getS1Earnings());
+                row.createCell(10).setCellValue(salary.getS2Earnings());
+                row.createCell(11).setCellValue(salary.getS3Earnings());
+                row.createCell(12).setCellValue(salary.getS4Earnings());
+                row.createCell(13).setCellValue(salary.getS5Earnings());
+                row.createCell(14).setCellValue(salary.getTotalEarnings());
+                row.createCell(15).setCellValue(salary.getTotalDeductions());
+                row.createCell(16).setCellValue(salary.getBonus());
+                row.createCell(17).setCellValue(salary.getIncentives());
+                row.createCell(18).setCellValue(salary.getStatus());
+                row.createCell(19).setCellValue(salary.getProfit());
+                row.createCell(20).setCellValue(salary.getEmiPerDay());
+                row.createCell(21).setCellValue(salary.getFleetPenalty());
+                row.createCell(22).setCellValue(salary.getSalaryCreditDate() != null ? salary.getSalaryCreditDate().format(formatter) : "");
+                row.createCell(23).setCellValue(salary.getSalarySettleDate() != null ? salary.getSalarySettleDate().format(formatter) : "");
+                row.createCell(24).setCellValue(salary.getNumberOfDaysSalarySettled());
+                row.createCell(25).setCellValue(salary.getPayableAmount());
+                row.createCell(26).setCellValue(salary.getCodCollected());
+                row.createCell(27).setCellValue(salary.getDriver() != null ? salary.getDriver().getUsername() : "");
+                row.createCell(28).setCellValue(salary.getDriver() != null ? salary.getDriver().getPhone() : "");
+            }
+
+            // Write workbook to ByteArrayOutputStream
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
+
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers1 = new HttpHeaders();
+            headers1.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=salaries.xlsx");
+            headers1.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers1)
+                    .contentLength(outputStream.size())
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(resource);
+
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

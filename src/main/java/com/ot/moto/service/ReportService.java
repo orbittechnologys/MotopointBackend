@@ -849,4 +849,27 @@ public class ReportService {
             return ResponseStructure.errorResponse(null, 500, "Error fetching total amounts for today: " + e.getMessage());
         }
     }
+
+    public ResponseEntity<ResponseStructure<Object>> findTotalBenefitAmountByDriver(Long driverId) {
+        try {
+            Driver driver = driverDao.getById(driverId);
+            if (Objects.isNull(driver)) {
+                return ResponseStructure.errorResponse(null, 404, "Driver Not Fund With ID " + driverId);
+            }
+
+                Double totalAmount = paymentDao.findTotalBenefitAmountByDriver(driverId);
+                return ResponseStructure.successResponse(totalAmount, "Total Benefit Collected by a Driver Retrieved successfully");
+            } catch(Exception e){
+                return ResponseStructure.errorResponse(null, 500, "error fetching the total benefit collected by a driver ");
+            }
+    }
+
+    public  ResponseEntity<ResponseStructure<Object>> findTotalBenefitAmount(){
+        try{
+            Double totalAmount = paymentDao.findTotalBenefitAmount();
+            return ResponseStructure.successResponse(totalAmount,"Total Benefit Amount Fetched successfully ");
+        }catch(Exception e){
+            return ResponseStructure.errorResponse(null,500,"error fetching the total Benefit of all drivers ");
+        }
+    }
 }

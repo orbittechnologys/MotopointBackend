@@ -320,4 +320,14 @@ public class ReportController {
     public ResponseEntity<ResponseStructure<Object>> getTotalCombinedAmountsForToday() {
         return reportService.getTotalCombinedAmountsForToday();
     }
+
+    @GetMapping("/totalBenefitAmountCollectedByOneDriver")
+    public ResponseEntity<ResponseStructure<Object>> findTotalBenefitAmountByDriver(@RequestParam Long driverId) {
+        return reportService.findTotalBenefitAmountByDriver(driverId);
+    }
+
+    @GetMapping("/totalBenefitAmountCollected")
+    public ResponseEntity<ResponseStructure<Object>> findTotalBenefitAmount() {
+        return reportService.findTotalBenefitAmount();
+    }
 }
