@@ -167,7 +167,6 @@ public class ReportService {
         }
     }
 
-
     private Orders buildOrdersFromCellData(LocalDate date, String driverName, Long noOfS1, Long noOfS2, Long noOfS3, Long noOfS4, Long noOfS5, Long deliveries, Double codAmount, Double credit, Double debit) {
 
         Driver driver = driverDao.findByNameIgnoreCase(driverName);
@@ -202,101 +201,6 @@ public class ReportService {
         driver.setCurrentOrders(deliveries);
         return driverDao.createDriver(driver);
     }
-
-    /*public Salary createSalaryFromOrders(Orders orders, Driver driver) {
-        LocalDate localDate = orders.getDate();
-        int year = localDate.getYear();
-        int month = localDate.getMonthValue();
-
-        Salary salary = salaryDao.getSalaryByMonthAndYearAndDriver((long) month, (long) year, orders.getDriver());
-
-        boolean newRecord = Objects.isNull(salary);
-        Master s1Master = masterDao.getMasterBySlab("S1");
-        Master s2Master = masterDao.getMasterBySlab("S2");
-        Master s3Master = masterDao.getMasterBySlab("S3");
-        Master s4Master = masterDao.getMasterBySlab("S4");
-        Master s5Master = masterDao.getMasterBySlab("S5");
-
-        if (newRecord) {
-            salary = new Salary();
-            salary.setMonth((long) month);
-            salary.setYear((long) year);
-            salary.setDriver(orders.getDriver());
-
-            salary.setNoOfS1(orders.getNoOfS1());
-            salary.setNoOfS2(orders.getNoOfS2());
-            salary.setNoOfS3(orders.getNoOfS3());
-            salary.setNoOfS4(orders.getNoOfS4());
-            salary.setNoOfS5(orders.getNoOfS5());
-
-            long totalOrders = orders.getNoOfS1() + orders.getNoOfS2() + orders.getNoOfS3() + orders.getNoOfS4() + orders.getNoOfS5();
-
-            salary.setTotalOrders(totalOrders);
-
-            salary.setS1Earnings(s1Master.getMotoPaid() * salary.getNoOfS1());
-            salary.setS2Earnings(s2Master.getMotoPaid() * salary.getNoOfS2());
-            salary.setS3Earnings(s3Master.getMotoPaid() * salary.getNoOfS3());
-            salary.setS4Earnings(s4Master.getMotoPaid() * salary.getNoOfS4());
-            salary.setS5Earnings(s5Master.getMotoPaid() * salary.getNoOfS5());
-
-            salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
-                    + salary.getS4Earnings() + salary.getS5Earnings());
-
-            *//*Add Driver Salary */
-    /*
-            driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
-                    + salary.getS4Earnings() + salary.getS5Earnings());
-            Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() +
-                    s2Master.getJahezPaid() * salary.getNoOfS2() +
-                    s3Master.getJahezPaid() * salary.getNoOfS3() +
-                    s4Master.getJahezPaid() * salary.getNoOfS4() +
-                    s5Master.getJahezPaid() * salary.getNoOfS5();
-            driver.setProfit(Optional.ofNullable(driver.getProfit()).orElse(0.0) + jahezAmount - driver.getSalaryAmount());
-            driverDao.createDriver(driver);
-
-            salary.setTotalDeductions(0.0);
-            salary.setVisaCharges(0.0);
-            salary.setOtherCharges(0.0);
-            salary.setBonus(0.0);
-            salary.setIncentives(0.0);
-            salary.setStatus("NOT_SETTLED");
-
-        } else {
-            salary.setNoOfS1(salary.getNoOfS1() + orders.getNoOfS1());
-            salary.setNoOfS2(salary.getNoOfS2() + orders.getNoOfS2());
-            salary.setNoOfS3(salary.getNoOfS3() + orders.getNoOfS3());
-            salary.setNoOfS4(salary.getNoOfS4() + orders.getNoOfS4());
-            salary.setNoOfS5(salary.getNoOfS5() + orders.getNoOfS5());
-
-            long totalOrders = salary.getNoOfS1() + salary.getNoOfS2() + salary.getNoOfS3() + salary.getNoOfS4() + salary.getNoOfS5();
-
-            salary.setTotalOrders(Optional.ofNullable(salary.getTotalOrders()).orElse(0l) + totalOrders);
-
-            salary.setS1Earnings(salary.getS1Earnings() + s1Master.getMotoPaid() * orders.getNoOfS1());
-            salary.setS2Earnings(salary.getS2Earnings() + s2Master.getMotoPaid() * orders.getNoOfS2());
-            salary.setS3Earnings(salary.getS3Earnings() + s3Master.getMotoPaid() * orders.getNoOfS3());
-            salary.setS4Earnings(salary.getS4Earnings() + s4Master.getMotoPaid() * orders.getNoOfS4());
-            salary.setS5Earnings(salary.getS5Earnings() + s5Master.getMotoPaid() * orders.getNoOfS5());
-
-            salary.setTotalEarnings(salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
-                    + salary.getS4Earnings() + salary.getS5Earnings());
-
-            *//*Add Driver Salary */
-    /*
-            driver.setSalaryAmount(driver.getSalaryAmount() + salary.getS1Earnings() + salary.getS2Earnings() + salary.getS3Earnings()
-                    + salary.getS4Earnings() + salary.getS5Earnings());
-            Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() +
-                    s2Master.getJahezPaid() * salary.getNoOfS2() +
-                    s3Master.getJahezPaid() * salary.getNoOfS3() +
-                    s4Master.getJahezPaid() * salary.getNoOfS4() +
-                    s5Master.getJahezPaid() * salary.getNoOfS5();
-            driver.setProfit(driver.getProfit() + jahezAmount - driver.getSalaryAmount());
-            driverDao.createDriver(driver);
-        }
-
-        salary = salaryDao.saveSalary(salary);
-        return salary;
-    }*/
 
     public ResponseEntity<ResponseStructure<Object>> uploadBankStatement(Sheet sheet) {
         try {
@@ -497,32 +401,7 @@ public class ReportService {
     public ResponseEntity<ResponseStructure<List<Payment>>> findPaymentsByDriverUsernameContaining(String username) {
         ResponseStructure<List<Payment>> responseStructure = new ResponseStructure<>();
 
-       /* Optional<Driver> driverOpt = driverRepository.findByNameIgnoreCase(username);
-        if (driverOpt.isEmpty()) {
-            responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
-            responseStructure.setMessage("Driver not found.");
-            responseStructure.setData(null);
-            return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
-        }
-
-        String driverPhoneNumber = driverOpt.get().getPhone();*/
-
         List<Payment> payments = paymentRepository.findPaymentsByDriverNameContaining(username);
-
-        /*Pattern phonePattern = Pattern.compile("/PHONE/(\\d+)-");
-        List<Payment> filteredPayments = payments.stream()
-                .filter(payment -> {
-                    Matcher matcher = phonePattern.matcher(payment.getDescription());
-                    return matcher.find() && matcher.group(1).equals(driverPhoneNumber);
-                })
-                .collect(Collectors.toList());
-
-        if (filteredPayments.isEmpty()) {
-            responseStructure.setStatus(HttpStatus.NOT_FOUND.value());
-            responseStructure.setMessage("No payments found with the matching phone number in the description.");
-            responseStructure.setData(null);
-            return new ResponseEntity<>(responseStructure, HttpStatus.NOT_FOUND);
-        }*/
 
         responseStructure.setStatus(HttpStatus.OK.value());
         responseStructure.setMessage("Payments retrieved successfully.");
