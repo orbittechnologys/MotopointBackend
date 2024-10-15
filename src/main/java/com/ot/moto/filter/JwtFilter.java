@@ -83,6 +83,9 @@ public class JwtFilter extends OncePerRequestFilter {
             "/salary/downloadReport",
             "/order/download-csv-of-driver",
             "/report/download-OrgReport-for-driver",
+            "/order/download-csv-between-dates",
+            "/order/download-csv-of-driver-between-dates",
+            "/order/download-OrgReport-date-between",
 
             "/tam/getByJahezRiderId",
             "/tam/findByDriverName",

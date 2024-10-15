@@ -5,7 +5,6 @@ import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.entity.*;
 import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.OrgReportsRepository;
-import com.ot.moto.util.StringUtil;
 import jakarta.transaction.Transactional;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -23,14 +22,11 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
-
-import static org.hibernate.validator.internal.engine.messageinterpolation.el.RootResolver.FORMATTER;
 
 @Service
 public class OrgReportService {
@@ -735,10 +731,10 @@ public class OrgReportService {
                 row.createCell(10).setCellValue(report.getDriverCreditAmount() != null ? report.getDriverCreditAmount() : 0.0);
                 row.createCell(11).setCellValue(report.getIsFreeOrder() != null && report.getIsFreeOrder() ? "Yes" : "No");
                 row.createCell(12).setCellValue(report.getDispatchTime() != null ? report.getDispatchTime().toString() : "");
-                /*row.createCell(13).setCellValue(report.getSubscriber());
+                row.createCell(13).setCellValue(report.getSubscriber());
                 row.createCell(14).setCellValue(report.getDriverPaidOrg() != null && report.getDriverPaidOrg() ? "Yes" : "No");
                 row.createCell(15).setCellValue(report.getOrgSettled() != null && report.getOrgSettled() ? "Yes" : "No");
-                row.createCell(16).setCellValue(report.getDriverSettled() != null && report.getDriverSettled() ? "Yes" : "No");*/
+                row.createCell(16).setCellValue(report.getDriverSettled() != null && report.getDriverSettled() ? "Yes" : "No");
             }
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -858,5 +854,57 @@ public class OrgReportService {
         }
     }
 
+    public ResponseEntity<InputStreamResource> generateExcelForOrgReportsDateBetween(LocalDate startDate,LocalDate endDate) {
+        try {
+            List<OrgReports> orgReportsList = orgReportsRepository.findReportsBetweenDates(startDate,endDate);
+            if (orgReportsList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Org Reports");
 
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {"ID", "No", "DID", "Ref ID", "Driver Name", "Driver Username", "Driver ID", "Amount", "Price", "Driver Debit Amount", "Driver Credit Amount", "Is Free Order", "Dispatch Time", "Subscriber", "Driver Paid Org", "Org Settled", "Driver Settled"};
+            for (int i = 0; i < headers.length; i++) {
+                headerRow.createCell(i).setCellValue(headers[i]);
+            }
+            int rowNum = 1;
+            for (OrgReports report : orgReportsList) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(report.getId());
+                row.createCell(1).setCellValue(report.getNo() != null ? report.getNo() : 0);
+                row.createCell(2).setCellValue(report.getDid() != null ? report.getDid() : 0);
+                row.createCell(3).setCellValue(report.getRefId() != null ? report.getRefId() : 0);
+                row.createCell(4).setCellValue(report.getDriverName());
+                row.createCell(5).setCellValue(report.getDriverUsername());
+                row.createCell(6).setCellValue(report.getDriverId());
+                row.createCell(7).setCellValue(report.getAmount() != null ? report.getAmount() : 0.0);
+                row.createCell(8).setCellValue(report.getPrice() != null ? report.getPrice() : 0.0);
+                row.createCell(9).setCellValue(report.getDriverDebitAmount() != null ? report.getDriverDebitAmount() : 0.0);
+                row.createCell(10).setCellValue(report.getDriverCreditAmount() != null ? report.getDriverCreditAmount() : 0.0);
+                row.createCell(11).setCellValue(report.getIsFreeOrder() != null && report.getIsFreeOrder() ? "Yes" : "No");
+                row.createCell(12).setCellValue(report.getDispatchTime() != null ? report.getDispatchTime().toString() : "");
+                row.createCell(13).setCellValue(report.getSubscriber());
+                row.createCell(14).setCellValue(report.getDriverPaidOrg() != null && report.getDriverPaidOrg() ? "Yes" : "No");
+                row.createCell(15).setCellValue(report.getOrgSettled() != null && report.getOrgSettled() ? "Yes" : "No");
+                row.createCell(16).setCellValue(report.getDriverSettled() != null && report.getDriverSettled() ? "Yes" : "No");
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
+
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers1 = new HttpHeaders();
+            headers1.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=org_reports.xlsx");
+            headers1.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok().headers(headers1).contentLength(outputStream.size()).contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")).body(resource);
+
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

@@ -75,4 +75,6 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
             @Param("endDate") LocalDate endDate);
 
     public List<Orders> findByDriverId(Long driverId);
+
+    public List<Orders> findAllByDriverIdAndDateBetween(Long DriverId,LocalDate startDate,LocalDate endDate);
 }

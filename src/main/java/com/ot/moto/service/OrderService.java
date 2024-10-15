@@ -295,4 +295,115 @@ public class OrderService {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    public ResponseEntity<InputStreamResource> generateCsvForOrdersDateBetween(LocalDate startDate, LocalDate endDate) {
+        try {
+            List<Orders> allOrders = ordersRepository.findAllByDateBetween(startDate, endDate);
+            if (allOrders.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            StringWriter writer = new StringWriter();
+            CSVWriter csvWriter = new CSVWriter(writer);
+
+            String[] header = {"Order ID", "Driver Name", "Date", "No of S1", "No of S2", "No of S3", "No of S4", "No of S5",
+                    "Total Orders", "COD Amount", "Credit", "Debit", "Driver ID"};
+
+            csvWriter.writeNext(header);
+
+            for (Orders order : allOrders) {
+                String[] data = {
+                        String.valueOf(order.getId()),
+                        order.getDriverName(),
+                        order.getDate() != null ? order.getDate().toString() : "",
+                        String.valueOf(order.getNoOfS1()),
+                        String.valueOf(order.getNoOfS2()),
+                        String.valueOf(order.getNoOfS3()),
+                        String.valueOf(order.getNoOfS4()),
+                        String.valueOf(order.getNoOfS5()),
+                        String.valueOf(order.getTotalOrders()),
+                        String.valueOf(order.getCodAmount()),
+                        String.valueOf(order.getCredit()),
+                        String.valueOf(order.getDebit()),
+                        order.getDriver() != null ? String.valueOf(order.getDriver().getId()) : ""
+                };
+                csvWriter.writeNext(data);
+            }
+
+            csvWriter.close();
+            String csvContent = writer.toString();
+
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(csvContent.getBytes());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=orders.csv");
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(csvContent.getBytes().length)
+                    .contentType(MediaType.parseMediaType("application/csv"))
+                    .body(resource);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    public ResponseEntity<InputStreamResource> generateCsvForOrdersForParticularDriverDateBetween(Long driverId, LocalDate startDate, LocalDate endDate) {
+        try {
+            List<Orders> allOrders = ordersRepository.findAllByDriverIdAndDateBetween(driverId, startDate, endDate);
+            if (allOrders.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            StringWriter writer = new StringWriter();
+            CSVWriter csvWriter = new CSVWriter(writer);
+
+            String[] header = {"Order ID", "Driver Name", "Date", "No of S1", "No of S2", "No of S3", "No of S4", "No of S5",
+                    "Total Orders", "COD Amount", "Credit", "Debit", "Driver ID"};
+
+            csvWriter.writeNext(header);
+
+            for (Orders order : allOrders) {
+                String[] data = {
+                        String.valueOf(order.getId()),
+                        order.getDriverName(),
+                        order.getDate() != null ? order.getDate().toString() : "",
+                        String.valueOf(order.getNoOfS1()),
+                        String.valueOf(order.getNoOfS2()),
+                        String.valueOf(order.getNoOfS3()),
+                        String.valueOf(order.getNoOfS4()),
+                        String.valueOf(order.getNoOfS5()),
+                        String.valueOf(order.getTotalOrders()),
+                        String.valueOf(order.getCodAmount()),
+                        String.valueOf(order.getCredit()),
+                        String.valueOf(order.getDebit()),
+                        order.getDriver() != null ? String.valueOf(order.getDriver().getId()) : ""
+                };
+                csvWriter.writeNext(data);
+            }
+
+            csvWriter.close();
+            String csvContent = writer.toString();
+
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(csvContent.getBytes());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=orders.csv");
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(csvContent.getBytes().length)
+                    .contentType(MediaType.parseMediaType("application/csv"))
+                    .body(resource);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

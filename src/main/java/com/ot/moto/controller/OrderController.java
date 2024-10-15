@@ -11,6 +11,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -88,5 +89,15 @@ public class OrderController {
     @GetMapping("/download-csv-of-driver")
     public ResponseEntity<InputStreamResource> generateCsvForOrdersByDriver(@RequestParam Long driverId) {
         return orderService.generateCsvForOrdersByDriver(driverId);
+    }
+
+    @GetMapping("/download-csv-between-dates")
+    public ResponseEntity<InputStreamResource> generateCsvForOrdersDateBetween(@RequestParam LocalDate startDate,@RequestParam LocalDate endDate) {
+        return orderService.generateCsvForOrdersDateBetween(startDate, endDate);
+    }
+
+    @GetMapping("/download-csv-of-driver-between-dates")
+    public ResponseEntity<InputStreamResource> generateCsvForOrdersForParticularDriverDateBetween(@RequestParam Long driverId,@RequestParam LocalDate startDate,@RequestParam LocalDate endDate) {
+        return orderService.generateCsvForOrdersForParticularDriverDateBetween(driverId,startDate, endDate);
     }
 }

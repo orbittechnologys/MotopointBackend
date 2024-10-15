@@ -344,4 +344,18 @@ public class ReportController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/download-OrgReport-date-between")
+    public ResponseEntity<InputStreamResource> generateExcelForOrgReportsDateBetween(@RequestParam LocalDate startDate,@RequestParam LocalDate endDate) {
+        try {
+            ResponseEntity<InputStreamResource> responseEntity = orgReportService.generateExcelForOrgReportsDateBetween(startDate,endDate);
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                return responseEntity;
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
