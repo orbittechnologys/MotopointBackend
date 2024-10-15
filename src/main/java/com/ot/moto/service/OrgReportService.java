@@ -55,7 +55,6 @@ public class OrgReportService {
     @Autowired
     private DriverRepository driverRepository;
 
-
     private static final Logger logger = LoggerFactory.getLogger(OrgReportService.class);
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH);
