@@ -25,7 +25,7 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     public long countOrdersOnDate(LocalDate date);
 
     @Query("SELECT COUNT(o) FROM Orders o WHERE o.date BETWEEN :startDate AND :endDate")
-    long countOrdersBetweenDates(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    public long countOrdersBetweenDates(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     @Query("SELECT SUM(o.totalOrders) FROM Orders o WHERE o.date = :date")
     public Long sumTotalOrdersOnDate(@Param("date") LocalDate date);
@@ -73,4 +73,6 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
             @Param("driverId") Long driverId,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate);
+
+    public List<Orders> findByDriverId(Long driverId);
 }

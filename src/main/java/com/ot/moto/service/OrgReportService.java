@@ -119,8 +119,8 @@ public class OrgReportService {
                     List<Double> slabList = driverSlabMap.get(key);
                     String masterSlab = master.getSlab();
                     slabList.set(5, slabList.get(5) + codAmount);
-                    slabList.set(6,slabList.get(6)+debit);
-                    slabList.set(7,slabList.get(7)+credit);
+                    slabList.set(6, slabList.get(6) + debit);
+                    slabList.set(7, slabList.get(7) + credit);
                     switch (masterSlab) {
                         case "S1":
                             slabList.set(0, slabList.get(0) + 1);
@@ -139,7 +139,7 @@ public class OrgReportService {
                             break;
                     }
                 } else {
-                    List<Double> slabList = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, codAmount,debit,credit);
+                    List<Double> slabList = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, codAmount, debit, credit);
                     String masterSlab = master.getSlab();
                     switch (masterSlab) {
                         case "S1":
@@ -790,5 +790,73 @@ public class OrgReportService {
             return ResponseStructure.errorResponse(null, 500, "Error fetching the top driver: " + e.getMessage());
         }
     }
+
+
+    public ResponseEntity<InputStreamResource> generateExcelForOrgReportsByDriverId(Long driverId) {
+        try {
+            // Find reports that have the matching driverId
+            List<OrgReports> orgReportsList = orgReportsRepository.findByDriverId(driverId);
+            if (orgReportsList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Org Reports");
+
+            // Define headers
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {"ID", "No", "DID", "Ref ID", "Driver Name", "Driver Username", "Driver ID", "Amount", "Price",
+                    "Driver Debit Amount", "Driver Credit Amount", "Is Free Order", "Dispatch Time", "Subscriber",
+                    "Driver Paid Org", "Org Settled", "Driver Settled"};
+            for (int i = 0; i < headers.length; i++) {
+                headerRow.createCell(i).setCellValue(headers[i]);
+            }
+
+            // Fill in data rows
+            int rowNum = 1;
+            for (OrgReports report : orgReportsList) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(report.getId());
+                row.createCell(1).setCellValue(report.getNo() != null ? report.getNo() : 0);
+                row.createCell(2).setCellValue(report.getDid() != null ? report.getDid() : 0);
+                row.createCell(3).setCellValue(report.getRefId() != null ? report.getRefId() : 0);
+                row.createCell(4).setCellValue(report.getDriverName());
+                row.createCell(5).setCellValue(report.getDriverUsername());
+                row.createCell(6).setCellValue(report.getDriverId() != null ? report.getDriverId() : 0); // Assuming driverId is part of the OrgReports
+                row.createCell(7).setCellValue(report.getAmount() != null ? report.getAmount() : 0.0);
+                row.createCell(8).setCellValue(report.getPrice() != null ? report.getPrice() : 0.0);
+                row.createCell(9).setCellValue(report.getDriverDebitAmount() != null ? report.getDriverDebitAmount() : 0.0);
+                row.createCell(10).setCellValue(report.getDriverCreditAmount() != null ? report.getDriverCreditAmount() : 0.0);
+                row.createCell(11).setCellValue(report.getIsFreeOrder() != null && report.getIsFreeOrder() ? "Yes" : "No");
+                row.createCell(12).setCellValue(report.getDispatchTime() != null ? report.getDispatchTime().toString() : "");
+                row.createCell(13).setCellValue(report.getSubscriber());
+                row.createCell(14).setCellValue(report.getDriverPaidOrg() != null && report.getDriverPaidOrg() ? "Yes" : "No");
+                row.createCell(15).setCellValue(report.getOrgSettled() != null && report.getOrgSettled() ? "Yes" : "No");
+                row.createCell(16).setCellValue(report.getDriverSettled() != null && report.getDriverSettled() ? "Yes" : "No");
+            }
+
+            // Write workbook to output stream
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
+
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers1 = new HttpHeaders();
+            headers1.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=driver_org_reports.xlsx");
+            headers1.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers1)
+                    .contentLength(outputStream.size())
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(resource);
+
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 
 }

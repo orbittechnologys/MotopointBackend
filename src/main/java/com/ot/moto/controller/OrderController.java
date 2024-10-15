@@ -84,4 +84,9 @@ public class OrderController {
     public ResponseEntity<ResponseStructure<Object>> getTopDriverWithHighestLifetimeOrders() {
         return orderService.getTopDriverWithHighestLifetimeOrders();
     }
+
+    @GetMapping("/download-csv-of-driver")
+    public ResponseEntity<InputStreamResource> generateCsvForOrdersByDriver(@RequestParam Long driverId) {
+        return orderService.generateCsvForOrdersByDriver(driverId);
+    }
 }

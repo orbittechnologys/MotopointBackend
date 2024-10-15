@@ -82,6 +82,8 @@ public class SecurityConfig {
             "/report/totalBenefitAmountCollected",
             "/report/totalBenefitAmountCollectedByOneDriver",
             "/salary/downloadReport",
+            "/order/download-csv-of-driver",
+            "/report/download-OrgReport-for-driver",
 
             "/tam/getByJahezRiderId",
             "/tam/findByDriverName",

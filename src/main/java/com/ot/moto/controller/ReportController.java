@@ -330,4 +330,18 @@ public class ReportController {
     public ResponseEntity<ResponseStructure<Object>> findTotalBenefitAmount() {
         return reportService.findTotalBenefitAmount();
     }
+
+    @GetMapping("/download-OrgReport-for-driver")
+    public ResponseEntity<InputStreamResource> generateExcelForOrgReportsByDriverId(@RequestParam Long driverId) {
+        try {
+            ResponseEntity<InputStreamResource> responseEntity = orgReportService.generateExcelForOrgReportsByDriverId(driverId);
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                return responseEntity;
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
