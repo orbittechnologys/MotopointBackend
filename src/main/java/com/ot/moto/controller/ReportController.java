@@ -358,4 +358,18 @@ public class ReportController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/download-OrgReport-date-between-for-particular-driver")
+    public ResponseEntity<InputStreamResource> generateExcelForOrgReportsDateBetweenForParticularDriver(@RequestParam Long driverId,@RequestParam LocalDate startDate,@RequestParam LocalDate endDate) {
+        try {
+            ResponseEntity<InputStreamResource> responseEntity = orgReportService.generateExcelForOrgReportsDateBetweenForParticularDriver(startDate,endDate,driverId);
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                return responseEntity;
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

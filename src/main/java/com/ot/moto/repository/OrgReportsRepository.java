@@ -37,4 +37,12 @@ public interface OrgReportsRepository extends JpaRepository<OrgReports, Long> {
     @Query("SELECT o FROM OrgReports o WHERE o.dispatchDate BETWEEN :startDate AND :endDate")
     public List<OrgReports> findReportsBetweenDates(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
+    @Query("SELECT o FROM OrgReports o WHERE o.dispatchDate BETWEEN :startDate AND :endDate AND o.driverId = :driverId")
+    public List<OrgReports> findReportsBetweenDatesForDriver(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("driverId") Long driverId
+    );
+
+
 }
