@@ -371,6 +371,26 @@ public class ReportService {
         return null;
     }
 
+    /*To extract the Phone Number where the number start's with 973*/
+    /*private String extractPhoneNumber(String description) {
+        logger.info("Description being processed: " + description);
+
+        // Update the pattern to capture an 11-digit phone number following /PHONE/
+        Pattern pattern = Pattern.compile("/PHONE/(\\d{11})");
+        Matcher matcher = pattern.matcher(description);
+
+        if (matcher.find()) {
+            String fullPhoneNumber = matcher.group(1);
+            // Remove the first 3 digits and keep only the last 8 digits
+            String phoneNumber = fullPhoneNumber.substring(3);
+            logger.info("Extracted phone number: " + phoneNumber);
+            return phoneNumber;
+        }
+
+        logger.info("No phone number found in description: " + description);
+        return null;
+    }*/
+
     private void updateDriverPendingAmount(Driver driver, double amount, String paymentType, LocalDate date, String description) {
         double newAmountPending = driver.getAmountPending() - amount;
         driver.setAmountPending(newAmountPending);
