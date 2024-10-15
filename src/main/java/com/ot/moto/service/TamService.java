@@ -1,5 +1,6 @@
 package com.ot.moto.service;
 
+import com.opencsv.CSVWriter;
 import com.ot.moto.dao.SalaryDao;
 import com.ot.moto.dao.TamDao;
 import com.ot.moto.dto.ResponseStructure;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -31,7 +33,6 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class TamService {
@@ -513,6 +514,299 @@ public class TamService {
             return tamDao.getSumPayInAmountForDateRange(startOfDay, endOfDay);
         } catch (Exception e) {
             throw new RuntimeException("Error fetching sum for yesterday: " + e.getMessage(), e);
+        }
+    }
+
+
+    public ResponseEntity<InputStreamResource> generateCsvForTamByDriver(Long driverId) {
+        try {
+            // Fetch the driver by ID
+            Driver driver = driverRepository.findById(driverId).orElse(null);
+            if (driver == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            // Fetch all Tam transactions for the driver
+            List<Tam> tamTransactions = tamRepository.findByDriverId(driverId);
+            if (tamTransactions.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            // Create StringWriter and CSVWriter
+            StringWriter writer = new StringWriter();
+            CSVWriter csvWriter = new CSVWriter(writer);
+
+            // CSV header
+            String[] header = {
+                    "TAM ID", "Date/Time", "Key Session ID", "Status", "Service Name", "Merchant Name", "Terminal ID",
+                    "Location", "Branch Name", "Product", "Quantity", "Phone", "Customer Phone", "RPN Payment", "STAN",
+                    "Amount to Pay", "Pay-In Amount", "Pay-In Amount Data", "Pay-Out Amount", "Pay-Out Amount Data",
+                    "Payment Mode", "Used Voucher Number", "Confirmation ID", "Is Vouchered", "Hold Transaction Date/Time",
+                    "Confirmation Transaction Date/Time", "Pay-In Voucher", "Pay-Out Voucher", "Auth Code", "CPR",
+                    "Voucher Phone Number", "Response Message", "Merchant ID", "Jahez Rider ID", "CPR Number",
+                    "Driver Company Name", "Driver Company Jahez ID", "Mobile Number", "Driver Name"
+            };
+
+            csvWriter.writeNext(header);
+
+            // Write data for each Tam transaction
+            for (Tam tam : tamTransactions) {
+                String[] data = {
+                        String.valueOf(tam.getId()),
+                        tam.getDateTime() != null ? tam.getDateTime().toString() : "",
+                        tam.getKeySessionId(),
+                        tam.getStatus(),
+                        tam.getServiceName(),
+                        tam.getMerchantName(),
+                        tam.getTerminalId(),
+                        tam.getLocation(),
+                        tam.getBranchName(),
+                        tam.getProduct(),
+                        tam.getQuantity() != null ? String.valueOf(tam.getQuantity()) : "",
+                        tam.getPhone(),
+                        tam.getCustomerPhone(),
+                        tam.getRpnPayment() != null ? String.valueOf(tam.getRpnPayment()) : "",
+                        tam.getSTAN() != null ? String.valueOf(tam.getSTAN()) : "",
+                        tam.getAmountToPay() != null ? String.valueOf(tam.getAmountToPay()) : "",
+                        tam.getPayInAmount() != null ? String.valueOf(tam.getPayInAmount()) : "",
+                        tam.getPayInAmountData(),
+                        tam.getPayOutAmount() != null ? String.valueOf(tam.getPayOutAmount()) : "",
+                        tam.getPayOutAmountData(),
+                        tam.getPaymentMode(),
+                        tam.getUsedVoucherNumber() != null ? String.valueOf(tam.getUsedVoucherNumber()) : "",
+                        tam.getConfirmationId() != null ? String.valueOf(tam.getConfirmationId()) : "",
+                        String.valueOf(tam.isVouchered()),
+                        tam.getHoldTrxnDateTime() != null ? tam.getHoldTrxnDateTime().toString() : "",
+                        tam.getConfTrxnDateTime() != null ? tam.getConfTrxnDateTime().toString() : "",
+                        tam.getPayInVoucher(),
+                        tam.getPayoutVoucher(),
+                        tam.getAuthCode() != null ? String.valueOf(tam.getAuthCode()) : "",
+                        tam.getCPR() != null ? String.valueOf(tam.getCPR()) : "",
+                        tam.getVoucherPhoneNumber() != null ? String.valueOf(tam.getVoucherPhoneNumber()) : "",
+                        tam.getResponseMessage(),
+                        tam.getMerchantId() != null ? String.valueOf(tam.getMerchantId()) : "",
+                        tam.getJahezRiderId() != null ? String.valueOf(tam.getJahezRiderId()) : "",
+                        tam.getCprNumber() != null ? String.valueOf(tam.getCprNumber()) : "",
+                        tam.getDriverCompanyName(),
+                        tam.getDriverCompanyJahezId(),
+                        tam.getMobileNumber() != null ? String.valueOf(tam.getMobileNumber()) : "",
+                        tam.getDriverName()
+                };
+
+                csvWriter.writeNext(data);
+            }
+
+            // Close writer and prepare the CSV content
+            csvWriter.close();
+            String csvContent = writer.toString();
+
+            // Prepare the CSV file as an InputStreamResource for downloading
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(csvContent.getBytes());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=tam_transactions.csv");
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(csvContent.getBytes().length)
+                    .contentType(MediaType.parseMediaType("application/csv"))
+                    .body(resource);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<InputStreamResource> generateCsvForTamByDriverDateBetween( Long driverId, LocalDate startDate,LocalDate endDate) {
+        try {
+            // Fetch the driver by ID
+            Driver driver = driverRepository.findById(driverId).orElse(null);
+            if (driver == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            // Fetch all Tam transactions for the driver
+            List<Tam> tamTransactions = tamRepository.findAllByDriverIdAndDateTimeBetween(driverId,startDate,endDate);
+            if (tamTransactions.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            // Create StringWriter and CSVWriter
+            StringWriter writer = new StringWriter();
+            CSVWriter csvWriter = new CSVWriter(writer);
+
+            // CSV header
+            String[] header = {
+                    "TAM ID", "Date/Time", "Key Session ID", "Status", "Service Name", "Merchant Name", "Terminal ID",
+                    "Location", "Branch Name", "Product", "Quantity", "Phone", "Customer Phone", "RPN Payment", "STAN",
+                    "Amount to Pay", "Pay-In Amount", "Pay-In Amount Data", "Pay-Out Amount", "Pay-Out Amount Data",
+                    "Payment Mode", "Used Voucher Number", "Confirmation ID", "Is Vouchered", "Hold Transaction Date/Time",
+                    "Confirmation Transaction Date/Time", "Pay-In Voucher", "Pay-Out Voucher", "Auth Code", "CPR",
+                    "Voucher Phone Number", "Response Message", "Merchant ID", "Jahez Rider ID", "CPR Number",
+                    "Driver Company Name", "Driver Company Jahez ID", "Mobile Number", "Driver Name"
+            };
+
+            csvWriter.writeNext(header);
+
+            // Write data for each Tam transaction
+            for (Tam tam : tamTransactions) {
+                String[] data = {
+                        String.valueOf(tam.getId()),
+                        tam.getDateTime() != null ? tam.getDateTime().toString() : "",
+                        tam.getKeySessionId(),
+                        tam.getStatus(),
+                        tam.getServiceName(),
+                        tam.getMerchantName(),
+                        tam.getTerminalId(),
+                        tam.getLocation(),
+                        tam.getBranchName(),
+                        tam.getProduct(),
+                        tam.getQuantity() != null ? String.valueOf(tam.getQuantity()) : "",
+                        tam.getPhone(),
+                        tam.getCustomerPhone(),
+                        tam.getRpnPayment() != null ? String.valueOf(tam.getRpnPayment()) : "",
+                        tam.getSTAN() != null ? String.valueOf(tam.getSTAN()) : "",
+                        tam.getAmountToPay() != null ? String.valueOf(tam.getAmountToPay()) : "",
+                        tam.getPayInAmount() != null ? String.valueOf(tam.getPayInAmount()) : "",
+                        tam.getPayInAmountData(),
+                        tam.getPayOutAmount() != null ? String.valueOf(tam.getPayOutAmount()) : "",
+                        tam.getPayOutAmountData(),
+                        tam.getPaymentMode(),
+                        tam.getUsedVoucherNumber() != null ? String.valueOf(tam.getUsedVoucherNumber()) : "",
+                        tam.getConfirmationId() != null ? String.valueOf(tam.getConfirmationId()) : "",
+                        String.valueOf(tam.isVouchered()),
+                        tam.getHoldTrxnDateTime() != null ? tam.getHoldTrxnDateTime().toString() : "",
+                        tam.getConfTrxnDateTime() != null ? tam.getConfTrxnDateTime().toString() : "",
+                        tam.getPayInVoucher(),
+                        tam.getPayoutVoucher(),
+                        tam.getAuthCode() != null ? String.valueOf(tam.getAuthCode()) : "",
+                        tam.getCPR() != null ? String.valueOf(tam.getCPR()) : "",
+                        tam.getVoucherPhoneNumber() != null ? String.valueOf(tam.getVoucherPhoneNumber()) : "",
+                        tam.getResponseMessage(),
+                        tam.getMerchantId() != null ? String.valueOf(tam.getMerchantId()) : "",
+                        tam.getJahezRiderId() != null ? String.valueOf(tam.getJahezRiderId()) : "",
+                        tam.getCprNumber() != null ? String.valueOf(tam.getCprNumber()) : "",
+                        tam.getDriverCompanyName(),
+                        tam.getDriverCompanyJahezId(),
+                        tam.getMobileNumber() != null ? String.valueOf(tam.getMobileNumber()) : "",
+                        tam.getDriverName()
+                };
+
+                csvWriter.writeNext(data);
+            }
+
+            // Close writer and prepare the CSV content
+            csvWriter.close();
+            String csvContent = writer.toString();
+
+            // Prepare the CSV file as an InputStreamResource for downloading
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(csvContent.getBytes());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=tam_transactions.csv");
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(csvContent.getBytes().length)
+                    .contentType(MediaType.parseMediaType("application/csv"))
+                    .body(resource);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<InputStreamResource> generateExcelForAllDateRange(LocalDate startDate,LocalDate endDate) {
+        try {
+            List<Tam> tamList = tamRepository.findAllByDateTimeBetween(startDate,endDate);
+            if (tamList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Tam Data");
+
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {
+                    "ID", "DateTime", "KeySessionId", "Status", "ServiceName", "MerchantName", "TerminalId",
+                    "Location", "BranchName", "Product", "Quantity", "Phone", "CustomerPhone", "RpnPayment",
+                    "STAN", "AmountToPay", "PayInAmount", "PayInAmountData", "PayOutAmount", "PayOutAmountData",
+                    "PaymentMode", "UsedVoucherNumber", "ConfirmationId", "IsVouchered", "HoldTrxnDateTime",
+                    "ConfTrxnDateTime", "PayInVoucher", "PayoutVoucher", "AuthCode", "CPR", "VoucherPhoneNumber",
+                    "ResponseMessage", "MerchantId", "JahezRiderId", "CprNumber", "DriverCompanyName",
+                    "DriverCompanyJahezId", "MobileNumber", "DriverName"
+            };
+            for (int i = 0; i < headers.length; i++) {
+                headerRow.createCell(i).setCellValue(headers[i]);
+            }
+
+            int rowNum = 1;
+            for (Tam tam : tamList) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(tam.getId());
+                row.createCell(1).setCellValue(tam.getDateTime() != null ? tam.getDateTime().toString() : "");
+                row.createCell(2).setCellValue(tam.getKeySessionId());
+                row.createCell(3).setCellValue(tam.getStatus());
+                row.createCell(4).setCellValue(tam.getServiceName());
+                row.createCell(5).setCellValue(tam.getMerchantName());
+                row.createCell(6).setCellValue(tam.getTerminalId());
+                row.createCell(7).setCellValue(tam.getLocation());
+                row.createCell(8).setCellValue(tam.getBranchName());
+                row.createCell(9).setCellValue(tam.getProduct());
+                row.createCell(10).setCellValue(tam.getQuantity() != null ? tam.getQuantity() : 0);
+                row.createCell(11).setCellValue(tam.getPhone());
+                row.createCell(12).setCellValue(tam.getCustomerPhone());
+                row.createCell(13).setCellValue(tam.getRpnPayment() != null ? tam.getRpnPayment() : 0);
+                row.createCell(14).setCellValue(tam.getSTAN() != null ? tam.getSTAN() : 0);
+                row.createCell(15).setCellValue(tam.getAmountToPay() != null ? tam.getAmountToPay() : 0.0);
+                row.createCell(16).setCellValue(tam.getPayInAmount() != null ? tam.getPayInAmount() : 0.0);
+                row.createCell(17).setCellValue(tam.getPayInAmountData());
+                row.createCell(18).setCellValue(tam.getPayOutAmount() != null ? tam.getPayOutAmount() : 0.0);
+                row.createCell(19).setCellValue(tam.getPayOutAmountData());
+                row.createCell(20).setCellValue(tam.getPaymentMode());
+                row.createCell(21).setCellValue(tam.getUsedVoucherNumber() != null ? tam.getUsedVoucherNumber() : 0);
+                row.createCell(22).setCellValue(tam.getConfirmationId() != null ? tam.getConfirmationId() : 0);
+                row.createCell(23).setCellValue(tam.isVouchered());
+                row.createCell(24).setCellValue(tam.getHoldTrxnDateTime() != null ? tam.getHoldTrxnDateTime().toString() : "");
+                row.createCell(25).setCellValue(tam.getConfTrxnDateTime() != null ? tam.getConfTrxnDateTime().toString() : "");
+                row.createCell(26).setCellValue(tam.getPayInVoucher());
+                row.createCell(27).setCellValue(tam.getPayoutVoucher());
+                row.createCell(28).setCellValue(tam.getAuthCode() != null ? tam.getAuthCode() : 0);
+                row.createCell(29).setCellValue(tam.getCPR() != null ? tam.getCPR() : 0);
+                row.createCell(30).setCellValue(tam.getVoucherPhoneNumber() != null ? tam.getVoucherPhoneNumber() : 0);
+                row.createCell(31).setCellValue(tam.getResponseMessage());
+                row.createCell(32).setCellValue(tam.getMerchantId() != null ? tam.getMerchantId() : 0);
+                row.createCell(33).setCellValue(tam.getJahezRiderId() != null ? tam.getJahezRiderId() : 0);
+                row.createCell(34).setCellValue(tam.getCprNumber() != null ? tam.getCprNumber() : 0);
+                row.createCell(35).setCellValue(tam.getDriverCompanyName());
+                row.createCell(36).setCellValue(tam.getDriverCompanyJahezId());
+                row.createCell(37).setCellValue(tam.getMobileNumber() != null ? tam.getMobileNumber() : 0);
+                row.createCell(38).setCellValue(tam.getDriverName());
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
+
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers1 = new HttpHeaders();
+            headers1.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=tam_data.xlsx");
+            headers1.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers1)
+                    .contentLength(outputStream.size())
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(resource);
+
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

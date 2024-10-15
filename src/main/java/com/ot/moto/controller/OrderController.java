@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -72,7 +73,7 @@ public class OrderController {
     }
 
     @GetMapping(value = "/totalOrders")
-    public ResponseEntity<ResponseStructure<Object>> getTotalOrdersForAllDrivers(){
+    public ResponseEntity<ResponseStructure<Object>> getTotalOrdersForAllDrivers() {
         return orderService.getTotalOrdersForAllDrivers();
     }
 
@@ -92,12 +93,41 @@ public class OrderController {
     }
 
     @GetMapping("/download-csv-between-dates")
-    public ResponseEntity<InputStreamResource> generateCsvForOrdersDateBetween(@RequestParam LocalDate startDate,@RequestParam LocalDate endDate) {
+    public ResponseEntity<InputStreamResource> generateCsvForOrdersDateBetween(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
         return orderService.generateCsvForOrdersDateBetween(startDate, endDate);
     }
 
     @GetMapping("/download-csv-of-driver-between-dates")
-    public ResponseEntity<InputStreamResource> generateCsvForOrdersForParticularDriverDateBetween(@RequestParam Long driverId,@RequestParam LocalDate startDate,@RequestParam LocalDate endDate) {
-        return orderService.generateCsvForOrdersForParticularDriverDateBetween(driverId,startDate, endDate);
+    public ResponseEntity<InputStreamResource> generateCsvForOrdersForParticularDriverDateBetween(@RequestParam Long driverId, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        return orderService.generateCsvForOrdersForParticularDriverDateBetween(driverId, startDate, endDate);
+    }
+
+    @Operation(summary = "Get all orders", description = "Returns List of Fleet Objects")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Fleets Found"),
+            @ApiResponse(responseCode = "404", description = "No Fleets Found")
+    })
+    @GetMapping("/findAllDateBetween")
+    public ResponseEntity<ResponseStructure<Object>> findAllDateBetween(@RequestParam LocalDate startDate,
+                                                                        @RequestParam LocalDate endDate,
+                                                                        @RequestParam(defaultValue = "0") int page,
+                                                                        @RequestParam(defaultValue = "10") int size,
+                                                                        @RequestParam(defaultValue = "id") String field) {
+        return orderService.findAllDateBetween(startDate, endDate, page, size, field);
+    }
+
+    @Operation(summary = "Get all orders", description = "Returns List of Fleet Objects")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Fleets Found"),
+            @ApiResponse(responseCode = "404", description = "No Fleets Found")
+    })
+    @GetMapping("/findAllDateBetweenParticularDriver")
+    public ResponseEntity<ResponseStructure<Object>> findAllDateBetweenParticularDriver(@RequestParam Long driverId,
+                                                                                        @RequestParam LocalDate startDate,
+                                                                                        @RequestParam LocalDate endDate,
+                                                                                        @RequestParam(defaultValue = "0") int page,
+                                                                                        @RequestParam(defaultValue = "10") int size,
+                                                                                        @RequestParam(defaultValue = "id") String field) {
+        return orderService.findAllDateBetweenParticularDriver(driverId, startDate, endDate, page, size, field);
     }
 }

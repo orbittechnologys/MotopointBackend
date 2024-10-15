@@ -1,6 +1,5 @@
 package com.ot.moto.repository;
 
-import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -37,4 +36,10 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Query("SELECT SUM(amount) FROM Payment")
     public Double findTotalAmount();
+
+    public List<Payment> findAllByDriverIdAndDateBetween(Long driverId, LocalDate startDate, LocalDate endDate);
+
+    public List<Payment> findAllByDateBetween(LocalDate startDate, LocalDate endDate);
+
+    public List<Payment> findByDriverId(Long driverId);
 }

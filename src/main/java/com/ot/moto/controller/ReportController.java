@@ -346,9 +346,9 @@ public class ReportController {
     }
 
     @GetMapping("/download-OrgReport-date-between")
-    public ResponseEntity<InputStreamResource> generateExcelForOrgReportsDateBetween(@RequestParam LocalDate startDate,@RequestParam LocalDate endDate) {
+    public ResponseEntity<InputStreamResource> generateExcelForOrgReportsDateBetween(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
         try {
-            ResponseEntity<InputStreamResource> responseEntity = orgReportService.generateExcelForOrgReportsDateBetween(startDate,endDate);
+            ResponseEntity<InputStreamResource> responseEntity = orgReportService.generateExcelForOrgReportsDateBetween(startDate, endDate);
             if (responseEntity.getStatusCode() == HttpStatus.OK) {
                 return responseEntity;
             } else {
@@ -360,9 +360,47 @@ public class ReportController {
     }
 
     @GetMapping("/download-OrgReport-date-between-for-particular-driver")
-    public ResponseEntity<InputStreamResource> generateExcelForOrgReportsDateBetweenForParticularDriver(@RequestParam Long driverId,@RequestParam LocalDate startDate,@RequestParam LocalDate endDate) {
+    public ResponseEntity<InputStreamResource> generateExcelForOrgReportsDateBetweenForParticularDriver(@RequestParam Long driverId, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
         try {
-            ResponseEntity<InputStreamResource> responseEntity = orgReportService.generateExcelForOrgReportsDateBetweenForParticularDriver(startDate,endDate,driverId);
+            ResponseEntity<InputStreamResource> responseEntity = orgReportService.generateExcelForOrgReportsDateBetweenForParticularDriver(startDate, endDate, driverId);
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                return responseEntity;
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @GetMapping("/download-payment-for-driver")
+    public ResponseEntity<InputStreamResource> generateCsvForPaymentOfPaticularDriver(@RequestParam Long driverId, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        try {
+            ResponseEntity<InputStreamResource> responseEntity = reportService.generateCsvForPaymentsByDriverAndDateRange(driverId, startDate, endDate);
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                return responseEntity;
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @Operation(summary = "csv download for paticular driver  ", description = "returns csv file of tam")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "csv downloaded"),
+            @ApiResponse(responseCode = "404", description = "csv not downloaded")})
+    @GetMapping("/downloadPaymentBetweenDate")
+    public ResponseEntity<InputStreamResource> downloadPaymentBetweenDate(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        return reportService.generateExcelForPaymentsDateBetween(startDate, endDate);
+    }
+
+    @GetMapping("/download-payment-for-driver-date-between")
+    public ResponseEntity<InputStreamResource> generateCsvForPaymentOfPaticularDriverDateBetween(  @RequestParam  Long driverId,  @RequestParam LocalDate startDate, @RequestParam LocalDate endDate ) {
+        try {
+            ResponseEntity<InputStreamResource> responseEntity = reportService.generateCsvForPaymentsByDriverAndDateRange(driverId,startDate,endDate);
             if (responseEntity.getStatusCode() == HttpStatus.OK) {
                 return responseEntity;
             } else {

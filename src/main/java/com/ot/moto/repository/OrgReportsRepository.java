@@ -1,6 +1,8 @@
 package com.ot.moto.repository;
 
 import com.ot.moto.entity.OrgReports;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -43,6 +45,9 @@ public interface OrgReportsRepository extends JpaRepository<OrgReports, Long> {
             @Param("endDate") LocalDate endDate,
             @Param("driverId") Long driverId
     );
+
+    @Query("SELECT o FROM OrgReports o WHERE o.dispatchDate BETWEEN :startDate AND :endDate")
+    public Page<OrgReports> findOrgReportsByDateRange(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, Pageable pageable);
 
 
 }

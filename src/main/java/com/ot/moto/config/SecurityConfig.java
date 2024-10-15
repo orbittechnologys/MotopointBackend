@@ -88,6 +88,18 @@ public class SecurityConfig {
             "/order/download-csv-of-driver-between-dates",
             "/order/download-OrgReport-date-between",
             "/report/download-OrgReport-date-between-for-particular-driver",
+            "/report/download-payment-for-driver",
+            "/report/downloadPaymentBetweenDate",
+            "/report/download-payment-for-driver-date-between",
+
+
+
+            "/order/findAllDateBetween",
+            "/order/findAllDateBetweenParticularDriver",
+
+            "/tam/downloadDriver",
+            "/tam/downloadDriverBetweenDate",
+            "/tam/downloadBetweenDate",
 
             "/tam/getByJahezRiderId",
             "/tam/findByDriverName",

@@ -1,5 +1,6 @@
 package com.ot.moto.service;
 
+import com.opencsv.CSVWriter;
 import com.ot.moto.dao.*;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.response.DriverAnalysisSum;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -771,4 +773,181 @@ public class ReportService {
             return ResponseStructure.errorResponse(null,500,"error fetching the total Benefit of all drivers ");
         }
     }
+
+    public ResponseEntity<InputStreamResource> generateCsvForPaymentsByDriver(Long driverId) {
+        try {
+            // Fetch the driver by ID
+            Driver driver = driverRepository.findById(driverId).orElse(null);
+            if (driver == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            // Fetch all payments for the driver
+            List<Payment> payments = paymentRepository.findByDriverId(driverId);
+            if (payments.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            // Create StringWriter and CSVWriter
+            StringWriter writer = new StringWriter();
+            CSVWriter csvWriter = new CSVWriter(writer);
+
+            // CSV header
+            String[] header = {
+                    "Payment ID", "Amount", "Description", "Payment Type", "Date"
+            };
+
+            csvWriter.writeNext(header);
+
+            // Write data for each payment
+            for (Payment payment : payments) {
+                String[] data = {
+                        String.valueOf(payment.getId()),
+                        String.valueOf(payment.getAmount()),
+                        payment.getDescription(),
+                        payment.getType(),
+                        payment.getDate() != null ? payment.getDate().toString() : ""
+                };
+                csvWriter.writeNext(data);
+            }
+
+            // Close writer and prepare the CSV content
+            csvWriter.close();
+            String csvContent = writer.toString();
+
+            // Prepare the CSV file as an InputStreamResource for downloading
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(csvContent.getBytes());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=payments.csv");
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(csvContent.getBytes().length)
+                    .contentType(MediaType.parseMediaType("application/csv"))
+                    .body(resource);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    public ResponseEntity<InputStreamResource> generateCsvForPaymentsByDriverAndDateRange(Long driverId, LocalDate startDate, LocalDate endDate) {
+        try {
+            // Fetch the driver by ID
+            Driver driver = driverRepository.findById(driverId).orElse(null);
+            if (driver == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            // Fetch all payments for the driver within the date range
+            List<Payment> payments = paymentRepository.findAllByDriverIdAndDateBetween(driverId, startDate, endDate);
+            if (payments.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            // Create StringWriter and CSVWriter
+            StringWriter writer = new StringWriter();
+            CSVWriter csvWriter = new CSVWriter(writer);
+
+            // CSV header
+            String[] header = {
+                    "Payment ID", "Amount", "Description", "Payment Type", "Date"
+            };
+
+            csvWriter.writeNext(header);
+
+            // Write data for each payment
+            for (Payment payment : payments) {
+                String[] data = {
+                        String.valueOf(payment.getId()),
+                        String.valueOf(payment.getAmount()),
+                        payment.getDescription(),
+                        payment.getType(),
+                        payment.getDate() != null ? payment.getDate().toString() : ""
+                };
+                csvWriter.writeNext(data);
+            }
+
+            // Close writer and prepare the CSV content
+            csvWriter.close();
+            String csvContent = writer.toString();
+
+            // Prepare the CSV file as an InputStreamResource for downloading
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(csvContent.getBytes());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=payments.csv");
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(csvContent.getBytes().length)
+                    .contentType(MediaType.parseMediaType("application/csv"))
+                    .body(resource);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+
+    public ResponseEntity<InputStreamResource> generateExcelForPaymentsDateBetween(LocalDate startDate,LocalDate endDate) {
+        try {
+            List<Payment> paymentsList = paymentRepository.findAllByDateBetween(startDate,endDate);
+            if (paymentsList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Benefit Reports");
+
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {
+                    "ID", "Amount", "Description", "Type", "Date", "Driver Name", "Driver PhoneNumber"
+            };
+            for (int i = 0; i < headers.length; i++) {
+                headerRow.createCell(i).setCellValue(headers[i]);
+            }
+
+            int rowNum = 1;
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            for (Payment payment : paymentsList) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(payment.getId());
+                row.createCell(1).setCellValue(payment.getAmount());
+                row.createCell(2).setCellValue(payment.getDescription());
+                row.createCell(3).setCellValue(payment.getType());
+                row.createCell(4).setCellValue(payment.getDate() != null ? payment.getDate().format(formatter) : "");
+                row.createCell(5).setCellValue(payment.getDriver() != null ? payment.getDriver().getUsername() : "");
+                row.createCell(6).setCellValue(payment.getDriver() != null ? payment.getDriver().getPhone() : "");
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
+
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers1 = new HttpHeaders();
+            headers1.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=payments.xlsx");
+            headers1.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers1)
+                    .contentLength(outputStream.size())
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(resource);
+
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 }

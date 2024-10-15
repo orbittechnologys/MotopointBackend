@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -124,5 +125,29 @@ public class TamController {
         } catch (Exception e) {
             return ResponseStructure.errorResponse(null, 500, "Error fetching sum for yesterday: " + e.getMessage());
         }
+    }
+
+    @Operation(summary = "csv download for paticular driver  ", description = "returns csv file of tam")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "csv downloaded"),
+            @ApiResponse(responseCode = "404", description = "csv not downloaded")})
+    @GetMapping("/downloadDriver")
+    public ResponseEntity<InputStreamResource> downloadTamByDriverId( @RequestParam Long driverId) {
+        return tamService.generateCsvForTamByDriver(driverId);
+    }
+
+    @Operation(summary = "csv download for paticular driver  ", description = "returns csv file of tam")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "csv downloaded"),
+            @ApiResponse(responseCode = "404", description = "csv not downloaded")})
+    @GetMapping("/downloadDriverBetweenDate")
+    public ResponseEntity<InputStreamResource> downloadTamByDriverIdBetweenDate(@RequestParam Long driverId , @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        return tamService.generateCsvForTamByDriverDateBetween(driverId,startDate,endDate);
+    }
+
+    @Operation(summary = "csv download for paticular driver  ", description = "returns csv file of tam")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "csv downloaded"),
+            @ApiResponse(responseCode = "404", description = "csv not downloaded")})
+    @GetMapping("/downloadBetweenDate")
+    public ResponseEntity<InputStreamResource> downloadTamdBetweenDate(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        return tamService.generateExcelForAllDateRange(startDate,endDate);
     }
 }

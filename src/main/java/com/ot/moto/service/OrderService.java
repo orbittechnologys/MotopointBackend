@@ -406,4 +406,42 @@ public class OrderService {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    public ResponseEntity<ResponseStructure<Object>> findAllDateBetween(LocalDate startDate,LocalDate endDate,int page, int size, String field) {
+        logger.info("Fetching orders with page number {}, page size {}, sorted by field {}", page, size, field);
+
+        try {
+            PageRequest pageRequest = PageRequest.of(page, size, Sort.by(field));
+            Page<Orders> ordersPage = ordersRepository.findAllByDateBetween(startDate,endDate,pageRequest);
+
+            if (ordersPage.isEmpty()) {
+                logger.warn("No Orders found for page number {} and page size {}", page, size);
+                return ResponseStructure.errorResponse(null, 404, "No Orders found");
+            }
+            logger.info("Successfully fetched orders for page number {} and page size {}", page, size);
+            return ResponseStructure.successResponse(ordersPage, "Orders found successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching orders: {}", e.getMessage(), e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching orders: " + e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> findAllDateBetweenParticularDriver(Long driverId,LocalDate startDate,LocalDate endDate,int page, int size, String field) {
+        logger.info("Fetching orders with page number {}, page size {}, sorted by field {}", page, size, field);
+
+        try {
+            PageRequest pageRequest = PageRequest.of(page, size, Sort.by(field));
+            Page<Orders> ordersPage = ordersRepository.findAllByDriverIdAndDateBetween(driverId,startDate,endDate,pageRequest);
+
+            if (ordersPage.isEmpty()) {
+                logger.warn("No Orders found for page number {} and page size {}", page, size);
+                return ResponseStructure.errorResponse(null, 404, "No Orders found");
+            }
+            logger.info("Successfully fetched orders for page number {} and page size {}", page, size);
+            return ResponseStructure.successResponse(ordersPage, "Orders found successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching orders: {}", e.getMessage(), e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching orders: " + e.getMessage());
+        }
+    }
 }
