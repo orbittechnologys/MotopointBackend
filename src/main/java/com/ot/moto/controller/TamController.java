@@ -131,23 +131,42 @@ public class TamController {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "csv downloaded"),
             @ApiResponse(responseCode = "404", description = "csv not downloaded")})
     @GetMapping("/downloadDriver")
-    public ResponseEntity<InputStreamResource> downloadTamByDriverId( @RequestParam Long driverId) {
+    public ResponseEntity<InputStreamResource> downloadTamByDriverId(@RequestParam Long driverId) {
         return tamService.generateCsvForTamByDriver(driverId);
     }
 
     @Operation(summary = "csv download for paticular driver  ", description = "returns csv file of tam")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "csv downloaded"),
             @ApiResponse(responseCode = "404", description = "csv not downloaded")})
-    @GetMapping("/downloadDriverBetweenDate")
-    public ResponseEntity<InputStreamResource> downloadTamByDriverIdBetweenDate(@RequestParam Long driverId , @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
-        return tamService.generateCsvForTamByDriverDateBetween(driverId,startDate,endDate);
+    @GetMapping("/download-tam-date-between-for-particular-driver")
+    public ResponseEntity<InputStreamResource> downloadTamByDriverIdBetweenDate(@RequestParam Long driverId, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        return tamService.generateCsvForTamByDriverDateBetween(driverId, startDate, endDate);
     }
 
     @Operation(summary = "csv download for paticular driver  ", description = "returns csv file of tam")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "csv downloaded"),
             @ApiResponse(responseCode = "404", description = "csv not downloaded")})
-    @GetMapping("/downloadBetweenDate")
-    public ResponseEntity<InputStreamResource> downloadTamdBetweenDate(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
-        return tamService.generateExcelForAllDateRange(startDate,endDate);
+    @GetMapping("/download-tam-date-between")
+    public ResponseEntity<InputStreamResource> downloadTamBetweenDate(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        return tamService.generateExcelForAllDateRange(startDate, endDate);
+    }
+
+    @GetMapping("/getAllTam-ForDriver-BetweenDates")
+    public ResponseEntity<ResponseStructure<Object>> getTamForDriverBetweenDates(@RequestParam Long driverId,
+                                                                                 @RequestParam LocalDate startDate,
+                                                                                 @RequestParam LocalDate endDate,
+                                                                                 @RequestParam(defaultValue = "0") int page,
+                                                                                 @RequestParam(defaultValue = "10") int size,
+                                                                                 @RequestParam(defaultValue = "id") String field) {
+        return tamService.getTamForDriverBetweenDates(driverId, startDate, endDate, size, page, field);
+    }
+
+    @GetMapping("/getAllTam-BetweenDates")
+    public ResponseEntity<ResponseStructure<Object>> getTamBetweenDates(@RequestParam LocalDate startDate,
+                                                                        @RequestParam LocalDate endDate,
+                                                                        @RequestParam(defaultValue = "0") int page,
+                                                                        @RequestParam(defaultValue = "10") int size,
+                                                                        @RequestParam(defaultValue = "id") String field) {
+        return tamService.getTamBetweenDates(startDate, endDate, size, page, field);
     }
 }

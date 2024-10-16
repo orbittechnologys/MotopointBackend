@@ -239,6 +239,11 @@ public class JwtFilter extends OncePerRequestFilter {
 
             "/driver/getAll/rented/s-rented",
 
+            "/tam/download-tam-date-between-for-particular-driver",
+            "/tam/download-tam-date-between",
+            "/tam/getAllTam-ForDriver-BetweenDates",
+            "/tam/getAllTam-BetweenDates",
+
             "/penalty/getPenaltiesByDriverId",
             "/penalty/getPenaltiesByFleetId",
             "/penalty/save",

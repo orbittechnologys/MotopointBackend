@@ -96,6 +96,10 @@ public class SecurityConfig {
             "/report/download-orgReport-date-between-for-particular-driver",
             "/report/getAllPayments-dateBetween",
             "/report/getAllPayments-dateBetween-particular-driver",
+            "/tam/download-tam-date-between-for-particular-driver",
+            "/tam/download-tam-date-between",
+            "/tam/getAllTam-ForDriver-BetweenDates",
+            "/tam/getAllTam-BetweenDates",
 
 
 

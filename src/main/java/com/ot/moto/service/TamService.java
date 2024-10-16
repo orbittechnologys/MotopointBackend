@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
@@ -621,6 +622,10 @@ public class TamService {
 
     public ResponseEntity<InputStreamResource> generateCsvForTamByDriverDateBetween( Long driverId, LocalDate startDate,LocalDate endDate) {
         try {
+
+            LocalDateTime startDateTime = startDate.atStartOfDay(); // Start of the day
+            LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX); // End of the day
+
             // Fetch the driver by ID
             Driver driver = driverRepository.findById(driverId).orElse(null);
             if (driver == null) {
@@ -628,7 +633,7 @@ public class TamService {
             }
 
             // Fetch all Tam transactions for the driver
-            List<Tam> tamTransactions = tamRepository.findAllByDriverIdAndDateTimeBetween(driverId,startDate,endDate);
+            List<Tam> tamTransactions = tamRepository.findAllByDriverIdAndDateTimeBetween(driverId,startDateTime,endDateTime);
             if (tamTransactions.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
@@ -722,7 +727,10 @@ public class TamService {
 
     public ResponseEntity<InputStreamResource> generateExcelForAllDateRange(LocalDate startDate,LocalDate endDate) {
         try {
-            List<Tam> tamList = tamRepository.findAllByDateTimeBetween(startDate,endDate);
+            LocalDateTime startDateTime = startDate.atStartOfDay(); // Start of the day
+            LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX); // End of the day
+
+            List<Tam> tamList = tamRepository.findAllByDateTimeBetween(startDateTime,endDateTime);
             if (tamList.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
@@ -807,6 +815,55 @@ public class TamService {
 
         } catch (IOException e) {
             return ResponseEntity.internalServerError().build();
+        }
+    }
+
+
+    public ResponseEntity<ResponseStructure<Object>> getTamBetweenDates(LocalDate startDate, LocalDate endDate, int page, int size, String field) {
+        try {
+            // Convert LocalDate to LocalDateTime
+            LocalDateTime startDateTime = startDate.atStartOfDay(); // Start of the day
+            LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX); // End of the day
+
+            // Create PageRequest with sorting
+            PageRequest pageRequest = PageRequest.of(page, size, Sort.by(field));
+
+            // Fetch the reports
+            Page<Tam> tamPage = tamRepository.findAllByDateTimeBetween(startDateTime, endDateTime, pageRequest);
+
+            if (tamPage.isEmpty()) {
+                logger.warn("No reports found between the specified dates.");
+                return ResponseStructure.errorResponse(null, 404, "No reports found between the specified dates");
+            }
+
+            return ResponseStructure.successResponse(tamPage, "Reports found between specified dates");
+        } catch (Exception e) {
+            logger.error("Error fetching reports between dates", e);
+            return ResponseStructure.errorResponse(null, 500, "Internal Server Error: " + e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> getTamForDriverBetweenDates(Long driverId, LocalDate startDate, LocalDate endDate, int page, int size, String field) {
+        try {
+            // Convert LocalDate to LocalDateTime
+            LocalDateTime startDateTime = startDate.atStartOfDay(); // Start of the day
+            LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX); // End of the day
+
+            // Create PageRequest with sorting
+            PageRequest pageRequest = PageRequest.of(page, size, Sort.by(field));
+
+            // Fetch the reports for the specified driver
+            Page<Tam> tamPage = tamRepository.findAllByDriverIdAndDateTimeBetween(driverId,startDateTime, endDateTime, pageRequest);
+
+            if (tamPage.isEmpty()) {
+                logger.warn("No reports found for driver ID " + driverId + " between the specified dates.");
+                return ResponseStructure.errorResponse(null, 404, "No reports found for the specified driver between the given dates");
+            }
+
+            return ResponseStructure.successResponse(tamPage, "Reports found for the specified driver between the given dates");
+        } catch (Exception e) {
+            logger.error("Error fetching reports for driver between dates", e);
+            return ResponseStructure.errorResponse(null, 500, "Internal Server Error: " + e.getMessage());
         }
     }
 }

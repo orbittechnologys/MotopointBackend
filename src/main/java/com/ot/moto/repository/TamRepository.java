@@ -39,9 +39,13 @@ public interface TamRepository extends JpaRepository<Tam, Long> {
     @Query("SELECT SUM(t.payInAmount) FROM Tam t WHERE t.dateTime >= :startOfDay AND t.dateTime <= :endOfDay")
     public Double getTotalPayInAmountForToday(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
 
-    public List<Tam> findAllByDriverIdAndDateTimeBetween(Long driverId, LocalDate startDate, LocalDate endDate);
+    public List<Tam> findAllByDriverIdAndDateTimeBetween(Long driverId, LocalDateTime startDate, LocalDateTime endDate);
 
-    public List<Tam> findAllByDateTimeBetween(LocalDate startDate, LocalDate endDate);
+    public List<Tam> findAllByDateTimeBetween(LocalDateTime startDate, LocalDateTime endDate);
+
+    public Page<Tam> findAllByDriverIdAndDateTimeBetween(Long driverId, LocalDateTime startDateTime, LocalDateTime endDateTime,Pageable pageable);
+
+    public Page<Tam> findAllByDateTimeBetween(LocalDateTime startDateTime, LocalDateTime endDateTime,Pageable pageable);
 
     public List<Tam> findByDriverId(Long driverId);
 }
