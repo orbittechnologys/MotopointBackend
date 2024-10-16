@@ -4,6 +4,7 @@ import com.opencsv.CSVWriter;
 import com.ot.moto.dao.*;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.response.DriverAnalysisSum;
+import com.ot.moto.dto.response.UploadPaymentResponse;
 import com.ot.moto.entity.*;
 import com.ot.moto.repository.*;
 import com.ot.moto.util.StringUtil;
@@ -94,11 +95,10 @@ public class ReportService {
                     continue;
                 }
 
-                // Check if the cell is empty before parsing
                 Cell dateCell = row.getCell(0);
                 if (dateCell == null || dateCell.toString().trim().isEmpty()) {
                     logger.warn("Empty date cell at row index: " + i);
-                    continue; // Skip this row if the date is missing
+                    continue;
                 }
 
                 String cellDate = dateCell.toString().trim();
@@ -208,9 +208,17 @@ public class ReportService {
 
     public ResponseEntity<ResponseStructure<Object>> uploadBankStatement(Sheet sheet) {
         try {
+
+            Long noOfRowsParsed = 0l;
+            Long totalDrivers = 0l;
+            Double amountReceived = 0.0;
+
+            Set<Long> uniqueDrivers = new HashSet<>();
+
             int rowStart = 1;
             int rowEnd = sheet.getLastRowNum();
             for (int i = rowStart; i <= rowEnd; i++) {
+                noOfRowsParsed++;
                 Row row = sheet.getRow(i);
 
                 if (row == null) {
@@ -238,12 +246,18 @@ public class ReportService {
                     continue;
                 }
 
+                amountReceived += amount;
+
                 String phoneNumber = extractPhoneNumber(description);
                 logger.info("Extracted phone number: " + phoneNumber);
 
                 Driver driver = driverDao.findByPhoneNumber(phoneNumber);
 
                 if (Objects.nonNull(driver)) {
+
+                    if (!uniqueDrivers.contains(driver.getId())) {
+                        uniqueDrivers.add(driver.getId());
+                    }
 
                     updateDriverPendingAmount(driver, amount, paymentType, date, description);
 
@@ -252,11 +266,16 @@ public class ReportService {
                 }
             }
 
+            UploadPaymentResponse uploadPaymentResponse = new UploadPaymentResponse();
+            uploadPaymentResponse.setNoOfRowsParsed(noOfRowsParsed);
+            uploadPaymentResponse.setAmountReceived(amountReceived);
+            uploadPaymentResponse.setTotalDrivers((long) uniqueDrivers.size());
+            return ResponseStructure.successResponse(uploadPaymentResponse,"successfully uploaded");
+
         } catch (Exception e) {
             logger.error("Error parsing bank statement", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
-        return ResponseStructure.successResponse(null, "Successfully Processed");
     }
 
     private boolean paymentRecordExists(Long driverId, LocalDate date) {
@@ -279,25 +298,6 @@ public class ReportService {
         return null;
     }
 
-    /*To extract the Phone Number where the number start's with 973*/
-    /*private String extractPhoneNumber(String description) {
-        logger.info("Description being processed: " + description);
-
-        // Update the pattern to capture an 11-digit phone number following /PHONE/
-        Pattern pattern = Pattern.compile("/PHONE/(\\d{11})");
-        Matcher matcher = pattern.matcher(description);
-
-        if (matcher.find()) {
-            String fullPhoneNumber = matcher.group(1);
-            // Remove the first 3 digits and keep only the last 8 digits
-            String phoneNumber = fullPhoneNumber.substring(3);
-            logger.info("Extracted phone number: " + phoneNumber);
-            return phoneNumber;
-        }
-
-        logger.info("No phone number found in description: " + description);
-        return null;
-    }*/
 
     private void updateDriverPendingAmount(Driver driver, double amount, String paymentType, LocalDate date, String description) {
         double newAmountPending = driver.getAmountPending() - amount;
@@ -760,19 +760,19 @@ public class ReportService {
                 return ResponseStructure.errorResponse(null, 404, "Driver Not Fund With ID " + driverId);
             }
 
-                Double totalAmount = paymentDao.findTotalBenefitAmountByDriver(driverId);
-                return ResponseStructure.successResponse(totalAmount, "Total Benefit Collected by a Driver Retrieved successfully");
-            } catch(Exception e){
-                return ResponseStructure.errorResponse(null, 500, "error fetching the total benefit collected by a driver ");
-            }
+            Double totalAmount = paymentDao.findTotalBenefitAmountByDriver(driverId);
+            return ResponseStructure.successResponse(totalAmount, "Total Benefit Collected by a Driver Retrieved successfully");
+        } catch (Exception e) {
+            return ResponseStructure.errorResponse(null, 500, "error fetching the total benefit collected by a driver ");
+        }
     }
 
-    public  ResponseEntity<ResponseStructure<Object>> findTotalBenefitAmount(){
-        try{
+    public ResponseEntity<ResponseStructure<Object>> findTotalBenefitAmount() {
+        try {
             Double totalAmount = paymentDao.findTotalBenefitAmount();
-            return ResponseStructure.successResponse(totalAmount,"Total Benefit Amount Fetched successfully ");
-        }catch(Exception e){
-            return ResponseStructure.errorResponse(null,500,"error fetching the total Benefit of all drivers ");
+            return ResponseStructure.successResponse(totalAmount, "Total Benefit Amount Fetched successfully ");
+        } catch (Exception e) {
+            return ResponseStructure.errorResponse(null, 500, "error fetching the total Benefit of all drivers ");
         }
     }
 
@@ -899,9 +899,9 @@ public class ReportService {
     }
 
 
-    public ResponseEntity<InputStreamResource> generateExcelForPaymentsDateBetween(LocalDate startDate,LocalDate endDate) {
+    public ResponseEntity<InputStreamResource> generateExcelForPaymentsDateBetween(LocalDate startDate, LocalDate endDate) {
         try {
-            List<Payment> paymentsList = paymentRepository.findAllByDateBetween(startDate,endDate);
+            List<Payment> paymentsList = paymentRepository.findAllByDateBetween(startDate, endDate);
             if (paymentsList.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
@@ -952,10 +952,10 @@ public class ReportService {
         }
     }
 
-    public ResponseEntity<ResponseStructure<Object>> getAllBankstatementDateBetween(LocalDate startDate,LocalDate endDate,int page, int size, String field) {
+    public ResponseEntity<ResponseStructure<Object>> getAllBankstatementDateBetween(LocalDate startDate, LocalDate endDate, int page, int size, String field) {
         try {
             PageRequest pageRequest = PageRequest.of(page, size, Sort.by(field));
-            Page<Payment> payments = paymentRepository.findAllByDateBetween(startDate,endDate,pageRequest);
+            Page<Payment> payments = paymentRepository.findAllByDateBetween(startDate, endDate, pageRequest);
             if (payments.isEmpty()) {
                 logger.warn("No Bank Statement found.");
                 return ResponseStructure.errorResponse(null, 404, "No BankStatement found");
@@ -970,7 +970,7 @@ public class ReportService {
     public ResponseEntity<ResponseStructure<Object>> getAllBankStatementByDriverIdAndDateBetween(Long driverId, LocalDate startDate, LocalDate endDate, int page, int size, String field) {
         try {
             PageRequest pageRequest = PageRequest.of(page, size, Sort.by(field));
-            Page<Payment> payments = paymentRepository.findAllByDriverIdAndDateBetween(driverId,startDate,endDate,pageRequest);
+            Page<Payment> payments = paymentRepository.findAllByDriverIdAndDateBetween(driverId, startDate, endDate, pageRequest);
             if (payments.isEmpty()) {
                 logger.warn("No Bank Statement found.");
                 return ResponseStructure.errorResponse(null, 404, "No BankStatement found");

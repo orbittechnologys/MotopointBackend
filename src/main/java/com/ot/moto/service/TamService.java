@@ -4,6 +4,7 @@ import com.opencsv.CSVWriter;
 import com.ot.moto.dao.SalaryDao;
 import com.ot.moto.dao.TamDao;
 import com.ot.moto.dto.ResponseStructure;
+import com.ot.moto.dto.response.UploadTamResponse;
 import com.ot.moto.entity.*;
 import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.TamRepository;
@@ -31,9 +32,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class TamService {
@@ -62,9 +61,14 @@ public class TamService {
 
         try {
 
+            Long noOfRowsParsed = 0L;
+            Long totalDrivers = 0L;
+            Double amountReceived = 0.0;
 
+            Set<Long> uniqueDrivers = new HashSet<>();
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                noOfRowsParsed++;
                 Row row = sheet.getRow(i);
 
                 if (row == null) {
@@ -83,8 +87,15 @@ public class TamService {
                     logger.info("Saving Tam record: " + tam.getDriverName() + " at time: " + tam.getDateTime());
                     deductAmountPending(tam.getMobileNumber(), tam.getPayInAmount());
                     tamList.add(tam);
+                    amountReceived += tam.getPayInAmount();
 
                     Driver driver = driverRepository.findByPhone(String.valueOf(tam.getMobileNumber()));
+
+                    if (driver != null) {
+                        if(!uniqueDrivers.contains(driver.getId())){
+                            uniqueDrivers.add(driver.getId());
+                        }
+                    }
                     updateSalary(driver, tam.getConfTrxnDateTime().toLocalDate(), tam.getPayInAmount());
 
                 } else {
@@ -99,7 +110,12 @@ public class TamService {
                 logger.info("No valid Tam records to save.");
             }
 
-            return ResponseStructure.successResponse(null, "Successfully Parsed");
+            UploadTamResponse uploadTamResponse = new UploadTamResponse();
+            uploadTamResponse.setNoOfRowsParsed(noOfRowsParsed);
+            uploadTamResponse.setTotalDrivers((long) uniqueDrivers.size());
+            uploadTamResponse.setAmountReceived(amountReceived);
+
+            return ResponseStructure.successResponse(uploadTamResponse, "Successfully Parsed");
 
         } catch (Exception e) {
             logger.error("Error parsing Excel Tam Sheet", e);

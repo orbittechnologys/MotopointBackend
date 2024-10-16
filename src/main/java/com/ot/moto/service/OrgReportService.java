@@ -2,6 +2,7 @@ package com.ot.moto.service;
 
 import com.ot.moto.dao.*;
 import com.ot.moto.dto.ResponseStructure;
+import com.ot.moto.dto.response.UploadOrgResponse;
 import com.ot.moto.entity.*;
 import com.ot.moto.repository.DriverRepository;
 import com.ot.moto.repository.OrgReportsRepository;
@@ -62,17 +63,37 @@ public class OrgReportService {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH);
 
+
     @Transactional
     public ResponseEntity<ResponseStructure<Object>> uploadOrgReports(Sheet sheet) {
         List<OrgReports> orgReportsList = new ArrayList<>();
+
         HashMap<String, List<Double>> driverSlabMap = new HashMap<>(); // " jahezId | date " -> [total s1,total s2,total s3,total s4,total s5,totalCOD,totalDebit, totalCredit]
         try {
+            Long noOfRowsParsed = 0L;
+            Double totalCod = 0.0;
+            Long totalDrivers = 0L;
+            Double totalCredit = 0.0;
+            Double totalDebit = 0.0;
+            Long totalS1 = 0L;
+            Long totalS2 = 0L;
+            Long totalS3 = 0L;
+            Long totalS4 = 0L;
+            Long totalS5 = 0L;
+            Double totalEarnings = 0.0;
+            Double profit = 0.0;
+
+            Set<Long> uniqueDrivers = new HashSet<>();
+
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+
                 Row row = sheet.getRow(i);
                 if (row == null) {
                     logger.warn("Row {} is null, skipping...", i);
                     continue;
                 }
+
+                noOfRowsParsed++;
                 logger.info("Parsing row {}", i);
                 OrgReports orgReport = parseRowToOrgReport(row);
                 logger.info("Successfully parsed row {}", i);
@@ -85,7 +106,6 @@ public class OrgReportService {
 
                 Double price = orgReport.getPrice();
                 Master master = masterDao.getMasterByJahezPaid(price);
-
                 Double debit = orgReport.getDriverDebitAmount();
                 Double credit = orgReport.getDriverCreditAmount();
 
@@ -96,6 +116,12 @@ public class OrgReportService {
 
                 Long jahezId = orgReport.getDriverId();
                 Driver driver = driverDao.findByJahezId(jahezId);
+
+                if (driver != null) {
+                    if(!uniqueDrivers.contains(driver.getId())){
+                        uniqueDrivers.add(driver.getId());
+                    }
+                }
 
                 if (Objects.isNull(driver)) {
                     logger.warn("Could not find driver by jahezId {}", jahezId);
@@ -113,6 +139,11 @@ public class OrgReportService {
                 String key = jahezId + "|" + dateStr;
                 Double codAmount = orgReport.getAmount();
 
+                totalCod += codAmount;
+
+                totalDebit += debit;
+                totalCredit += credit;
+
                 if (driverSlabMap.containsKey(key)) {
                     List<Double> slabList = driverSlabMap.get(key);
                     String masterSlab = master.getSlab();
@@ -122,18 +153,23 @@ public class OrgReportService {
                     switch (masterSlab) {
                         case "S1":
                             slabList.set(0, slabList.get(0) + 1);
+                            totalS1++;
                             break;
                         case "S2":
                             slabList.set(1, slabList.get(1) + 1);
+                            totalS2++;
                             break;
                         case "S3":
                             slabList.set(2, slabList.get(2) + 1);
+                            totalS3++;
                             break;
                         case "S4":
                             slabList.set(3, slabList.get(3) + 1);
+                            totalS4++;
                             break;
                         case "S5":
                             slabList.set(4, slabList.get(4) + 1);
+                            totalS5++;
                             break;
                     }
                 } else {
@@ -142,18 +178,23 @@ public class OrgReportService {
                     switch (masterSlab) {
                         case "S1":
                             slabList.set(0, 1.0);
+                            totalS1++;
                             break;
                         case "S2":
                             slabList.set(1, 1.0);
+                            totalS2++;
                             break;
                         case "S3":
                             slabList.set(2, 1.0);
+                            totalS3++;
                             break;
                         case "S4":
                             slabList.set(3, 1.0);
+                            totalS4++;
                             break;
                         case "S5":
                             slabList.set(4, 1.0);
+                            totalS5++;
                             break;
                     }
                     driverSlabMap.put(key, slabList);
@@ -170,7 +211,15 @@ public class OrgReportService {
             }
 
             processDriverSlabMap(driverSlabMap);
-            return ResponseStructure.successResponse(null, "Successfully Parsed");
+
+            UploadOrgResponse uploadOrgResponse = new UploadOrgResponse(
+                    noOfRowsParsed, totalCod, totalDrivers, totalCredit, totalDebit,
+                    totalS1, totalS2, totalS3, totalS4, totalS5, totalEarnings, profit
+            );
+
+            return ResponseStructure.successResponse(uploadOrgResponse, "Successfully Parsed");
+
+
         } catch (Exception e) {
             logger.error("Error parsing Excel OrgReports", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
@@ -969,7 +1018,6 @@ public class OrgReportService {
             return ResponseEntity.internalServerError().build();
         }
     }
-
 
     public ResponseEntity<ResponseStructure<Object>> getOrgReportsBetweenDates(LocalDate startDate, LocalDate endDate, int page, int size, String field) {
         try {

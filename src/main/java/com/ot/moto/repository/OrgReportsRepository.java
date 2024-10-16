@@ -36,16 +36,9 @@ public interface OrgReportsRepository extends JpaRepository<OrgReports, Long> {
     @Query("SELECT SUM(o.amount) FROM OrgReports o WHERE o.dispatchDate >= :startOfDay AND o.dispatchDate <= :endOfDay")
     public Double getTotalAmountForToday(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
 
-    // Method to find paged reports by dispatch date range
     public Page<OrgReports> findByDispatchDateBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-    // Method to find paged reports by dispatch date range and driver ID
-    public Page<OrgReports> findByDispatchDateBetweenAndDriverId(
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            Long driverId,
-            Pageable pageable
-    );
+    public Page<OrgReports> findByDispatchDateBetweenAndDriverId(LocalDateTime startDate, LocalDateTime endDate, Long driverId, Pageable pageable);
 
     // Method to find all reports by dispatch date range
     public List<OrgReports> findByDispatchDateBetween(LocalDateTime startDate, LocalDateTime endDate);
@@ -56,5 +49,4 @@ public interface OrgReportsRepository extends JpaRepository<OrgReports, Long> {
             LocalDateTime endDate,
             Long driverId
     );
-
 }
