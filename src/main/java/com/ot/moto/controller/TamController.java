@@ -158,7 +158,7 @@ public class TamController {
                                                                                  @RequestParam(defaultValue = "0") int page,
                                                                                  @RequestParam(defaultValue = "10") int size,
                                                                                  @RequestParam(defaultValue = "id") String field) {
-        return tamService.getTamForDriverBetweenDates(driverId, startDate, endDate, size, page, field);
+        return tamService.getTamForDriverBetweenDates(driverId, startDate, endDate, page, size, field);
     }
 
     @GetMapping("/getAllTam-BetweenDates")
@@ -167,6 +167,6 @@ public class TamController {
                                                                         @RequestParam(defaultValue = "0") int page,
                                                                         @RequestParam(defaultValue = "10") int size,
                                                                         @RequestParam(defaultValue = "id") String field) {
-        return tamService.getTamBetweenDates(startDate, endDate, size, page, field);
+        return tamService.getTamBetweenDates(startDate, endDate, page, size, field);
     }
 }
