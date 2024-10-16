@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -22,8 +24,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 @RestController
 @RequestMapping("/report")
@@ -36,6 +40,8 @@ public class ReportController {
 
     @Autowired
     private OrgReportService orgReportService;
+
+    private static final Logger logger = LoggerFactory.getLogger(ReportController.class);
 
 
     @Operation(summary = "upload JahezReport", description = "Input is Jahez Report file, returns Success/Failure Object")
@@ -345,35 +351,6 @@ public class ReportController {
         }
     }
 
-    @GetMapping("/download-OrgReport-date-between")
-    public ResponseEntity<InputStreamResource> generateExcelForOrgReportsDateBetween(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
-        try {
-            ResponseEntity<InputStreamResource> responseEntity = orgReportService.generateExcelForOrgReportsDateBetween(startDate, endDate);
-            if (responseEntity.getStatusCode() == HttpStatus.OK) {
-                return responseEntity;
-            } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/download-OrgReport-date-between-for-particular-driver")
-    public ResponseEntity<InputStreamResource> generateExcelForOrgReportsDateBetweenForParticularDriver(@RequestParam Long driverId, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
-        try {
-            ResponseEntity<InputStreamResource> responseEntity = orgReportService.generateExcelForOrgReportsDateBetweenForParticularDriver(startDate, endDate, driverId);
-            if (responseEntity.getStatusCode() == HttpStatus.OK) {
-                return responseEntity;
-            } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
     @GetMapping("/download-payment-for-driver")
     public ResponseEntity<InputStreamResource> generateCsvForPaymentOfPaticularDriver(@RequestParam Long driverId, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
         try {
@@ -398,9 +375,56 @@ public class ReportController {
     }
 
     @GetMapping("/download-payment-for-driver-date-between")
-    public ResponseEntity<InputStreamResource> generateCsvForPaymentOfPaticularDriverDateBetween(  @RequestParam  Long driverId,  @RequestParam LocalDate startDate, @RequestParam LocalDate endDate ) {
+    public ResponseEntity<InputStreamResource> generateCsvForPaymentOfPaticularDriverDateBetween(@RequestParam Long driverId, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
         try {
-            ResponseEntity<InputStreamResource> responseEntity = reportService.generateCsvForPaymentsByDriverAndDateRange(driverId,startDate,endDate);
+            ResponseEntity<InputStreamResource> responseEntity = reportService.generateCsvForPaymentsByDriverAndDateRange(driverId, startDate, endDate);
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                return responseEntity;
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/getAllPayments-dateBetween")
+    public ResponseEntity<ResponseStructure<Object>> getAllBankstatementDateBetween(@RequestParam LocalDate startDate,
+                                                                                    @RequestParam LocalDate endDate,
+                                                                                    @RequestParam(defaultValue = "0") int page,
+                                                                                    @RequestParam(defaultValue = "10") int size,
+                                                                                    @RequestParam(defaultValue = "id") String field) {
+        return reportService.getAllBankstatementDateBetween(startDate, endDate, page, size, field);
+    }
+
+    @GetMapping("/getAllPayments-dateBetween-particular-driver")
+    public ResponseEntity<ResponseStructure<Object>> getAllBankStatementByDriverIdAndDateBetween(@RequestParam Long driverId,
+                                                                                                 @RequestParam LocalDate startDate,
+                                                                                                 @RequestParam LocalDate endDate,
+                                                                                                 @RequestParam(defaultValue = "0") int page,
+                                                                                                 @RequestParam(defaultValue = "10") int size,
+                                                                                                 @RequestParam(defaultValue = "id") String field) {
+        return reportService.getAllBankStatementByDriverIdAndDateBetween(driverId, startDate, endDate, page, size, field);
+    }
+
+    @GetMapping("/download-orgReport-date-between")
+    public ResponseEntity<InputStreamResource> generateExcelForOrgReportsDateBetween(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        try {
+            ResponseEntity<InputStreamResource> responseEntity = orgReportService.generateExcelForOrgReportsDateBetween(startDate, endDate);
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                return responseEntity;
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/download-orgReport-date-between-for-particular-driver")
+    public ResponseEntity<InputStreamResource> generateExcelForOrgReportsDateBetweenForParticularDriver(@RequestParam Long driverId, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        try {
+            ResponseEntity<InputStreamResource> responseEntity = orgReportService.generateExcelForOrgReportsDateBetweenForParticularDriver(startDate, endDate, driverId);
             if (responseEntity.getStatusCode() == HttpStatus.OK) {
                 return responseEntity;
             } else {

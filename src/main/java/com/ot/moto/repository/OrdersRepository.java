@@ -18,7 +18,7 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
     public Page<Orders> findAll(Pageable pageable);
 
-    public  Page<Orders> findAllByDriverIdAndDateBetween(Long driverId, LocalDate startDate, LocalDate endDate, Pageable pageable);
+    public Page<Orders> findAllByDriverIdAndDateBetween(Long driverId, LocalDate startDate, LocalDate endDate, Pageable pageable);
 
     @Query("SELECT COUNT(DISTINCT o.driver) FROM Orders o WHERE o.date = ?1")
     public long countDriversWithOrdersOnDate(LocalDate date);

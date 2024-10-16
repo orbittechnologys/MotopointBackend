@@ -87,10 +87,15 @@ public class SecurityConfig {
             "/report/download-OrgReport-for-driver",
             "/order/download-csv-of-driver-between-dates",
             "/order/download-OrgReport-date-between",
+
             "/report/download-OrgReport-date-between-for-particular-driver",
             "/report/download-payment-for-driver",
             "/report/downloadPaymentBetweenDate",
             "/report/download-payment-for-driver-date-between",
+            "/report/download-orgReport-date-between",
+            "/report/download-orgReport-date-between-for-particular-driver",
+            "/report/getAllPayments-dateBetween",
+            "/report/getAllPayments-dateBetween-particular-driver",
 
 
 
@@ -256,7 +261,9 @@ public class SecurityConfig {
             "/report/getAnalysisSum",
             "/report/getDriverAnalysis",
             "/report/getDriverAnalysisSum",
-            "/driver/getAllDriverNames"
+            "/driver/getAllDriverNames",
+            "/report/getOrgReports-BetweenDates",
+            "/report/getOrgReports-ForDriver-BetweenDates"
     };
 
     private static final String[] ADMIN_WHITELIST = {};

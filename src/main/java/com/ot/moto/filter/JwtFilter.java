@@ -234,6 +234,8 @@ public class JwtFilter extends OncePerRequestFilter {
             "/fleetHistory/getById/{id}",
             "/fleetHistory/getAll",
             "/fleetHistory/downloadReport",
+            "/report/download-OrgReport-date-between",
+            "/report/download-OrgReport-date-between-for-particular-driver",
 
             "/driver/getAll/rented/s-rented",
 
@@ -253,7 +255,11 @@ public class JwtFilter extends OncePerRequestFilter {
             "/report/getAnalysisSum",
             "/report/getDriverAnalysis",
             "/report/getDriverAnalysisSum",
-            "/driver/getAllDriverNames"
+            "/driver/getAllDriverNames",
+            "/report/getOrgReports-BetweenDates",
+            "/report/getOrgReports-ForDriver-BetweenDates",
+            "/report/download-OrgReport-for-driver",
+            "/report/download-OrgReport-date-between-for-particular-driver"
     );
 
     @Override

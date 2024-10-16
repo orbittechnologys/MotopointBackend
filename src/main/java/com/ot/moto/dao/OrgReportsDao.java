@@ -51,5 +51,11 @@ public class OrgReportsDao {
         return orgReportsRepository.findDriverWithHighestAmountForCurrentMonth(startDate, endDate);
     }
 
+ /*   public Page<OrgReports> findAllBetweenDates(LocalDateTime startDate, LocalDateTime endDate, int page, int size, String field) {
+        return orgReportsRepository.findAllBetweenDispatchDate(startDate,endDate,PageRequest.of(page, size).withSort(Sort.by(field).descending()));
+    }
 
+    public Page<OrgReports> findReportsForDriverBetweenDates(Long driverId, LocalDateTime startDate, LocalDateTime endDate, int page, int size, String field) {
+        return orgReportsRepository.findReportsForDriverBetweenDispatchDate(driverId,startDate,endDate,PageRequest.of(page, size).withSort(Sort.by(field).descending()));
+    }*/
 }

@@ -1,6 +1,9 @@
 package com.ot.moto.repository;
 
 import com.ot.moto.entity.Payment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -42,4 +45,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     public List<Payment> findAllByDateBetween(LocalDate startDate, LocalDate endDate);
 
     public List<Payment> findByDriverId(Long driverId);
+
+    public Page<Payment> findAllByDriverIdAndDateBetween(Long driverId, LocalDate startDate, LocalDate endDate, PageRequest pageRequest);
+
+    public Page<Payment> findAllByDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
 }

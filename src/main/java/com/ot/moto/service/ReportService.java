@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -950,4 +952,33 @@ public class ReportService {
         }
     }
 
+    public ResponseEntity<ResponseStructure<Object>> getAllBankstatementDateBetween(LocalDate startDate,LocalDate endDate,int page, int size, String field) {
+        try {
+            PageRequest pageRequest = PageRequest.of(page, size, Sort.by(field));
+            Page<Payment> payments = paymentRepository.findAllByDateBetween(startDate,endDate,pageRequest);
+            if (payments.isEmpty()) {
+                logger.warn("No Bank Statement found.");
+                return ResponseStructure.errorResponse(null, 404, "No BankStatement found");
+            }
+            return ResponseStructure.successResponse(payments, "BankStatement  found");
+        } catch (Exception e) {
+            logger.error("Error fetching BankStatement ", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> getAllBankStatementByDriverIdAndDateBetween(Long driverId, LocalDate startDate, LocalDate endDate, int page, int size, String field) {
+        try {
+            PageRequest pageRequest = PageRequest.of(page, size, Sort.by(field));
+            Page<Payment> payments = paymentRepository.findAllByDriverIdAndDateBetween(driverId,startDate,endDate,pageRequest);
+            if (payments.isEmpty()) {
+                logger.warn("No Bank Statement found.");
+                return ResponseStructure.errorResponse(null, 404, "No BankStatement found");
+            }
+            return ResponseStructure.successResponse(payments, "BankStatement  found");
+        } catch (Exception e) {
+            logger.error("Error fetching BankStatement ", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
 }
