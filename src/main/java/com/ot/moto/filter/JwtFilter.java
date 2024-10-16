@@ -237,6 +237,9 @@ public class JwtFilter extends OncePerRequestFilter {
             "/report/download-OrgReport-date-between",
             "/report/download-OrgReport-date-between-for-particular-driver",
 
+            "/report/getAllOrgReports-betweenDates",
+            "/report/getAllOrgReports-forDriver-betweenDates",
+
             "/driver/getAll/rented/s-rented",
 
             "/tam/download-tam-date-between-for-particular-driver",

@@ -36,60 +36,25 @@ public interface OrgReportsRepository extends JpaRepository<OrgReports, Long> {
     @Query("SELECT SUM(o.amount) FROM OrgReports o WHERE o.dispatchDate >= :startOfDay AND o.dispatchDate <= :endOfDay")
     public Double getTotalAmountForToday(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
 
-    public Page<OrgReports> findAllByDispatchDateBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    // Method to find paged reports by dispatch date range
+    public Page<OrgReports> findByDispatchDateBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-    public Page<OrgReports> findAllByDispatchDateBetweenAndDriverId(
+    // Method to find paged reports by dispatch date range and driver ID
+    public Page<OrgReports> findByDispatchDateBetweenAndDriverId(
             LocalDateTime startDate,
             LocalDateTime endDate,
             Long driverId,
             Pageable pageable
     );
 
-    public List<OrgReports> findAllByDispatchDateBetween(LocalDateTime startDate, LocalDateTime endDate);
+    // Method to find all reports by dispatch date range
+    public List<OrgReports> findByDispatchDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 
-    public List<OrgReports> findAllByDispatchDateBetweenAndDriverId(
+    // Method to find all reports by dispatch date range and driver ID
+    public List<OrgReports> findByDispatchDateBetweenAndDriverId(
             LocalDateTime startDate,
             LocalDateTime endDate,
             Long driverId
     );
 
-/*    @Query("SELECT o FROM OrgReports o WHERE o.dispatchDate BETWEEN :startDate AND :endDate")
-    public List<OrgReports> findReportsBetweenDates(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);*/
-
 }
-    /*@Query("SELECT o FROM OrgReports o WHERE o.dispatchDate BETWEEN :startDate AND :endDate")
-    public List<OrgReports> findReportsBetweenDates(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
-
-    @Query("SELECT o FROM OrgReports o WHERE o.dispatchDate BETWEEN :startDate AND :endDate AND o.driverId = :driverId")
-    public List<OrgReports> findReportsBetweenDatesForDriver(
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate,
-            @Param("driverId") Long driverId);
-
-    @Query("SELECT o FROM OrgReports o WHERE o.dispatchDate BETWEEN :startDate AND :endDate")
-    public Page<OrgReports> findOrgReportsByDateRange(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, Pageable pageable);
-
-    @Query("SELECT o FROM OrgReports o WHERE o.dispatchDate BETWEEN :startDate AND :endDate")
-    public Page<OrgReports> findAllBetweenDispatchDate(
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate,
-            Pageable pageable);
-
-
-    @Query("SELECT o FROM OrgReports o WHERE o.driverId = :driverId AND o.dispatchDate BETWEEN :startDate AND :endDate")
-    public Page<OrgReports> findReportsForDriverBetweenDispatchDate(
-            @Param("driverId") Long driverId,
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate,
-            Pageable pageable);
-
-
-    @Query("SELECT o FROM OrgReports o WHERE o.dispatchDate BETWEEN :startDate AND :endDate")
-    public Page<OrgReports> findOrgReportsBetweenDates(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate,Pageable pageable);
-
-    @Query("SELECT o FROM OrgReports o WHERE o.dispatchDate BETWEEN :startDate AND :endDate AND o.driverId = :driverId")
-    public Page<OrgReports> findOrgReportsBetweenDatesForDriver(
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate,
-            @Param("driverId") Long driverId,
-            Pageable pageable);*/

@@ -434,4 +434,24 @@ public class ReportController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/getAllOrgReports-betweenDates")
+    public ResponseEntity<ResponseStructure<Object>> getOrgReportsBetweenDates(@RequestParam LocalDate startDate,
+                                                                               @RequestParam LocalDate endDate,
+                                                                               @RequestParam(defaultValue = "0") int page,
+                                                                               @RequestParam(defaultValue = "10") int size,
+                                                                               @RequestParam(defaultValue = "id") String field) {
+        return orgReportService.getOrgReportsBetweenDates(startDate, endDate, page, size, field);
+    }
+
+    @GetMapping("/getAllOrgReports-forDriver-betweenDates")
+    public ResponseEntity<ResponseStructure<Object>> getOrgReportsForDriverBetweenDates(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate,
+            @RequestParam Long driverId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String field) {
+        return orgReportService.getOrgReportsForDriverBetweenDates(startDate, endDate, driverId, page, size, field);
+    }
 }

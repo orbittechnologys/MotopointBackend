@@ -789,7 +789,6 @@ public class OrgReportService {
         }
     }
 
-
     public ResponseEntity<InputStreamResource> generateExcelForOrgReportsByDriverId(Long driverId) {
         try {
             // Find reports that have the matching driverId
@@ -856,12 +855,13 @@ public class OrgReportService {
         }
     }
 
+
     public ResponseEntity<InputStreamResource> generateExcelForOrgReportsDateBetween(LocalDate startDate, LocalDate endDate) {
         try {
             LocalDateTime startDateTime = startDate.atStartOfDay(); // Start of the day
             LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX); // End of the day
 
-            List<OrgReports> orgReportsList = orgReportsRepository.findAllByDispatchDateBetween(startDateTime, endDateTime);
+            List<OrgReports> orgReportsList = orgReportsRepository.findByDispatchDateBetween(startDateTime, endDateTime);
             if (orgReportsList.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
@@ -918,7 +918,7 @@ public class OrgReportService {
             LocalDateTime startDateTime = startDate.atStartOfDay(); // Start of the day
             LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX); // End of the day
 
-            List<OrgReports> orgReportsList = orgReportsRepository.findAllByDispatchDateBetweenAndDriverId(startDateTime, endDateTime, driverId);
+            List<OrgReports> orgReportsList = orgReportsRepository.findByDispatchDateBetweenAndDriverId(startDateTime, endDateTime, driverId);
             if (orgReportsList.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
@@ -970,6 +970,7 @@ public class OrgReportService {
         }
     }
 
+
     public ResponseEntity<ResponseStructure<Object>> getOrgReportsBetweenDates(LocalDate startDate, LocalDate endDate, int page, int size, String field) {
         try {
             // Convert LocalDate to LocalDateTime
@@ -980,7 +981,7 @@ public class OrgReportService {
             PageRequest pageRequest = PageRequest.of(page, size, Sort.by(field));
 
             // Fetch the reports
-            Page<OrgReports> orgReports = orgReportsRepository.findAllByDispatchDateBetween(startDateTime, endDateTime, pageRequest);
+            Page<OrgReports> orgReports = orgReportsRepository.findByDispatchDateBetween(startDateTime, endDateTime, pageRequest);
 
             if (orgReports.isEmpty()) {
                 logger.warn("No reports found between the specified dates.");
@@ -1004,7 +1005,7 @@ public class OrgReportService {
             PageRequest pageRequest = PageRequest.of(page, size, Sort.by(field));
 
             // Fetch the reports for the specified driver
-            Page<OrgReports> orgReports = orgReportsRepository.findAllByDispatchDateBetweenAndDriverId(startDateTime, endDateTime, driverId, pageRequest);
+            Page<OrgReports> orgReports = orgReportsRepository.findByDispatchDateBetweenAndDriverId(startDateTime, endDateTime, driverId, pageRequest);
 
             if (orgReports.isEmpty()) {
                 logger.warn("No reports found for driver ID " + driverId + " between the specified dates.");
