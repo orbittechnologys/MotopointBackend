@@ -76,139 +76,17 @@ public class ReportService {
     @Autowired
     private OrgReportsRepository orgReportsRepository;
 
+    @Autowired
+    private PaymentMetricsRepository paymentMetricsRepository;
+
 
     private static final Logger logger = LoggerFactory.getLogger(ReportService.class);
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
 
 
-    public ResponseEntity<ResponseStructure<Object>> uploadJahezReport(Sheet sheet) {
-        try {
-            int rowStart = 1;
-            int rowEnd = sheet.getLastRowNum();
-            List<Orders> ordersList = new ArrayList<>();
-            for (int i = rowStart; i <= rowEnd; i++) {
-                Row row = sheet.getRow(i);
-
-                if (row == null) {
-                    logger.warn("Skipping null row at index: " + i);
-                    continue;
-                }
-
-                Cell dateCell = row.getCell(0);
-                if (dateCell == null || dateCell.toString().trim().isEmpty()) {
-                    logger.warn("Empty date cell at row index: " + i);
-                    continue;
-                }
-
-                String cellDate = dateCell.toString().trim();
-                String cellDriverName = row.getCell(1).toString().trim();
-                String cellNoOfS1 = row.getCell(2).toString().trim();
-                String cellNoOfS2 = row.getCell(3).toString().trim();
-                String cellNoOfS3 = row.getCell(4).toString().trim();
-                String cellNoOfS4 = row.getCell(5).toString().trim();
-                String cellNoOfS5 = row.getCell(6).toString().trim();
-                String cellDeliveries = row.getCell(7).toString().trim();
-                String cellCodAmount = row.getCell(8).toString().trim();
-                String cellCredit = row.getCell(9).toString().trim();
-                String cellDebit = row.getCell(10).toString().trim();
-
-                try {
-                    LocalDate cellLocalDate = LocalDate.parse(cellDate, formatter);
-                    Orders orders = orderDao.checkOrderValid(cellDriverName, cellLocalDate);
-                    if (Objects.nonNull(orders)) {
-                        logger.info("Entry not valid for: " + cellDriverName + ", " + cellDate);
-                        continue;
-                    }
-                    orders = buildOrdersFromCellData(cellLocalDate, cellDriverName, StringUtil.getLong(cellNoOfS1),
-                            StringUtil.getLong(cellNoOfS2), StringUtil.getLong(cellNoOfS3), StringUtil.getLong(cellNoOfS4),
-                            StringUtil.getLong(cellNoOfS5), StringUtil.getLong(cellDeliveries), Double.parseDouble(cellCodAmount),
-                            Double.parseDouble(cellCredit), Double.parseDouble(cellDebit));
-
-                    if (Objects.nonNull(orders)) {
-                        logger.info("Saving order: " + orders.getDriverName() + ", " + orders.getDate().toString());
-                        ordersList.add(orders);
-                    }
-                } catch (Exception e) {
-                    logger.error("Error processing row at index: " + i + " with date: " + cellDate, e);
-                    continue;
-                }
-            }
-
-            ordersList = orderDao.createOrders(ordersList);
-
-            for (Orders orders : ordersList) {
-                long totalOrders = orderDao.getTotalOrdersForCurrentMonthByDriver(orders.getDriver().getId());
-
-                // Fetch the highest bonus based on deliveryCount
-                Bonus bonusForCount = bonusDao.findTopByDeliveryCountLessThanEqualOrderByDeliveryCountDesc(totalOrders);
-
-                // Fetch the bonus based on specialDate
-                Bonus bonusForDate = bonusDao.findTopBySpecialDate(orders.getDate());
-
-                double totalBonus = 0.0;
-                if (bonusForCount != null) {
-                    totalBonus += bonusForCount.getBonusAmount();
-                }
-                if (bonusForDate != null) {
-                    totalBonus += bonusForDate.getDateBonusAmount();
-                }
-
-                // Now, update the driver's bonus in the order or driver entity
-                if (totalBonus > 0) {
-                    double preBonus = orders.getDriver().getBonus() != null ? orders.getDriver().getBonus() : 0.0;
-                    double currentBonus = preBonus + totalBonus;
-                    orders.getDriver().setBonus(currentBonus);
-                    driverRepository.save(orders.getDriver());
-                }
-            }
-
-            return ResponseStructure.successResponse(null, "Successfully Parsed");
-
-        } catch (Exception e) {
-            logger.error("Error parsing Excel jahez", e);
-            return ResponseStructure.errorResponse(null, 500, e.getMessage());
-        }
-    }
-
-    private Orders buildOrdersFromCellData(LocalDate date, String driverName, Long noOfS1, Long noOfS2, Long noOfS3, Long noOfS4, Long noOfS5, Long deliveries, Double codAmount, Double credit, Double debit) {
-
-        Driver driver = driverDao.findByNameIgnoreCase(driverName);
-        if (Objects.isNull(driver)) {
-            return null;
-        }
-
-        Orders orders = new Orders();
-        orders.setDate(date);
-        orders.setDriverName(driverName);
-        orders.setNoOfS1(noOfS1);
-        orders.setNoOfS2(noOfS2);
-        orders.setNoOfS3(noOfS3);
-        orders.setNoOfS4(noOfS4);
-        orders.setNoOfS5(noOfS5);
-        orders.setTotalOrders(deliveries);
-        orders.setCodAmount(codAmount);
-        orders.setDebit(debit);
-        orders.setCredit(credit);
-        orders.setDriver(driver);
-
-        addDriverDeliveries(codAmount, deliveries, driver);
-        /*createSalaryFromOrders(orders, driver);*/
-
-        return orders;
-    }
-
-    public Driver addDriverDeliveries(Double codAmount, Long deliveries, Driver driver) {
-        driver.setAmountPending(driver.getAmountPending() + codAmount);
-        driver.setCodAmount(Optional.ofNullable(driver.getCodAmount()).orElse(0.0) + codAmount);
-        driver.setTotalOrders(driver.getTotalOrders() + deliveries);
-        driver.setCurrentOrders(deliveries);
-        return driverDao.createDriver(driver);
-    }
-
     public ResponseEntity<ResponseStructure<Object>> uploadBankStatement(Sheet sheet) {
         try {
-
             Long noOfRowsParsed = 0l;
             Long totalDrivers = 0l;
             Double amountReceived = 0.0;
@@ -266,11 +144,22 @@ public class ReportService {
                 }
             }
 
+            PaymentMetrics paymentMetrics = new PaymentMetrics();
+
+            paymentMetrics.setNoOfRowsParsed(noOfRowsParsed);
+            paymentMetrics.setTotalDrivers((long) uniqueDrivers.size());
+            paymentMetrics.setAmountReceived(amountReceived);
+            paymentMetrics.setDateTime(LocalDateTime.now());
+            // tamMetrics.setFileName();
+
+            paymentMetricsRepository.save(paymentMetrics);
+
             UploadPaymentResponse uploadPaymentResponse = new UploadPaymentResponse();
             uploadPaymentResponse.setNoOfRowsParsed(noOfRowsParsed);
             uploadPaymentResponse.setAmountReceived(amountReceived);
             uploadPaymentResponse.setTotalDrivers((long) uniqueDrivers.size());
-            return ResponseStructure.successResponse(uploadPaymentResponse,"successfully uploaded");
+
+            return ResponseStructure.successResponse(uploadPaymentResponse, "successfully uploaded");
 
         } catch (Exception e) {
             logger.error("Error parsing bank statement", e);
@@ -980,5 +869,129 @@ public class ReportService {
             logger.error("Error fetching BankStatement ", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> uploadJahezReport(Sheet sheet) {
+        try {
+            int rowStart = 1;
+            int rowEnd = sheet.getLastRowNum();
+            List<Orders> ordersList = new ArrayList<>();
+            for (int i = rowStart; i <= rowEnd; i++) {
+                Row row = sheet.getRow(i);
+
+                if (row == null) {
+                    logger.warn("Skipping null row at index: " + i);
+                    continue;
+                }
+
+                Cell dateCell = row.getCell(0);
+                if (dateCell == null || dateCell.toString().trim().isEmpty()) {
+                    logger.warn("Empty date cell at row index: " + i);
+                    continue;
+                }
+
+                String cellDate = dateCell.toString().trim();
+                String cellDriverName = row.getCell(1).toString().trim();
+                String cellNoOfS1 = row.getCell(2).toString().trim();
+                String cellNoOfS2 = row.getCell(3).toString().trim();
+                String cellNoOfS3 = row.getCell(4).toString().trim();
+                String cellNoOfS4 = row.getCell(5).toString().trim();
+                String cellNoOfS5 = row.getCell(6).toString().trim();
+                String cellDeliveries = row.getCell(7).toString().trim();
+                String cellCodAmount = row.getCell(8).toString().trim();
+                String cellCredit = row.getCell(9).toString().trim();
+                String cellDebit = row.getCell(10).toString().trim();
+
+                try {
+                    LocalDate cellLocalDate = LocalDate.parse(cellDate, formatter);
+                    Orders orders = orderDao.checkOrderValid(cellDriverName, cellLocalDate);
+                    if (Objects.nonNull(orders)) {
+                        logger.info("Entry not valid for: " + cellDriverName + ", " + cellDate);
+                        continue;
+                    }
+                    orders = buildOrdersFromCellData(cellLocalDate, cellDriverName, StringUtil.getLong(cellNoOfS1),
+                            StringUtil.getLong(cellNoOfS2), StringUtil.getLong(cellNoOfS3), StringUtil.getLong(cellNoOfS4),
+                            StringUtil.getLong(cellNoOfS5), StringUtil.getLong(cellDeliveries), Double.parseDouble(cellCodAmount),
+                            Double.parseDouble(cellCredit), Double.parseDouble(cellDebit));
+
+                    if (Objects.nonNull(orders)) {
+                        logger.info("Saving order: " + orders.getDriverName() + ", " + orders.getDate().toString());
+                        ordersList.add(orders);
+                    }
+                } catch (Exception e) {
+                    logger.error("Error processing row at index: " + i + " with date: " + cellDate, e);
+                    continue;
+                }
+            }
+
+            ordersList = orderDao.createOrders(ordersList);
+
+            for (Orders orders : ordersList) {
+                long totalOrders = orderDao.getTotalOrdersForCurrentMonthByDriver(orders.getDriver().getId());
+
+                // Fetch the highest bonus based on deliveryCount
+                Bonus bonusForCount = bonusDao.findTopByDeliveryCountLessThanEqualOrderByDeliveryCountDesc(totalOrders);
+
+                // Fetch the bonus based on specialDate
+                Bonus bonusForDate = bonusDao.findTopBySpecialDate(orders.getDate());
+
+                double totalBonus = 0.0;
+                if (bonusForCount != null) {
+                    totalBonus += bonusForCount.getBonusAmount();
+                }
+                if (bonusForDate != null) {
+                    totalBonus += bonusForDate.getDateBonusAmount();
+                }
+
+                // Now, update the driver's bonus in the order or driver entity
+                if (totalBonus > 0) {
+                    double preBonus = orders.getDriver().getBonus() != null ? orders.getDriver().getBonus() : 0.0;
+                    double currentBonus = preBonus + totalBonus;
+                    orders.getDriver().setBonus(currentBonus);
+                    driverRepository.save(orders.getDriver());
+                }
+            }
+
+            return ResponseStructure.successResponse(null, "Successfully Parsed");
+
+        } catch (Exception e) {
+            logger.error("Error parsing Excel jahez", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+    private Orders buildOrdersFromCellData(LocalDate date, String driverName, Long noOfS1, Long noOfS2, Long noOfS3, Long noOfS4, Long noOfS5, Long deliveries, Double codAmount, Double credit, Double debit) {
+
+        Driver driver = driverDao.findByNameIgnoreCase(driverName);
+        if (Objects.isNull(driver)) {
+            return null;
+        }
+
+        Orders orders = new Orders();
+        orders.setDate(date);
+        orders.setDriverName(driverName);
+        orders.setNoOfS1(noOfS1);
+        orders.setNoOfS2(noOfS2);
+        orders.setNoOfS3(noOfS3);
+        orders.setNoOfS4(noOfS4);
+        orders.setNoOfS5(noOfS5);
+        orders.setTotalOrders(deliveries);
+        orders.setCodAmount(codAmount);
+        orders.setDebit(debit);
+        orders.setCredit(credit);
+        orders.setDriver(driver);
+
+        addDriverDeliveries(codAmount, deliveries, driver);
+        /*createSalaryFromOrders(orders, driver);*/
+
+        return orders;
+    }
+
+    public Driver addDriverDeliveries(Double codAmount, Long deliveries, Driver driver) {
+        driver.setAmountPending(driver.getAmountPending() + codAmount);
+        driver.setCodAmount(Optional.ofNullable(driver.getCodAmount()).orElse(0.0) + codAmount);
+        driver.setTotalOrders(driver.getTotalOrders() + deliveries);
+        driver.setCurrentOrders(deliveries);
+        return driverDao.createDriver(driver);
     }
 }

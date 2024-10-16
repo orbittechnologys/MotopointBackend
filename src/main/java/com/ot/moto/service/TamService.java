@@ -7,6 +7,7 @@ import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.response.UploadTamResponse;
 import com.ot.moto.entity.*;
 import com.ot.moto.repository.DriverRepository;
+import com.ot.moto.repository.TamMetricRepository;
 import com.ot.moto.repository.TamRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -49,6 +50,9 @@ public class TamService {
     @Autowired
     private SalaryDao salaryDao;
 
+    @Autowired
+    private TamMetricRepository tamMetricRepository;
+
 
     private static final Logger logger = LoggerFactory.getLogger(TamService.class);
 
@@ -60,7 +64,6 @@ public class TamService {
         List<Tam> tamList = new ArrayList<>();
 
         try {
-
             Long noOfRowsParsed = 0L;
             Long totalDrivers = 0L;
             Double amountReceived = 0.0;
@@ -109,6 +112,15 @@ public class TamService {
             } else {
                 logger.info("No valid Tam records to save.");
             }
+
+            TamMetrics tamMetrics = new TamMetrics();
+            tamMetrics.setNoOfRowsParsed(noOfRowsParsed);
+            tamMetrics.setTotalDrivers((long) uniqueDrivers.size());
+            tamMetrics.setAmountReceived(amountReceived);
+            tamMetrics.setDateTime(LocalDateTime.now());
+           // tamMetrics.setFileName();
+
+            tamMetricRepository.save(tamMetrics);
 
             UploadTamResponse uploadTamResponse = new UploadTamResponse();
             uploadTamResponse.setNoOfRowsParsed(noOfRowsParsed);

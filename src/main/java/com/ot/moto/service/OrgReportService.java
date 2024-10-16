@@ -5,6 +5,7 @@ import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.response.UploadOrgResponse;
 import com.ot.moto.entity.*;
 import com.ot.moto.repository.DriverRepository;
+import com.ot.moto.repository.OrgMetricsRepository;
 import com.ot.moto.repository.OrgReportsRepository;
 import jakarta.transaction.Transactional;
 import org.apache.poi.ss.usermodel.*;
@@ -59,6 +60,9 @@ public class OrgReportService {
     @Autowired
     private DriverRepository driverRepository;
 
+    @Autowired
+    private OrgMetricsRepository orgMetricsRepository;
+
     private static final Logger logger = LoggerFactory.getLogger(OrgReportService.class);
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH);
@@ -82,6 +86,7 @@ public class OrgReportService {
             Long totalS5 = 0L;
             Double totalEarnings = 0.0;
             Double profit = 0.0;
+
 
             Set<Long> uniqueDrivers = new HashSet<>();
 
@@ -212,10 +217,44 @@ public class OrgReportService {
 
             processDriverSlabMap(driverSlabMap);
 
-            UploadOrgResponse uploadOrgResponse = new UploadOrgResponse(
-                    noOfRowsParsed, totalCod, totalDrivers, totalCredit, totalDebit,
-                    totalS1, totalS2, totalS3, totalS4, totalS5, totalEarnings, profit
-            );
+            OrgMetrics orgMetrics = new OrgMetrics();
+            orgMetrics.setNoOfRowsParsed(noOfRowsParsed);
+            orgMetrics.setTotalCod(totalCod);
+            orgMetrics.setTotalDrivers((long) uniqueDrivers.size());
+            orgMetrics.setTotalCredit(totalCredit);
+            orgMetrics.setTotalDebit(totalDebit);
+            orgMetrics.setTotalS1(totalS1);
+            orgMetrics.setTotalS2(totalS2);
+            orgMetrics.setTotalS3(totalS3);
+            orgMetrics.setTotalS4(totalS4);
+            orgMetrics.setTotalS5(totalS5);
+            orgMetrics.setDateTime(LocalDateTime.now());
+            //orgMetrics.setFileName(fileName);
+
+            /*Calculate total earnings and profit based on your business logic
+            totalEarnings = totalCod - totalDebit; // Example calculation
+            profit = totalEarnings - totalCredit; // Example calculation
+            orgMetrics.setTotalEarnings(totalEarnings);
+            orgMetrics.setProfit(profit);*/
+
+            orgMetricsRepository.save(orgMetrics);
+
+
+            UploadOrgResponse uploadOrgResponse = new UploadOrgResponse();
+            uploadOrgResponse.setTotalDrivers((long) uniqueDrivers.size());
+            uploadOrgResponse.setTotalCod(totalCod);
+            uploadOrgResponse.setTotalCredit(totalCredit);
+            uploadOrgResponse.setTotalDebit(totalDebit);
+            uploadOrgResponse.setTotalS1(totalS1);
+            uploadOrgResponse.setTotalS2(totalS2);
+            uploadOrgResponse.setTotalS3(totalS3);
+            uploadOrgResponse.setTotalS4(totalS4);
+            uploadOrgResponse.setTotalS5(totalS5);
+
+            /*totalEarnings = totalCod - totalDebit; // Example calculation
+            profit = totalEarnings - totalCredit; // Example calculation
+            uploadOrgResponse.setTotalEarnings(totalEarnings);
+            uploadOrgResponse.setProfit(profit);*/
 
             return ResponseStructure.successResponse(uploadOrgResponse, "Successfully Parsed");
 
