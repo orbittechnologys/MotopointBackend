@@ -59,7 +59,7 @@ public class TamService {
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); // Adjust pattern as needed
 
 
-    public ResponseEntity<ResponseStructure<Object>> uploadTamSheet(Sheet sheet) {
+    public ResponseEntity<ResponseStructure<Object>> uploadTamSheet(Sheet sheet,String fileName) {
         logger.info("Starting upload of Tam sheet.");
         List<Tam> tamList = new ArrayList<>();
 
@@ -118,7 +118,7 @@ public class TamService {
             tamMetrics.setTotalDrivers((long) uniqueDrivers.size());
             tamMetrics.setAmountReceived(amountReceived);
             tamMetrics.setDateTime(LocalDateTime.now());
-           // tamMetrics.setFileName();
+            tamMetrics.setFileName(fileName);
 
             tamMetricRepository.save(tamMetrics);
 

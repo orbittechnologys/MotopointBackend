@@ -80,7 +80,8 @@ public class ReportController {
                 return ResponseStructure.errorResponse(null, 400, "ERROR: No data found in the file.");
             }
 
-            return orgReportService.uploadOrgReports(sheet); //
+            String fileName = file.getOriginalFilename();
+            return orgReportService.uploadOrgReports(sheet,fileName); //
 
         } catch (Exception e) {
             return ResponseStructure.errorResponse(null, 500, "ERROR: " + e.getMessage());
@@ -100,7 +101,8 @@ public class ReportController {
 
             Sheet sheet = workbook.getSheetAt(0);
 
-            return reportService.uploadBankStatement(sheet);
+            String fileName = file.getOriginalFilename();
+            return reportService.uploadBankStatement(sheet,fileName);
 
         } catch (Exception e) {
             e.printStackTrace();

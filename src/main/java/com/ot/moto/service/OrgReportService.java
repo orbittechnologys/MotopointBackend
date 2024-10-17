@@ -69,7 +69,7 @@ public class OrgReportService {
 
 
     @Transactional
-    public ResponseEntity<ResponseStructure<Object>> uploadOrgReports(Sheet sheet) {
+    public ResponseEntity<ResponseStructure<Object>> uploadOrgReports(Sheet sheet,String fileName) {
         List<OrgReports> orgReportsList = new ArrayList<>();
 
         HashMap<String, List<Double>> driverSlabMap = new HashMap<>(); // " jahezId | date " -> [total s1,total s2,total s3,total s4,total s5,totalCOD,totalDebit, totalCredit]
@@ -86,7 +86,6 @@ public class OrgReportService {
             Long totalS5 = 0L;
             Double totalEarnings = 0.0;
             Double profit = 0.0;
-
 
             Set<Long> uniqueDrivers = new HashSet<>();
 
@@ -229,16 +228,14 @@ public class OrgReportService {
             orgMetrics.setTotalS4(totalS4);
             orgMetrics.setTotalS5(totalS5);
             orgMetrics.setDateTime(LocalDateTime.now());
-            //orgMetrics.setFileName(fileName);
+            orgMetrics.setFileName(fileName);
 
-            /*Calculate total earnings and profit based on your business logic
-            totalEarnings = totalCod - totalDebit; // Example calculation
+            /*totalEarnings = totalCod - totalDebit; // Example calculation
             profit = totalEarnings - totalCredit; // Example calculation
             orgMetrics.setTotalEarnings(totalEarnings);
             orgMetrics.setProfit(profit);*/
 
             orgMetricsRepository.save(orgMetrics);
-
 
             UploadOrgResponse uploadOrgResponse = new UploadOrgResponse();
             uploadOrgResponse.setTotalDrivers((long) uniqueDrivers.size());

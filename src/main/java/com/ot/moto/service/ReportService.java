@@ -85,7 +85,7 @@ public class ReportService {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
 
 
-    public ResponseEntity<ResponseStructure<Object>> uploadBankStatement(Sheet sheet) {
+    public ResponseEntity<ResponseStructure<Object>> uploadBankStatement(Sheet sheet,String fileName) {
         try {
             Long noOfRowsParsed = 0l;
             Long totalDrivers = 0l;
@@ -150,7 +150,7 @@ public class ReportService {
             paymentMetrics.setTotalDrivers((long) uniqueDrivers.size());
             paymentMetrics.setAmountReceived(amountReceived);
             paymentMetrics.setDateTime(LocalDateTime.now());
-            // tamMetrics.setFileName();
+            paymentMetrics.setFileName(fileName);
 
             paymentMetricsRepository.save(paymentMetrics);
 

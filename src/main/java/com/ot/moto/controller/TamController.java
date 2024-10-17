@@ -42,7 +42,8 @@ public class TamController {
                 return ResponseStructure.errorResponse(null, 400, "ERROR: No data found in the file.");
             }
 
-            return tamService.uploadTamSheet(sheet);
+            String fileName = file.getOriginalFilename();
+            return tamService.uploadTamSheet(sheet,fileName);
 
         } catch (Exception e) {
             return ResponseStructure.errorResponse(null, 500, "ERROR: " + e.getMessage());
