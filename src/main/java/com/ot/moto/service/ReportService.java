@@ -3,6 +3,7 @@ package com.ot.moto.service;
 import com.opencsv.CSVWriter;
 import com.ot.moto.dao.*;
 import com.ot.moto.dto.ResponseStructure;
+import com.ot.moto.dto.request.AddMoneyReq;
 import com.ot.moto.dto.response.DriverAnalysisSum;
 import com.ot.moto.entity.*;
 import com.ot.moto.repository.*;
@@ -266,7 +267,7 @@ public class ReportService {
     private String extractPhoneNumber(String description) {
         logger.info("Description being processed: " + description);
 
-        Pattern pattern = Pattern.compile("/PHONE/(\\d{8})");
+        Pattern pattern = Pattern.compile("/PHONE/973(\\d{8})");
         Matcher matcher = pattern.matcher(description);
 
         if (matcher.find()) {
@@ -279,25 +280,6 @@ public class ReportService {
         return null;
     }
 
-    /*To extract the Phone Number where the number start's with 973*/
-    /*private String extractPhoneNumber(String description) {
-        logger.info("Description being processed: " + description);
-
-        // Update the pattern to capture an 11-digit phone number following /PHONE/
-        Pattern pattern = Pattern.compile("/PHONE/(\\d{11})");
-        Matcher matcher = pattern.matcher(description);
-
-        if (matcher.find()) {
-            String fullPhoneNumber = matcher.group(1);
-            // Remove the first 3 digits and keep only the last 8 digits
-            String phoneNumber = fullPhoneNumber.substring(3);
-            logger.info("Extracted phone number: " + phoneNumber);
-            return phoneNumber;
-        }
-
-        logger.info("No phone number found in description: " + description);
-        return null;
-    }*/
 
     private void updateDriverPendingAmount(Driver driver, double amount, String paymentType, LocalDate date, String description) {
         double newAmountPending = driver.getAmountPending() - amount;
@@ -978,6 +960,23 @@ public class ReportService {
             return ResponseStructure.successResponse(payments, "BankStatement  found");
         } catch (Exception e) {
             logger.error("Error fetching BankStatement ", e);
+            return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> addMoneyToDriver(AddMoneyReq req){
+        try{
+            Driver driver = driverDao.getById(req.getDriverId());
+            if(Objects.isNull(driver)){
+                logger.error("Did not find driver with id  "+req.getDriverId());
+                return ResponseStructure.errorResponse(null, 404,"Did not find driver with id  "+req.getDriverId());
+            }
+
+            updateDriverPendingAmount(driver, req.getAmount(), req.getMode(), req.getDate(),"MANUAL TXN DONE BY ADMIN FOR AMOUNT "+req.getAmount()+" TO DRIVER "+driver.getUsername());
+
+            return ResponseStructure.successResponse(null,"Amount added successfully");
+        }catch (Exception e){
+            logger.error("Error while adding money  ", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }
     }

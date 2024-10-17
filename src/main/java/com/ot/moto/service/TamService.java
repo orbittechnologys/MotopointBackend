@@ -62,8 +62,6 @@ public class TamService {
 
         try {
 
-
-
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
 
@@ -191,9 +189,9 @@ public class TamService {
         tam.setCprNumber(cprNumber);
         tam.setDriverCompanyName(driverCompanyName);
         tam.setDriverCompanyJahezId(driverCompanyJahezId);
-        tam.setMobileNumber(mobileNumber);
+        tam.setMobileNumber(Long.valueOf(String.valueOf(mobileNumber).substring(3)));
         tam.setDriverName(driverName);
-        Driver driver = driverRepository.findByPhone(String.valueOf(mobileNumber));
+        Driver driver = driverRepository.findByPhone(String.valueOf(mobileNumber).substring(3));
         if (Objects.nonNull(driver)) {
             tam.setDriver(driver);
             tam.setCprNumber(Long.valueOf(driver.getCprNumber()));
