@@ -54,7 +54,7 @@ public class ReportService {
     private SalaryDao salaryDao;
 
     @Autowired
-    private MasterDao masterDao;
+    private MasterDao masterDao; //sam
 
     @Autowired
     private PaymentRepository paymentRepository;
