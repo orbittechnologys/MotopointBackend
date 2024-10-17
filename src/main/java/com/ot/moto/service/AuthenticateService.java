@@ -32,16 +32,30 @@ public class AuthenticateService {
 
     public ResponseEntity<ResponseStructure<JwtResponse>> authenticate(@RequestBody JwtRequest jwtRequest)
             throws Exception {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(jwtRequest.getUserEmail(), jwtRequest.getPassword()));
-        } catch (BadCredentialsException e) {
-            logger.error(e.getMessage());
-            throw new Exception("Invalid Email or Password", e);
+        CustomUserDetails details;
+        if (jwtRequest.getUserEmail() != null && !jwtRequest.getUserEmail().isEmpty()) {
+            // Authenticate by email
+            try {
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(jwtRequest.getUserEmail(), jwtRequest.getPassword()));
+            } catch (BadCredentialsException e) {
+                logger.error(e.getMessage());
+                throw new Exception("Invalid Email or Password", e);
+            }
+            details = (CustomUserDetails) detailsService.loadUserByUsername(jwtRequest.getUserEmail());
+        } else if (jwtRequest.getPhoneNumber() != null && !jwtRequest.getPhoneNumber().isEmpty()) {
+            // Authenticate by phone number
+            try {
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(jwtRequest.getPhoneNumber(), jwtRequest.getPassword()));
+            } catch (BadCredentialsException e) {
+                logger.error(e.getMessage());
+                throw new Exception("Invalid Phone Number or Password", e);
+            }
+            details = (CustomUserDetails) detailsService.loadUserByPhoneNumber(jwtRequest.getPhoneNumber());
+        } else {
+            throw new Exception("Email or Phone number is required for authentication");
         }
-
-        final CustomUserDetails details = (CustomUserDetails) detailsService
-                .loadUserByUsername(jwtRequest.getUserEmail());
 
         User user = details.getUser();
         if (!user.isStatus()) {
