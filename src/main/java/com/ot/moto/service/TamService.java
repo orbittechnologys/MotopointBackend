@@ -71,7 +71,6 @@ public class TamService {
             Set<Long> uniqueDrivers = new HashSet<>();
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-                noOfRowsParsed++;
                 Row row = sheet.getRow(i);
 
                 if (row == null) {
@@ -100,6 +99,7 @@ public class TamService {
                         }
                     }
                     updateSalary(driver, tam.getConfTrxnDateTime().toLocalDate(), tam.getPayInAmount());
+                    noOfRowsParsed++;
 
                 } else {
                     logger.warn("Invalid or failed to parse row " + i + ", skipping...");

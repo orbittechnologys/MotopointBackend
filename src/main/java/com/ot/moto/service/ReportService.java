@@ -107,7 +107,6 @@ public class ReportService {
                 String description = row.getCell(1).toString();
                 double amount = row.getCell(2).getNumericCellValue();
                 String paymentType = String.valueOf(BENEFIT);
-
                 String dateStr = row.getCell(0).toString().trim();
 
                 // Ensure the date string is not empty and valid
@@ -124,8 +123,6 @@ public class ReportService {
                     continue;
                 }
 
-                amountReceived += amount;
-
                 String phoneNumber = extractPhoneNumber(description);
                 logger.info("Extracted phone number: " + phoneNumber);
 
@@ -138,6 +135,8 @@ public class ReportService {
                     }
 
                     updateDriverPendingAmount(driver, amount, paymentType, date, description);
+                    amountReceived += amount; // Count the amount only if the driver is found
+                    noOfRowsParsed++;
 
                 } else {
                     logger.info("No driver found with phone number: " + phoneNumber);

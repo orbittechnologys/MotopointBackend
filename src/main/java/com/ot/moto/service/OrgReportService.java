@@ -90,7 +90,6 @@ public class OrgReportService {
             Set<Long> uniqueDrivers = new HashSet<>();
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-                noOfRowsParsed++;
                 Row row = sheet.getRow(i);
                 if (row == null) {
                     logger.warn("Row {} is null, skipping...", i);
@@ -107,6 +106,7 @@ public class OrgReportService {
                     continue;
                 }
 
+                noOfRowsParsed++;
                 Double price = orgReport.getPrice();
                 Master master = masterDao.getMasterByJahezPaid(price);
                 Double debit = orgReport.getDriverDebitAmount();
