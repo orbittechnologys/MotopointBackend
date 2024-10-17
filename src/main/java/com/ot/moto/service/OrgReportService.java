@@ -230,7 +230,7 @@ public class OrgReportService {
             orgMetrics.setDateTime(LocalDateTime.now());
             orgMetrics.setFileName(fileName);
 
-            /*totalEarnings = totalCod - totalDebit; // Example calculation
+            /*totalEarnings =
             profit = totalEarnings - totalCredit; // Example calculation
             orgMetrics.setTotalEarnings(totalEarnings);
             orgMetrics.setProfit(profit);*/
@@ -248,7 +248,7 @@ public class OrgReportService {
             uploadOrgResponse.setTotalS4(totalS4);
             uploadOrgResponse.setTotalS5(totalS5);
 
-            /*totalEarnings = totalCod - totalDebit; // Example calculation
+            /*totalEarnings =
             profit = totalEarnings - totalCredit; // Example calculation
             uploadOrgResponse.setTotalEarnings(totalEarnings);
             uploadOrgResponse.setProfit(profit);*/
@@ -567,11 +567,6 @@ public class OrgReportService {
             Double driverDebitAmount = parseDouble(row.getCell(8));
             Double driverCreditAmount = parseDouble(row.getCell(9));
             Boolean isFreeOrder = parseBoolean(row.getCell(10));
-
-            /*logger.info("parsing date {}", row.getCell(11));
-            String dateStr1 = parseString(row.getCell(11));
-            logger.info("dateStr1 {}", dateStr1);*/
-
             LocalDateTime dispatchTime = parseDateTime(parseString(row.getCell(11)));
             logger.info("dispatch time {}", dispatchTime);
 
@@ -946,7 +941,7 @@ public class OrgReportService {
             LocalDateTime startDateTime = startDate.atStartOfDay(); // Start of the day
             LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX); // End of the day
 
-            List<OrgReports> orgReportsList = orgReportsRepository.findByDispatchDateBetween(startDateTime, endDateTime);
+            List<OrgReports> orgReportsList = orgReportsRepository.findByDispatchTimeBetween(startDateTime, endDateTime);
             if (orgReportsList.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
@@ -1003,7 +998,7 @@ public class OrgReportService {
             LocalDateTime startDateTime = startDate.atStartOfDay(); // Start of the day
             LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX); // End of the day
 
-            List<OrgReports> orgReportsList = orgReportsRepository.findByDispatchDateBetweenAndDriverId(startDateTime, endDateTime, driverId);
+            List<OrgReports> orgReportsList = orgReportsRepository.findByDispatchTimeBetweenAndDriverId(startDateTime, endDateTime, driverId);
             if (orgReportsList.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
@@ -1065,7 +1060,7 @@ public class OrgReportService {
             PageRequest pageRequest = PageRequest.of(page, size, Sort.by(field));
 
             // Fetch the reports
-            Page<OrgReports> orgReports = orgReportsRepository.findByDispatchDateBetween(startDateTime, endDateTime, pageRequest);
+            Page<OrgReports> orgReports = orgReportsRepository.findByDispatchTimeBetween(startDateTime, endDateTime, pageRequest);
 
             if (orgReports.isEmpty()) {
                 logger.warn("No reports found between the specified dates.");
@@ -1089,7 +1084,7 @@ public class OrgReportService {
             PageRequest pageRequest = PageRequest.of(page, size, Sort.by(field));
 
             // Fetch the reports for the specified driver
-            Page<OrgReports> orgReports = orgReportsRepository.findByDispatchDateBetweenAndDriverId(startDateTime, endDateTime, driverId, pageRequest);
+            Page<OrgReports> orgReports = orgReportsRepository.findByDispatchTimeBetweenAndDriverId(startDateTime, endDateTime, driverId, pageRequest);
 
             if (orgReports.isEmpty()) {
                 logger.warn("No reports found for driver ID " + driverId + " between the specified dates.");

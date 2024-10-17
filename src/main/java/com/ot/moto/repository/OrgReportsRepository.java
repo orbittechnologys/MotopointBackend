@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,15 +35,15 @@ public interface OrgReportsRepository extends JpaRepository<OrgReports, Long> {
     @Query("SELECT SUM(o.amount) FROM OrgReports o WHERE o.dispatchDate >= :startOfDay AND o.dispatchDate <= :endOfDay")
     public Double getTotalAmountForToday(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
 
-    public Page<OrgReports> findByDispatchDateBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    public Page<OrgReports> findByDispatchTimeBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-    public Page<OrgReports> findByDispatchDateBetweenAndDriverId(LocalDateTime startDate, LocalDateTime endDate, Long driverId, Pageable pageable);
+    public Page<OrgReports> findByDispatchTimeBetweenAndDriverId(LocalDateTime startDate, LocalDateTime endDate, Long driverId, Pageable pageable);
 
     // Method to find all reports by dispatch date range
-    public List<OrgReports> findByDispatchDateBetween(LocalDateTime startDate, LocalDateTime endDate);
+    public List<OrgReports> findByDispatchTimeBetween(LocalDateTime startDate, LocalDateTime endDate);
 
     // Method to find all reports by dispatch date range and driver ID
-    public List<OrgReports> findByDispatchDateBetweenAndDriverId(
+    public List<OrgReports> findByDispatchTimeBetweenAndDriverId(
             LocalDateTime startDate,
             LocalDateTime endDate,
             Long driverId
