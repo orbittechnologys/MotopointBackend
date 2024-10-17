@@ -250,8 +250,8 @@ public class DriverService {
         LocalDate endDate = request.getVisaAmountEndDate();
         Double visaAmount = request.getVisaAmount();
 
-        if (startDate != null && endDate != null && visaAmount != null) {
-            long daysBetween = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+        if ( visaAmount != null) {
+            long daysBetween = 30;
             if (daysBetween > 0) {
                 double emi = visaAmount / daysBetween;
                 driver.setVisaAmountEmi(emi);
@@ -271,8 +271,8 @@ public class DriverService {
         LocalDate bikeEndDate = request.getBikeRentAmountEndDate();
         Double bikeAmount = request.getBikeRentAmount();
 
-        if (bikeStartDate != null && bikeEndDate != null && bikeAmount != null) {
-            long bikeDays = ChronoUnit.DAYS.between(bikeStartDate, bikeEndDate) + 1;
+        if (bikeAmount != null) {
+            long bikeDays = 30;
             if (bikeDays > 0) {
                 double emi = bikeAmount / bikeDays;
                 driver.setBikeRentAmountEmi(emi);
@@ -609,15 +609,15 @@ public class DriverService {
         LocalDate visaEndDate = request.getVisaAmountEndDate();
         Double visaAmount = request.getVisaAmount();
 
-        if (visaStartDate != null && visaEndDate != null && visaAmount != null) {
-            long daysBetween = ChronoUnit.DAYS.between(visaStartDate, visaEndDate) + 1;
+        if (visaAmount != null) {
+            long daysBetween = 30;
             if (daysBetween > 0) {
                 double emi = visaAmount / daysBetween;
                 driver.setVisaAmountEmi(emi);
             } else {
                 throw new RuntimeException("Visa start date must be before end date.");
             }
-        } else if (request.getVisaAmount() == null || request.getVisaAmountStartDate() == null || request.getVisaAmountEndDate() == null) {
+        } else if (request.getVisaAmount() == null ) {
             // If any required field is missing, keep the old EMI value
             driver.setVisaAmountEmi(driver.getVisaAmountEmi());
         }
@@ -637,15 +637,15 @@ public class DriverService {
         LocalDate bikeEndDate = request.getBikeRentAmountEndDate();
         Double bikeAmount = request.getBikeRentAmount();
 
-        if (bikeStartDate != null && bikeEndDate != null && bikeAmount != null) {
-            long bikeDays = ChronoUnit.DAYS.between(bikeStartDate, bikeEndDate) + 1;
+        if ( bikeAmount != null) {
+            long bikeDays = 30;
             if (bikeDays > 0) {
                 double emi = bikeAmount / bikeDays;
                 driver.setBikeRentAmountEmi(emi);
             } else {
                 throw new RuntimeException("Bike rent start date must be before end date.");
             }
-        } else if (request.getBikeRentAmount() == null || request.getBikeRentAmountStartDate() == null || request.getBikeRentAmountEndDate() == null) {
+        } else if (request.getBikeRentAmount() == null ) {
             // If any required field is missing, keep the old EMI value
             driver.setBikeRentAmountEmi(driver.getBikeRentAmountEmi());
         }

@@ -87,12 +87,14 @@ public class Driver extends User {
     private Double visaAmount;
     private LocalDate visaAmountStartDate;
     private LocalDate visaAmountEndDate;
-    private Double visaAmountEmi;
+    private Double visaAmountEmi; // visaAmount / 30 --> no of days in a month
+    private Double visaAmountReceived = 0.0;
 
     private Double bikeRentAmount;
     private LocalDate bikeRentAmountStartDate;
     private LocalDate bikeRentAmountEndDate;
-    private Double bikeRentAmountEmi;
+    private Double bikeRentAmountEmi; // bikeRentAmount / 30 --> no of days in a month
+    private Double bikeRentAmountReceived = 0.0;
 
     private String remarks;
 

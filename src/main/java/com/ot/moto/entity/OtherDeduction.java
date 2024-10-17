@@ -29,6 +29,8 @@ public class OtherDeduction {
 
     private String otherDeductionDescription;
 
+    private Double otherDeductionReceived = 0.0;
+
     @ManyToOne
     @JoinColumn
     @JsonBackReference("otherdriver")
