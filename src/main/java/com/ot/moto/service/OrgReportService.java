@@ -90,14 +90,13 @@ public class OrgReportService {
             Set<Long> uniqueDrivers = new HashSet<>();
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-
+                noOfRowsParsed++;
                 Row row = sheet.getRow(i);
                 if (row == null) {
                     logger.warn("Row {} is null, skipping...", i);
                     continue;
                 }
 
-                noOfRowsParsed++;
                 logger.info("Parsing row {}", i);
                 OrgReports orgReport = parseRowToOrgReport(row);
                 logger.info("Successfully parsed row {}", i);
