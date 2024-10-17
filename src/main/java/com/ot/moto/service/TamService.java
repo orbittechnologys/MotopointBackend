@@ -1,8 +1,7 @@
 package com.ot.moto.service;
 
 import com.opencsv.CSVWriter;
-import com.ot.moto.dao.SalaryDao;
-import com.ot.moto.dao.TamDao;
+import com.ot.moto.dao.*;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.response.UploadTamResponse;
 import com.ot.moto.entity.*;
@@ -53,13 +52,22 @@ public class TamService {
     @Autowired
     private TamMetricRepository tamMetricRepository;
 
+    @Autowired
+    private PenaltyDao penaltyDao;
+
+    @Autowired
+    private OtherDeductionDao otherDeductionDao;
+
+    @Autowired
+    private DriverDao driverDao;
+
 
     private static final Logger logger = LoggerFactory.getLogger(TamService.class);
 
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); // Adjust pattern as needed
 
 
-    public ResponseEntity<ResponseStructure<Object>> uploadTamSheet(Sheet sheet,String fileName) {
+    public ResponseEntity<ResponseStructure<Object>> uploadTamSheet(Sheet sheet, String fileName) {
         logger.info("Starting upload of Tam sheet.");
         List<Tam> tamList = new ArrayList<>();
 
@@ -94,7 +102,7 @@ public class TamService {
                     Driver driver = driverRepository.findByPhone(String.valueOf(tam.getMobileNumber()));
 
                     if (driver != null) {
-                        if(!uniqueDrivers.contains(driver.getId())){
+                        if (!uniqueDrivers.contains(driver.getId())) {
                             uniqueDrivers.add(driver.getId());
                         }
                     }
@@ -318,15 +326,15 @@ public class TamService {
     }
 
     //TODO: to optimise it using hashmap
-    public void updateSalary(Driver driver,LocalDate date,Double amount){
-        Salary salary = salaryDao.getSalaryByDriverAndDate(driver,date);
+    public void updateSalary(Driver driver, LocalDate date, Double amount) {
+        Salary salary = salaryDao.getSalaryByDriverAndDate(driver, date);
 
-        Double emiAmount =
+        /*Double emiAmount =
                 (driver.getVisaAmountEmi() != null ? driver.getVisaAmountEmi() : 0.0) +
                         (driver.getBikeRentAmountEmi() != null ? driver.getBikeRentAmountEmi() : 0.0) +
                         (driver.getOtherDeductions() != null ? driver.getOtherDeductions().stream()
                                 .mapToDouble(OtherDeduction::getOtherDeductionAmountEmi)
-                                .sum() : 0.0);
+                                .sum() : 0.0);*/
 
         Double penaltyAmount = ((driver.getPenalties() != null && !driver.getPenalties().isEmpty()) ?
                 driver.getPenalties().stream()
@@ -334,15 +342,22 @@ public class TamService {
                         .mapToDouble(Penalty::getAmount)
                         .sum() : 0.0);
 
-        if(Objects.nonNull(salary)){
+        double totalEmi = updateDriverEmiAmounts(driver);
+
+        if (penaltyAmount > 0) {
+            settlePenalties(driver);
+        }
+
+
+        if (Objects.nonNull(salary)) {
             salary.setCodCollected(salary.getCodCollected() + amount);
             salary.setPayableAmount(salary.getPayableAmount() + amount);
             salaryDao.saveSalary(salary);
-        }else{
+        } else {
             salary = new Salary();
             salary.setSalaryCreditDate(date);
             salary.setCodCollected(amount);
-            salary.setPayableAmount(salary.getPayableAmount() + amount - emiAmount - penaltyAmount);
+            salary.setPayableAmount(salary.getPayableAmount() + amount - totalEmi - penaltyAmount);
 
             salary.setBonus(0.0);
             salary.setIncentives(0.0);
@@ -366,10 +381,44 @@ public class TamService {
             salary.setTotalOrders(0l);
             salary.setProfit(0.0);
             salary.setFleetPenalty(penaltyAmount);
-            salary.setEmiPerDay(emiAmount);
+            salary.setEmiPerDay(totalEmi);
             salary.setDriver(driver);
 
             salaryDao.saveSalary(salary);
+        }
+    }
+
+    public double updateDriverEmiAmounts(Driver driver) {
+        double totalEmi = 0.0;
+        if(driver.getVisaAmountEmi() != null){
+            driver.setVisaAmountReceived(driver.getVisaAmountReceived() + driver.getVisaAmountEmi());
+            totalEmi += driver.getVisaAmountEmi();
+        }
+
+        if(driver.getBikeRentAmountEmi() != null){
+            driver.setBikeRentAmountReceived(driver.getBikeRentAmountReceived() + driver.getBikeRentAmountEmi());
+            totalEmi += driver.getBikeRentAmountEmi();
+        }
+
+        List<OtherDeduction> otherDeductionList = driver.getOtherDeductions();
+        for(OtherDeduction otherDeduction : otherDeductionList){
+            if(otherDeduction.getOtherDeductionReceived() < otherDeduction.getOtherDeductionAmount()){
+                otherDeduction.setOtherDeductionReceived(otherDeduction.getOtherDeductionReceived() + otherDeduction.getOtherDeductionAmountEmi());
+                totalEmi += otherDeduction.getOtherDeductionAmountEmi();
+            }
+        }
+        otherDeductionDao.saveAll(otherDeductionList);
+        driverDao.createDriver(driver);
+        return totalEmi;
+    }
+
+    private void settlePenalties(Driver driver) {
+        List<Penalty> penalties = driver.getPenalties();
+        if (penalties.size() > 0) {
+            for (Penalty penalty : penalties) {
+                penalty.setStatus(Penalty.PenaltyStatus.SETTLED); // Set each penalty as SETTLED
+            }
+            penaltyDao.saveAll(penalties); // Save all updated penalties in a single batch
         }
     }
 
@@ -651,7 +700,7 @@ public class TamService {
         }
     }
 
-    public ResponseEntity<InputStreamResource> generateCsvForTamByDriverDateBetween( Long driverId, LocalDate startDate,LocalDate endDate) {
+    public ResponseEntity<InputStreamResource> generateCsvForTamByDriverDateBetween(Long driverId, LocalDate startDate, LocalDate endDate) {
         try {
 
             LocalDateTime startDateTime = startDate.atStartOfDay(); // Start of the day
@@ -664,7 +713,7 @@ public class TamService {
             }
 
             // Fetch all Tam transactions for the driver
-            List<Tam> tamTransactions = tamRepository.findAllByDriverIdAndDateTimeBetween(driverId,startDateTime,endDateTime);
+            List<Tam> tamTransactions = tamRepository.findAllByDriverIdAndDateTimeBetween(driverId, startDateTime, endDateTime);
             if (tamTransactions.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
@@ -756,12 +805,12 @@ public class TamService {
         }
     }
 
-    public ResponseEntity<InputStreamResource> generateExcelForAllDateRange(LocalDate startDate,LocalDate endDate) {
+    public ResponseEntity<InputStreamResource> generateExcelForAllDateRange(LocalDate startDate, LocalDate endDate) {
         try {
             LocalDateTime startDateTime = startDate.atStartOfDay(); // Start of the day
             LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX); // End of the day
 
-            List<Tam> tamList = tamRepository.findAllByDateTimeBetween(startDateTime,endDateTime);
+            List<Tam> tamList = tamRepository.findAllByDateTimeBetween(startDateTime, endDateTime);
             if (tamList.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
@@ -884,7 +933,7 @@ public class TamService {
             PageRequest pageRequest = PageRequest.of(page, size, Sort.by(field));
 
             // Fetch the reports for the specified driver
-            Page<Tam> tamPage = tamRepository.findAllByDriverIdAndDateTimeBetween(driverId,startDateTime, endDateTime, pageRequest);
+            Page<Tam> tamPage = tamRepository.findAllByDriverIdAndDateTimeBetween(driverId, startDateTime, endDateTime, pageRequest);
 
             if (tamPage.isEmpty()) {
                 logger.warn("No reports found for driver ID " + driverId + " between the specified dates.");

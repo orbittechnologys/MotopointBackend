@@ -372,13 +372,6 @@ public class SalaryService {
                 driver.setAmountPending(0.0);
                 driver = driverDao.createDriver(driver);
 
-                List<Penalty> penalties = penaltyDao.findByDriverId(driver.getId());
-                if (penalties != null && !penalties.isEmpty()) {
-                    for (Penalty penalty : penalties) {
-                        penalty.setStatus(Penalty.PenaltyStatus.SETTLED); // Set each penalty as SETTLED
-                    }
-                    penaltyDao.saveAll(penalties); // Save all updated penalties in a single batch
-                }
             }
             driverCountMap.put(driverId, driverCountMap.getOrDefault(driverId, 0) + 1);
             salary.setStatus(Salary.status.SETTLED.name());
@@ -394,6 +387,8 @@ public class SalaryService {
         LocalDate startDate = request.getStartDate();
         LocalDate endDate = request.getEndDate();
 
+        Driver driver = driverDao.getById(driverId);
+
         List<Salary> salaryList = salaryRepository.findByDriverIdAndSalaryCreditDateBetween(driverId, startDate, endDate);
 
         if (salaryList.isEmpty()) {
@@ -403,21 +398,23 @@ public class SalaryService {
         HashMap<Long, Integer> driverCountMap = new HashMap<>();
 
         for (Salary salary : salaryList) {
-            salary.setBonus(request.getBonus());
-            salary.setIncentives(request.getIncentive());
-            salary.setPayableAmount(salary.getPayableAmount() + request.getBonus() + request.getIncentive());
 
-            Driver driver = driverDao.getById(driverId);
-            driver.setBonus(Optional.ofNullable(driver.getBonus()).orElse(0.0) + request.getBonus());
-            driver.setAmountPending(0.0);  // Assuming we set amount pending to zero after settlement
-            driver = driverDao.createDriver(driver);  // Save updated driver details
+            if (!driverCountMap.containsKey(driverId)) {
+                salary.setBonus(request.getBonus());
+                salary.setIncentives(request.getIncentive());
+                salary.setPayableAmount(salary.getPayableAmount() + request.getBonus() + request.getIncentive());
 
-            List<Penalty> penalties = penaltyDao.findByDriverId(driver.getId());
-            if (penalties != null && !penalties.isEmpty()) {
-                for (Penalty penalty : penalties) {
-                    penalty.setStatus(Penalty.PenaltyStatus.SETTLED);  // Mark each penalty as settled
+                driver.setBonus(Optional.ofNullable(driver.getBonus()).orElse(0.0) + request.getBonus());
+    //            driver.setAmountPending(0.0);  // Assuming we set amount pending to zero after settlement
+                driver = driverDao.createDriver(driver);  // Save updated driver details
+
+                List<Penalty> penalties = penaltyDao.findByDriverId(driver.getId());
+                if (penalties != null && !penalties.isEmpty()) {
+                    for (Penalty penalty : penalties) {
+                        penalty.setStatus(Penalty.PenaltyStatus.SETTLED);  // Mark each penalty as settled
+                    }
+                    penaltyDao.saveAll(penalties);  // Save all updated penalties in batch
                 }
-                penaltyDao.saveAll(penalties);  // Save all updated penalties in batch
             }
 
             salary.setStatus(Salary.status.SETTLED.name());

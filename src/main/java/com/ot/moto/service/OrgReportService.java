@@ -63,6 +63,12 @@ public class OrgReportService {
     @Autowired
     private OrgMetricsRepository orgMetricsRepository;
 
+    @Autowired
+    private OtherDeductionDao otherDeductionDao;
+
+    @Autowired
+    private PenaltyDao penaltyDao;
+
     private static final Logger logger = LoggerFactory.getLogger(OrgReportService.class);
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a", Locale.ENGLISH);
@@ -215,6 +221,19 @@ public class OrgReportService {
 
             processDriverSlabMap(driverSlabMap);
 
+            Master s1Master = masterDao.getMasterBySlab("S1");
+            Master s2Master = masterDao.getMasterBySlab("S2");
+            Master s3Master = masterDao.getMasterBySlab("S3");
+            Master s4Master = masterDao.getMasterBySlab("S4");
+            Master s5Master = masterDao.getMasterBySlab("S5");
+
+            Long totalOrders = totalS1 + totalS2 + totalS3 + totalS4 + totalS5;
+
+            Double jahezPaidEarnings = totalS1 * s1Master.getJahezPaid() + totalS2 * s2Master.getJahezPaid()
+                    + totalS3 * s3Master.getJahezPaid() + totalS4 * s4Master.getJahezPaid() + totalS5 * s5Master.getJahezPaid();
+            Double driverEarnings = totalS1 * s1Master.getMotoPaid() + totalS2 * s2Master.getMotoPaid()
+                    + totalS3 * s3Master.getMotoPaid() + totalS4 * s4Master.getMotoPaid() + totalS5 * s5Master.getMotoPaid();
+
             OrgMetrics orgMetrics = new OrgMetrics();
             orgMetrics.setNoOfRowsParsed(noOfRowsParsed);
             orgMetrics.setTotalCod(totalCod);
@@ -228,16 +247,14 @@ public class OrgReportService {
             orgMetrics.setTotalS5(totalS5);
             orgMetrics.setDateTime(LocalDateTime.now());
             orgMetrics.setFileName(fileName);
-
-            /*totalEarnings =
-            profit = totalEarnings - totalCredit; // Example calculation
-            orgMetrics.setTotalEarnings(totalEarnings);
-            orgMetrics.setProfit(profit);*/
+            orgMetrics.setProfit(jahezPaidEarnings - driverEarnings);
+            orgMetrics.setTotalEarnings(driverEarnings);
 
             orgMetricsRepository.save(orgMetrics);
 
             UploadOrgResponse uploadOrgResponse = new UploadOrgResponse();
             uploadOrgResponse.setTotalDrivers((long) uniqueDrivers.size());
+            uploadOrgResponse.setNoOfRowsParsed(noOfRowsParsed);
             uploadOrgResponse.setTotalCod(totalCod);
             uploadOrgResponse.setTotalCredit(totalCredit);
             uploadOrgResponse.setTotalDebit(totalDebit);
@@ -246,11 +263,9 @@ public class OrgReportService {
             uploadOrgResponse.setTotalS3(totalS3);
             uploadOrgResponse.setTotalS4(totalS4);
             uploadOrgResponse.setTotalS5(totalS5);
-
-            /*totalEarnings =
-            profit = totalEarnings - totalCredit; // Example calculation
-            uploadOrgResponse.setTotalEarnings(totalEarnings);
-            uploadOrgResponse.setProfit(profit);*/
+            uploadOrgResponse.setTotalOrders(totalOrders);
+            uploadOrgResponse.setTotalEarnings(driverEarnings);
+            uploadOrgResponse.setProfit(jahezPaidEarnings - driverEarnings);
 
             return ResponseStructure.successResponse(uploadOrgResponse, "Successfully Parsed");
 
@@ -286,35 +301,8 @@ public class OrgReportService {
                     slabs.get(5),  // COD amount (as Double, assuming no conversion needed)
                     slabs.get(7), slabs.get(6));
 
-            /*ordersList.add(orders);*/
         }
-        /*ordersList = orderDao.createOrders(ordersList);*/
 
-        /*for (Orders orders : ordersList) {
-            long totalOrders = orderDao.getTotalOrdersForCurrentMonthByDriver(orders.getDriver().getId());
-
-            // Fetch the highest bonus based on delivery count
-            Bonus bonusForCount = bonusDao.findTopByDeliveryCountLessThanEqualOrderByDeliveryCountDesc(totalOrders);
-
-            // Fetch the bonus based on specialDate
-            Bonus bonusForDate = bonusDao.findTopBySpecialDate(orders.getDate());
-
-            double totalBonus = 0.0;
-            if (bonusForCount != null) {
-                totalBonus += bonusForCount.getBonusAmount();
-            }
-            if (bonusForDate != null) {
-                totalBonus += bonusForDate.getDateBonusAmount();
-            }
-
-            // Now, update the driver's bonus in the order or driver entity
-            if (totalBonus > 0) {
-                double preBonus = orders.getDriver().getBonus() != null ? orders.getDriver().getBonus() : 0.0;
-                double currentBonus = preBonus + totalBonus;
-                orders.getDriver().setBonus(currentBonus);
-                driverRepository.save(orders.getDriver());
-            }
-        }*/
     }
 
     private Orders buildOrdersFromCellData(LocalDate date, Long jahezId, String driverName, Long noOfS1, Long noOfS2, Long noOfS3,
@@ -442,12 +430,15 @@ public class OrgReportService {
             Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
             salary.setProfit(jahezAmount - salary.getTotalEarnings());
 
-            Double emiAmount =
+            //increasing visaRecievedAmount & bikeRentRecievedAmount if not null
+
+            //OD --> amount recieved + update) logic
+            /*Double emiAmount =
                     (driver.getVisaAmountEmi() != null ? driver.getVisaAmountEmi() : 0.0) +
                             (driver.getBikeRentAmountEmi() != null ? driver.getBikeRentAmountEmi() : 0.0) +
                             (driver.getOtherDeductions() != null ? driver.getOtherDeductions().stream()
                                     .mapToDouble(OtherDeduction::getOtherDeductionAmountEmi)
-                                    .sum() : 0.0);
+                                    .sum() : 0.0);*/
 
             Double penaltyAmount = ((driver.getPenalties() != null && !driver.getPenalties().isEmpty()) ?
                     driver.getPenalties().stream()
@@ -455,12 +446,18 @@ public class OrgReportService {
                             .mapToDouble(Penalty::getAmount)
                             .sum() : 0.0);
 
+            if(penaltyAmount > 0){
+                settlePenalties(driver);
+            }
+
+            double totalEmi = updateDriverEmiAmounts(driver);
+
             Double payable = salary.getS1Earnings()
                     + salary.getS2Earnings()
                     + salary.getS3Earnings()
                     + salary.getS4Earnings()
                     + salary.getS5Earnings()
-                    - emiAmount
+                    - totalEmi
                     - penaltyAmount
                     - orders.getCodAmount()
                     + salary.getCodCollected() // codCollectedAdded
@@ -468,9 +465,9 @@ public class OrgReportService {
                     - orders.getDebit();
 
             salary.setFleetPenalty(penaltyAmount);
-            salary.setEmiPerDay(emiAmount);
+            salary.setEmiPerDay(totalEmi);
             salary.setSalaryCreditDate(orders.getDate());
-            salary.setTotalDeductions(emiAmount + penaltyAmount + orders.getCodAmount());
+            salary.setTotalDeductions(totalEmi + penaltyAmount + orders.getCodAmount());
             salary.setBonus(0.0);
             salary.setIncentives(0.0);
             salary.setPayableAmount(payable);
@@ -505,6 +502,9 @@ public class OrgReportService {
                             .mapToDouble(Penalty::getAmount)
                             .sum() : 0.0);
             salary.setFleetPenalty(penaltyAmount);
+            if(penaltyAmount > 0){
+                settlePenalties(driver);
+            }
 
             Double payable = salary.getS1Earnings()
                     + salary.getS2Earnings()
@@ -542,6 +542,40 @@ public class OrgReportService {
 
         salary = salaryDao.saveSalary(salary);
         return salary;
+    }
+
+    public void settlePenalties(Driver driver){
+        List<Penalty> penalties = driver.getPenalties();
+        if(penalties.size() > 0){
+            for (Penalty penalty : penalties) {
+                penalty.setStatus(Penalty.PenaltyStatus.SETTLED); // Set each penalty as SETTLED
+            }
+            penaltyDao.saveAll(penalties); // Save all updated penalties in a single batch
+        }
+    }
+
+    public double updateDriverEmiAmounts(Driver driver) {
+        double totalEmi = 0.0;
+        if(driver.getVisaAmountEmi() != null){
+            driver.setVisaAmountReceived(driver.getVisaAmountReceived() + driver.getVisaAmountEmi());
+            totalEmi += driver.getVisaAmountEmi();
+        }
+
+        if(driver.getBikeRentAmountEmi() != null){
+            driver.setBikeRentAmountReceived(driver.getBikeRentAmountReceived() + driver.getBikeRentAmountEmi());
+            totalEmi += driver.getBikeRentAmountEmi();
+        }
+
+        List<OtherDeduction> otherDeductionList = driver.getOtherDeductions();
+        for(OtherDeduction otherDeduction : otherDeductionList){
+            if(otherDeduction.getOtherDeductionReceived() < otherDeduction.getOtherDeductionAmount()){
+                otherDeduction.setOtherDeductionReceived(otherDeduction.getOtherDeductionReceived() + otherDeduction.getOtherDeductionAmountEmi());
+                totalEmi += otherDeduction.getOtherDeductionAmountEmi();
+            }
+        }
+        otherDeductionDao.saveAll(otherDeductionList);
+        driverDao.createDriver(driver);
+        return totalEmi;
     }
 
     private boolean isValidReport(OrgReports report) {
@@ -1082,8 +1116,10 @@ public class OrgReportService {
             // Create PageRequest with sorting
             PageRequest pageRequest = PageRequest.of(page, size, Sort.by(field));
 
+            Driver driver = driverDao.getById(driverId);
+
             // Fetch the reports for the specified driver
-            Page<OrgReports> orgReports = orgReportsRepository.findByDispatchTimeBetweenAndDriverId(startDateTime, endDateTime, driverId, pageRequest);
+            Page<OrgReports> orgReports = orgReportsRepository.findByDispatchTimeBetweenAndDriverId(startDateTime, endDateTime, driver.getJahezId(), pageRequest);
 
             if (orgReports.isEmpty()) {
                 logger.warn("No reports found for driver ID " + driverId + " between the specified dates.");

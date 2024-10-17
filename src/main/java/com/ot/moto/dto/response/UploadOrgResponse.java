@@ -29,6 +29,8 @@ public class UploadOrgResponse {
 
     private Long totalS5;
 
+    private Long totalOrders;
+
     private Double totalEarnings;
 
     private Double profit;

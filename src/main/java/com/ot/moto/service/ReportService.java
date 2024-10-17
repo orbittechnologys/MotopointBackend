@@ -80,13 +80,19 @@ public class ReportService {
     @Autowired
     private PaymentMetricsRepository paymentMetricsRepository;
 
+    @Autowired
+    private PenaltyDao penaltyDao;
+
+    @Autowired
+    private OtherDeductionDao otherDeductionDao;
+
 
     private static final Logger logger = LoggerFactory.getLogger(ReportService.class);
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
 
 
-    public ResponseEntity<ResponseStructure<Object>> uploadBankStatement(Sheet sheet,String fileName) {
+    public ResponseEntity<ResponseStructure<Object>> uploadBankStatement(Sheet sheet, String fileName) {
         try {
             Long noOfRowsParsed = 0l;
             Long totalDrivers = 0l;
@@ -217,18 +223,24 @@ public class ReportService {
     public void updateSalary(Driver driver, LocalDate date, Double amount) {
         Salary salary = salaryDao.getSalaryByDriverAndDate(driver, date);
 
-        Double emiAmount =
+        /*Double emiAmount =
                 (driver.getVisaAmountEmi() != null ? driver.getVisaAmountEmi() : 0.0) +
                         (driver.getBikeRentAmountEmi() != null ? driver.getBikeRentAmountEmi() : 0.0) +
                         (driver.getOtherDeductions() != null ? driver.getOtherDeductions().stream()
                                 .mapToDouble(OtherDeduction::getOtherDeductionAmountEmi)
-                                .sum() : 0.0);
+                                .sum() : 0.0);*/
+
+        double totalEmi = updateDriverEmiAmounts(driver);
 
         Double penaltyAmount = ((driver.getPenalties() != null && !driver.getPenalties().isEmpty()) ?
                 driver.getPenalties().stream()
                         .filter(penalty -> penalty.getStatus() == Penalty.PenaltyStatus.NOT_SETTLED)
                         .mapToDouble(Penalty::getAmount)
                         .sum() : 0.0);
+
+        if (penaltyAmount > 0) {
+            settlePenalties(driver);
+        }
 
         if (Objects.nonNull(salary)) {
             salary.setCodCollected(salary.getCodCollected() + amount);
@@ -238,7 +250,7 @@ public class ReportService {
             salary = new Salary();
             salary.setSalaryCreditDate(date);
             salary.setCodCollected(amount);
-            salary.setPayableAmount(salary.getPayableAmount() + amount - emiAmount - penaltyAmount);
+            salary.setPayableAmount(salary.getPayableAmount() + amount - totalEmi - penaltyAmount);
 
             salary.setBonus(0.0);
             salary.setIncentives(0.0);
@@ -262,11 +274,47 @@ public class ReportService {
             salary.setTotalOrders(0l);
             salary.setProfit(0.0);
             salary.setFleetPenalty(penaltyAmount);
-            salary.setEmiPerDay(emiAmount);
+            salary.setEmiPerDay(totalEmi);
             salary.setDriver(driver);
 
             salaryDao.saveSalary(salary);
         }
+    }
+
+    public double updateDriverEmiAmounts(Driver driver) {
+        double totalEmi = 0.0;
+        if(driver.getVisaAmountEmi() != null){
+            driver.setVisaAmountReceived(driver.getVisaAmountReceived() + driver.getVisaAmountEmi());
+            totalEmi += driver.getVisaAmountEmi();
+        }
+
+        if(driver.getBikeRentAmountEmi() != null){
+            driver.setBikeRentAmountReceived(driver.getBikeRentAmountReceived() + driver.getBikeRentAmountEmi());
+            totalEmi += driver.getBikeRentAmountEmi();
+        }
+
+        List<OtherDeduction> otherDeductionList = driver.getOtherDeductions();
+        for(OtherDeduction otherDeduction : otherDeductionList){
+            if(otherDeduction.getOtherDeductionReceived() < otherDeduction.getOtherDeductionAmount()){
+                otherDeduction.setOtherDeductionReceived(otherDeduction.getOtherDeductionReceived() + otherDeduction.getOtherDeductionAmountEmi());
+                totalEmi += otherDeduction.getOtherDeductionAmountEmi();
+            }
+        }
+        otherDeductionDao.saveAll(otherDeductionList);
+        driverDao.createDriver(driver);
+        return totalEmi;
+    }
+
+    private void settlePenalties(Driver driver) {
+
+        List<Penalty> penalties = driver.getPenalties();
+        if (penalties.size() > 0) {
+            for (Penalty penalty : penalties) {
+                penalty.setStatus(Penalty.PenaltyStatus.SETTLED); // Set each penalty as SETTLED
+            }
+            penaltyDao.saveAll(penalties); // Save all updated penalties in a single batch
+        }
+
     }
 
     public Map<String, Double> getTotalAmountByPaymentType() {
@@ -995,18 +1043,18 @@ public class ReportService {
         return driverDao.createDriver(driver);
     }
 
-    public ResponseEntity<ResponseStructure<Object>> addMoneyToDriver(AddMoneyReq req){
-        try{
+    public ResponseEntity<ResponseStructure<Object>> addMoneyToDriver(AddMoneyReq req) {
+        try {
             Driver driver = driverDao.getById(req.getDriverId());
-            if(Objects.isNull(driver)){
-                logger.error("Did not find driver with id  "+req.getDriverId());
-                return ResponseStructure.errorResponse(null, 404,"Did not find driver with id  "+req.getDriverId());
+            if (Objects.isNull(driver)) {
+                logger.error("Did not find driver with id  " + req.getDriverId());
+                return ResponseStructure.errorResponse(null, 404, "Did not find driver with id  " + req.getDriverId());
             }
 
-            updateDriverPendingAmount(driver, req.getAmount(), req.getMode(), req.getDate(),"MANUAL TXN DONE BY ADMIN FOR AMOUNT "+req.getAmount()+" TO DRIVER "+driver.getUsername());
+            updateDriverPendingAmount(driver, req.getAmount(), req.getMode(), req.getDate(), "MANUAL TXN DONE BY ADMIN FOR AMOUNT " + req.getAmount() + " TO DRIVER " + driver.getUsername());
 
-            return ResponseStructure.successResponse(null,"Amount added successfully");
-        }catch (Exception e){
+            return ResponseStructure.successResponse(null, "Amount added successfully");
+        } catch (Exception e) {
             logger.error("Error while adding money  ", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
         }

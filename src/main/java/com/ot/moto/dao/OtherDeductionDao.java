@@ -23,4 +23,8 @@ public class OtherDeductionDao {
         return otherDeductionRepository.findByDriverId(id);
     }
 
+    public List<OtherDeduction> saveAll(List<OtherDeduction> otherDeductionList){
+        return otherDeductionRepository.saveAll(otherDeductionList);
+    }
+
 }
