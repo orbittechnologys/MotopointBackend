@@ -130,4 +130,26 @@ public class OrderController {
                                                                                         @RequestParam(defaultValue = "id") String field) {
         return orderService.findAllDateBetweenParticularDriver(driverId, startDate, endDate, page, size, field);
     }
+
+
+    @Operation(summary = "Get total orders of particular driver", description = "Returns total order Objects")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Fleets Found"),
+            @ApiResponse(responseCode = "404", description = "No Fleets Found")
+    })
+    @GetMapping("/findTotalOrderOfYesterday")
+    public ResponseEntity<ResponseStructure<Object>> getTotalOrdersForYesterdayForDriver(@RequestParam Long driverId) {
+        return orderService.getTotalOrdersForYesterdayForDriver(driverId);
+    }
+
+
+    @Operation(summary = "Get total orders of particular driver  Today", description = "Returns total order Objects")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Fleets Found"),
+            @ApiResponse(responseCode = "404", description = "No Fleets Found")
+    })
+    @GetMapping("/findTotalOrderOfToday")
+    public ResponseEntity<ResponseStructure<Object>> getTotalOrdersForTodayForDriver(@RequestParam Long driverId) {
+        return orderService.getTotalOrdersForTodayForDriver(driverId);
+    }
 }

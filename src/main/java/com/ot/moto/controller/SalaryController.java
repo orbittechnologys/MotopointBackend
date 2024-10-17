@@ -183,4 +183,15 @@ public class SalaryController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+    @Operation(summary = "Get Total Payable  of particular driver with date Range", description = "returns List of Salary Object")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Salary Found"),
+            @ApiResponse(responseCode = "404", description = "Salary Not Found")})
+    @GetMapping("/findTotalPayableOfDriver")
+    public ResponseEntity<ResponseStructure<Object>> findTotalPayableAmountByDriverAndDateRange(@RequestParam Long driverId,
+                                                                                                @RequestParam LocalDate startDate,
+                                                                                                @RequestParam LocalDate endDate) {
+        return salaryService.getTotalPayableAmountByDriverAndDateRange(driverId, startDate, endDate);
+    }
 }

@@ -625,4 +625,46 @@ public class SalaryService {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+
+    public ResponseEntity<ResponseStructure<Object>> getTotalPayableAmountByDriverAndDateRange(Long driverId, LocalDate startDate, LocalDate endDate) {
+        try {
+            // Fetch all salary records for the specified driver within the date range
+            List<Salary> salaryList = salaryRepository.findAllByDriverIdAndSalaryCreditDateBetween(driverId, startDate, endDate);
+
+            if (salaryList == null || salaryList.isEmpty()) {
+                logger.warn("No salary records found for driver ID " + driverId + " between " + startDate + " and " + endDate);
+                return ResponseStructure.errorResponse(null, 404, "No salary records found for driver between " + startDate + " and " + endDate);
+            }
+
+            // Calculate the total payable amount
+            double totalPayableAmount = salaryList.stream()
+                    .mapToDouble(Salary::getPayableAmount)
+                    .sum();
+
+            // Prepare detailed information for each day in the date range
+            List<Map<String, Object>> salaryDetailsList = salaryList.stream().map(salary -> {
+                Map<String, Object> salaryDetails = new HashMap<>();
+                salaryDetails.put("date", salary.getSalaryCreditDate());
+                salaryDetails.put("bonus", salary.getBonus());
+                salaryDetails.put("incentives", salary.getIncentives());
+                salaryDetails.put("emiPerDay", salary.getEmiPerDay());
+                salaryDetails.put("fleetPenalty", salary.getFleetPenalty());
+                salaryDetails.put("totalEarnings", salary.getTotalEarnings());
+                salaryDetails.put("status", salary.getStatus());
+                salaryDetails.put("payableAmount", salary.getPayableAmount());
+                return salaryDetails;
+            }).toList();
+
+            // Construct the response with total payable amount and detailed salary information
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("totalPayableAmount", totalPayableAmount);
+            responseData.put("salaryDetails", salaryDetailsList);
+
+            return ResponseStructure.successResponse(responseData, "Total payable amount and salary details found for driver between " + startDate + " and " + endDate);
+        } catch (Exception e) {
+            logger.error("Error fetching salary details for driver between dates", e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching salary details: " + e.getMessage());
+        }
+    }
 }

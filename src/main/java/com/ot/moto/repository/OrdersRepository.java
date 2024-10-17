@@ -79,4 +79,10 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     public List<Orders> findByDriverId(Long driverId);
 
     public List<Orders> findAllByDriverIdAndDateBetween(Long DriverId,LocalDate startDate,LocalDate endDate);
+
+    @Query("SELECT SUM(o.totalOrders) FROM Orders o WHERE o.date = :date AND o.driver.id = :driverId")
+    public Long sumTotalOrdersOnDateForDriver(LocalDate date, Long driverId);
+
+    @Query("SELECT SUM(o.totalOrders) FROM Orders o WHERE o.date = CURRENT_DATE AND o.driver.id = :driverId")
+    public Long sumTotalOrdersTodayForDriver(@Param("driverId") Long driverId);
 }

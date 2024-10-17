@@ -87,6 +87,9 @@ public class SecurityConfig {
             "/report/download-OrgReport-for-driver",
             "/order/download-csv-of-driver-between-dates",
             "/order/download-OrgReport-date-between",
+            "/metrics/findAllOrgMetricsByDateTimeBetween",
+            "/metrics/findAllTamMetricsByDateTimeBetween",
+            "/metrics/findAllPaymentMetricsByDateTimeBetween",
 
             "/report/download-OrgReport-date-between-for-particular-driver",
             "/report/download-payment-for-driver",

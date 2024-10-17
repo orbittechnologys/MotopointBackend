@@ -444,4 +444,39 @@ public class OrderService {
             return ResponseStructure.errorResponse(null, 500, "Error fetching orders: " + e.getMessage());
         }
     }
+
+
+    public ResponseEntity<ResponseStructure<Object>> getTotalOrdersForYesterdayForDriver(Long driverId) {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        logger.info("Fetching total order count for yesterday ({}) for driver with ID: {}", yesterday, driverId);
+
+        try {
+            // Handle null return value from repository method
+            Long orderCount = ordersRepository.sumTotalOrdersOnDateForDriver(yesterday, driverId);
+            long totalOrders = (orderCount != null) ? orderCount : 0L;
+
+            logger.info("Total orders for yesterday for driver {}: {}", driverId, totalOrders);
+            return ResponseStructure.successResponse(totalOrders, "Total orders for yesterday for driver retrieved successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching order count for driver {} on yesterday", driverId, e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching order count for yesterday for driver: " + e.getMessage());
+        }
+    }
+
+
+    public ResponseEntity<ResponseStructure<Object>> getTotalOrdersForTodayForDriver(Long driverId) {
+        logger.info("Fetching total order count for today for driver with ID: {}", driverId);
+
+        try {
+            // Handle null return value from repository method
+            Long orderCount = ordersRepository.sumTotalOrdersTodayForDriver(driverId);
+            long totalOrders = (orderCount != null) ? orderCount : 0L;
+
+            logger.info("Total orders for today for driver {}: {}", driverId, totalOrders);
+            return ResponseStructure.successResponse(totalOrders, "Total orders for today for driver retrieved successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching order count for driver {} for today", driverId, e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching order count for today for driver: " + e.getMessage());
+        }
+    }
 }
