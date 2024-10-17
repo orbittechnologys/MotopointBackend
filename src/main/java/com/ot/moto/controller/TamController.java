@@ -170,4 +170,16 @@ public class TamController {
                                                                         @RequestParam(defaultValue = "id") String field) {
         return tamService.getTamBetweenDates(startDate, endDate, page, size, field);
     }
+
+    @Operation(summary = "Fetch sum of total TAM of Paticular driver with date range for Mobile Application ", description = "response is sum of all data from TAM for MobileApplication")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "sum Found"),
+            @ApiResponse(responseCode = "404", description = "sum Not Found")})
+    @GetMapping("/getTotalTamByDriver")
+    public ResponseEntity<ResponseStructure<Object>> getTotalPaymentByDriverAndDateRange(@RequestParam Long driverId,
+                                                                                         @RequestParam LocalDate startDate,
+                                                                                         @RequestParam LocalDate endDate) {
+
+        return tamService.getTotalPayInAmountByDriverAndDateRange(driverId, startDate, endDate);
+    }
+
 }

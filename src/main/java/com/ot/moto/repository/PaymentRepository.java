@@ -49,4 +49,12 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     public Page<Payment> findAllByDriverIdAndDateBetween(Long driverId, LocalDate startDate, LocalDate endDate, PageRequest pageRequest);
 
     public Page<Payment> findAllByDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
+
+    @Query("SELECT p FROM Payment p WHERE p.driver.id = :driverId AND p.date BETWEEN :startDate AND :endDate")
+    public List<Payment> findByDriverIdAndDateBetween(
+            @Param("driverId") Long driverId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
 }

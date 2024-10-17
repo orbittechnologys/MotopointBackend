@@ -48,4 +48,11 @@ public interface TamRepository extends JpaRepository<Tam, Long> {
     public Page<Tam> findAllByDateTimeBetween(LocalDateTime startDateTime, LocalDateTime endDateTime,Pageable pageable);
 
     public List<Tam> findByDriverId(Long driverId);
+
+    @Query("SELECT t FROM Tam t WHERE t.driver.id = :driverId AND CAST(t.dateTime AS LocalDate) BETWEEN :startDate AND :endDate")
+    public List<Tam> findAllByDriverIdAndDateBetween(
+            @Param("driverId") Long driverId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }

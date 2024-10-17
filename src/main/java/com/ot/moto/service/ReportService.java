@@ -35,6 +35,7 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.ot.moto.entity.Payment.PAYMENT_TYPE.BENEFIT;
 
@@ -283,19 +284,19 @@ public class ReportService {
 
     public double updateDriverEmiAmounts(Driver driver) {
         double totalEmi = 0.0;
-        if(driver.getVisaAmountEmi() != null){
+        if (driver.getVisaAmountEmi() != null) {
             driver.setVisaAmountReceived(driver.getVisaAmountReceived() + driver.getVisaAmountEmi());
             totalEmi += driver.getVisaAmountEmi();
         }
 
-        if(driver.getBikeRentAmountEmi() != null){
+        if (driver.getBikeRentAmountEmi() != null) {
             driver.setBikeRentAmountReceived(driver.getBikeRentAmountReceived() + driver.getBikeRentAmountEmi());
             totalEmi += driver.getBikeRentAmountEmi();
         }
 
         List<OtherDeduction> otherDeductionList = driver.getOtherDeductions();
-        for(OtherDeduction otherDeduction : otherDeductionList){
-            if(otherDeduction.getOtherDeductionReceived() < otherDeduction.getOtherDeductionAmount()){
+        for (OtherDeduction otherDeduction : otherDeductionList) {
+            if (otherDeduction.getOtherDeductionReceived() < otherDeduction.getOtherDeductionAmount()) {
                 otherDeduction.setOtherDeductionReceived(otherDeduction.getOtherDeductionReceived() + otherDeduction.getOtherDeductionAmountEmi());
                 totalEmi += otherDeduction.getOtherDeductionAmountEmi();
             }
@@ -1057,6 +1058,46 @@ public class ReportService {
         } catch (Exception e) {
             logger.error("Error while adding money  ", e);
             return ResponseStructure.errorResponse(null, 500, e.getMessage());
+        }
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> getTotalPaymentByDriverAndDateRange(Long driverId, LocalDate startDate, LocalDate endDate) {
+        try {
+            // Fetch all payment records for the specified driver within the date range
+            List<Payment> paymentList = paymentRepository.findByDriverIdAndDateBetween(driverId, startDate, endDate);
+
+            if (paymentList == null || paymentList.isEmpty()) {
+                logger.warn("No payment records found for driver ID " + driverId + " between " + startDate + " and " + endDate);
+                return ResponseStructure.errorResponse(null, 404, "No payment records found for driver between " + startDate + " and " + endDate);
+            }
+
+            // Calculate the total payment amount
+            double totalAmount = paymentList.stream()
+                    .mapToDouble(Payment::getAmount)
+                    .sum();
+
+            // Sort the payment list by date in ascending order and prepare detailed information for each day
+            List<Map<String, Object>> paymentDetailsList = paymentList.stream()
+                    .sorted((p1, p2) -> p1.getDate().compareTo(p2.getDate()))
+                    .map(payment -> {
+                        Map<String, Object> paymentDetails = new HashMap<>();
+                        paymentDetails.put("date", payment.getDate());
+                        paymentDetails.put("amount", payment.getAmount());
+                        paymentDetails.put("description", payment.getDescription());
+                        paymentDetails.put("type", payment.getType());
+                        return paymentDetails;
+                    })
+                    .collect(Collectors.toList());
+
+            // Construct the response with total amount and detailed payment information
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("totalAmount", totalAmount);
+            responseData.put("paymentDetails", paymentDetailsList);
+
+            return ResponseStructure.successResponse(responseData, "Total payment amount and payment details found for driver between " + startDate + " and " + endDate);
+        } catch (Exception e) {
+            logger.error("Error fetching payment details for driver between dates", e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching payment details: " + e.getMessage());
         }
     }
 }

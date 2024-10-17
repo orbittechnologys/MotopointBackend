@@ -132,7 +132,7 @@ public class OrderController {
     }
 
 
-    @Operation(summary = "Get total orders of particular driver", description = "Returns total order Objects")
+    @Operation(summary = "Get total orders of particular driver Yesterday Mobile Application API", description = "Returns total order Objects")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Fleets Found"),
             @ApiResponse(responseCode = "404", description = "No Fleets Found")
@@ -143,7 +143,7 @@ public class OrderController {
     }
 
 
-    @Operation(summary = "Get total orders of particular driver  Today", description = "Returns total order Objects")
+    @Operation(summary = "Get total orders of particular driver  Today Mobile Application API", description = "Returns total order Objects")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Fleets Found"),
             @ApiResponse(responseCode = "404", description = "No Fleets Found")

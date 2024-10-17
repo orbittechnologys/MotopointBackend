@@ -81,7 +81,7 @@ public class ReportController {
             }
 
             String fileName = file.getOriginalFilename();
-            return orgReportService.uploadOrgReports(sheet,fileName); //
+            return orgReportService.uploadOrgReports(sheet, fileName); //
 
         } catch (Exception e) {
             return ResponseStructure.errorResponse(null, 500, "ERROR: " + e.getMessage());
@@ -102,7 +102,7 @@ public class ReportController {
             Sheet sheet = workbook.getSheetAt(0);
 
             String fileName = file.getOriginalFilename();
-            return reportService.uploadBankStatement(sheet,fileName);
+            return reportService.uploadBankStatement(sheet, fileName);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -456,4 +456,16 @@ public class ReportController {
             @RequestParam(defaultValue = "id") String field) {
         return orgReportService.getOrgReportsForDriverBetweenDates(startDate, endDate, driverId, page, size, field);
     }
+
+    @Operation(summary = "Fetch sum of total payment of Paticular driver with date range for Mobile Application ", description = "response is sum of all data from Payment for MobileApplication")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "sum Found"),
+            @ApiResponse(responseCode = "404", description = "sum Not Found")})
+    @GetMapping("/getTotalPaymentByDriver")
+    public ResponseEntity<ResponseStructure<Object>> getTotalPaymentByDriverAndDateRange(@RequestParam Long driverId,
+                                                                                         @RequestParam LocalDate startDate,
+                                                                                         @RequestParam LocalDate endDate
+    ) {
+        return reportService.getTotalPaymentByDriverAndDateRange(driverId, startDate, endDate);
+    }
+
 }

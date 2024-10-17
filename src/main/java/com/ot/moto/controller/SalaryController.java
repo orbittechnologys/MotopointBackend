@@ -185,7 +185,7 @@ public class SalaryController {
     }
 
 
-    @Operation(summary = "Get Total Payable  of particular driver with date Range", description = "returns List of Salary Object")
+    @Operation(summary = "Get Total Payable  of particular driver with date Range Mobile Application API", description = "returns List of Salary Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Salary Found"),
             @ApiResponse(responseCode = "404", description = "Salary Not Found")})
     @GetMapping("/findTotalPayableOfDriver")

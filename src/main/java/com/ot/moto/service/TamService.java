@@ -33,6 +33,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TamService {
@@ -946,4 +947,46 @@ public class TamService {
             return ResponseStructure.errorResponse(null, 500, "Internal Server Error: " + e.getMessage());
         }
     }
+
+    public ResponseEntity<ResponseStructure<Object>> getTotalPayInAmountByDriverAndDateRange(Long driverId, LocalDate startDate, LocalDate endDate) {
+        try {
+            // Fetch all TAM records for the specified driver within the date range
+            List<Tam> tamList = tamRepository.findAllByDriverIdAndDateBetween(driverId, startDate, endDate);
+
+            if (tamList == null || tamList.isEmpty()) {
+                logger.warn("No TAM records found for driver ID " + driverId + " between " + startDate + " and " + endDate);
+                return ResponseStructure.errorResponse(null, 404, "No TAM records found for driver between " + startDate + " and " + endDate);
+            }
+
+            // Calculate the total payInAmount
+            double totalPayInAmount = tamList.stream()
+                    .mapToDouble(Tam::getPayInAmount)
+                    .sum();
+
+            // Sort the TAM list by dateTime (considering only the date part) and prepare detailed information for each day
+            List<Map<String, Object>> tamDetailsList = tamList.stream()
+                    .sorted((t1, t2) -> t1.getDateTime().toLocalDate().compareTo(t2.getDateTime().toLocalDate()))
+                    .map(tam -> {
+                        Map<String, Object> tamDetails = new HashMap<>();
+                        tamDetails.put("date", tam.getDateTime().toLocalDate());
+                        tamDetails.put("payInAmount", tam.getPayInAmount());
+                        tamDetails.put("serviceName", tam.getServiceName());
+                        tamDetails.put("merchantName", tam.getMerchantName());
+                        tamDetails.put("location", tam.getLocation());
+                        return tamDetails;
+                    })
+                    .collect(Collectors.toList());
+
+            // Construct the response with total payInAmount and detailed TAM information
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("totalPayInAmount", totalPayInAmount);
+            responseData.put("tamDetails", tamDetailsList);
+
+            return ResponseStructure.successResponse(responseData, "Total payInAmount and TAM details found for driver between " + startDate + " and " + endDate);
+        } catch (Exception e) {
+            logger.error("Error fetching TAM details for driver between dates", e);
+            return ResponseStructure.errorResponse(null, 500, "Error fetching TAM details: " + e.getMessage());
+        }
+    }
+
 }

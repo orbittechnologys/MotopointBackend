@@ -642,19 +642,22 @@ public class SalaryService {
                     .mapToDouble(Salary::getPayableAmount)
                     .sum();
 
-            // Prepare detailed information for each day in the date range
-            List<Map<String, Object>> salaryDetailsList = salaryList.stream().map(salary -> {
-                Map<String, Object> salaryDetails = new HashMap<>();
-                salaryDetails.put("date", salary.getSalaryCreditDate());
-                salaryDetails.put("bonus", salary.getBonus());
-                salaryDetails.put("incentives", salary.getIncentives());
-                salaryDetails.put("emiPerDay", salary.getEmiPerDay());
-                salaryDetails.put("fleetPenalty", salary.getFleetPenalty());
-                salaryDetails.put("totalEarnings", salary.getTotalEarnings());
-                salaryDetails.put("status", salary.getStatus());
-                salaryDetails.put("payableAmount", salary.getPayableAmount());
-                return salaryDetails;
-            }).toList();
+            // Prepare detailed information for each day in the date range, sorted by salaryCreditDate
+            List<Map<String, Object>> salaryDetailsList = salaryList.stream()
+                    .sorted(Comparator.comparing(Salary::getSalaryCreditDate)) // Sort by salaryCreditDate
+                    .map(salary -> {
+                        Map<String, Object> salaryDetails = new HashMap<>();
+                        salaryDetails.put("date", salary.getSalaryCreditDate());
+                        salaryDetails.put("bonus", salary.getBonus());
+                        salaryDetails.put("incentives", salary.getIncentives());
+                        salaryDetails.put("emiPerDay", salary.getEmiPerDay());
+                        salaryDetails.put("fleetPenalty", salary.getFleetPenalty());
+                        salaryDetails.put("totalEarnings", salary.getTotalEarnings());
+                        salaryDetails.put("status", salary.getStatus());
+                        salaryDetails.put("payableAmount", salary.getPayableAmount());
+                        return salaryDetails;
+                    })
+                    .collect(Collectors.toList()); // Collect to list after sorting
 
             // Construct the response with total payable amount and detailed salary information
             Map<String, Object> responseData = new HashMap<>();
@@ -667,4 +670,5 @@ public class SalaryService {
             return ResponseStructure.errorResponse(null, 500, "Error fetching salary details: " + e.getMessage());
         }
     }
+
 }
