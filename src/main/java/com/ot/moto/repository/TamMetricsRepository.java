@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
 
-public interface TamMetricRepository extends JpaRepository<TamMetrics,Long> {
+public interface TamMetricsRepository extends JpaRepository<TamMetrics,Long> {
 
     public Page<TamMetrics> findAllByDateTimeBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 

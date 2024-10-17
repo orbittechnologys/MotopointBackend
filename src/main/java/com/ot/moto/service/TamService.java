@@ -7,7 +7,7 @@ import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.response.UploadTamResponse;
 import com.ot.moto.entity.*;
 import com.ot.moto.repository.DriverRepository;
-import com.ot.moto.repository.TamMetricRepository;
+import com.ot.moto.repository.TamMetricsRepository;
 import com.ot.moto.repository.TamRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -51,7 +51,7 @@ public class TamService {
     private SalaryDao salaryDao;
 
     @Autowired
-    private TamMetricRepository tamMetricRepository;
+    private TamMetricsRepository tamMetricRepository;
 
 
     private static final Logger logger = LoggerFactory.getLogger(TamService.class);
@@ -219,9 +219,9 @@ public class TamService {
         tam.setCprNumber(cprNumber);
         tam.setDriverCompanyName(driverCompanyName);
         tam.setDriverCompanyJahezId(driverCompanyJahezId);
-        tam.setMobileNumber(Long.valueOf(String.valueOf(mobileNumber).substring(3)));
+        tam.setMobileNumber(mobileNumber);
         tam.setDriverName(driverName);
-        Driver driver = driverRepository.findByPhone(String.valueOf(mobileNumber).substring(3));
+        Driver driver = driverRepository.findByPhone(String.valueOf(mobileNumber));
         if (Objects.nonNull(driver)) {
             tam.setDriver(driver);
             tam.setCprNumber(Long.valueOf(driver.getCprNumber()));

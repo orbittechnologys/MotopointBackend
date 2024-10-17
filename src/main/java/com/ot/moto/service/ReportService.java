@@ -3,7 +3,6 @@ package com.ot.moto.service;
 import com.opencsv.CSVWriter;
 import com.ot.moto.dao.*;
 import com.ot.moto.dto.ResponseStructure;
-import com.ot.moto.dto.request.AddMoneyReq;
 import com.ot.moto.dto.response.DriverAnalysisSum;
 import com.ot.moto.dto.response.UploadPaymentResponse;
 import com.ot.moto.entity.*;
@@ -54,7 +53,7 @@ public class ReportService {
     private SalaryDao salaryDao;
 
     @Autowired
-    private MasterDao masterDao; //sam
+    private MasterDao masterDao;
 
     @Autowired
     private PaymentRepository paymentRepository;
@@ -174,7 +173,7 @@ public class ReportService {
     private String extractPhoneNumber(String description) {
         logger.info("Description being processed: " + description);
 
-        Pattern pattern = Pattern.compile("/PHONE/973(\\d{8})");
+        Pattern pattern = Pattern.compile("/PHONE/(\\d{8})");
         Matcher matcher = pattern.matcher(description);
 
         if (matcher.find()) {
@@ -993,22 +992,5 @@ public class ReportService {
         driver.setTotalOrders(driver.getTotalOrders() + deliveries);
         driver.setCurrentOrders(deliveries);
         return driverDao.createDriver(driver);
-    }
-
-    public ResponseEntity<ResponseStructure<Object>> addMoneyToDriver(AddMoneyReq req){
-        try{
-            Driver driver = driverDao.getById(req.getDriverId());
-            if(Objects.isNull(driver)){
-                logger.error("Did not find driver with id  "+req.getDriverId());
-                return ResponseStructure.errorResponse(null, 404,"Did not find driver with id  "+req.getDriverId());
-            }
-
-            updateDriverPendingAmount(driver, req.getAmount(), req.getMode(), req.getDate(),"MANUAL TXN DONE BY ADMIN FOR AMOUNT "+req.getAmount()+" TO DRIVER "+driver.getUsername());
-
-            return ResponseStructure.successResponse(null,"Amount added successfully");
-        }catch (Exception e){
-            logger.error("Error while adding money  ", e);
-            return ResponseStructure.errorResponse(null, 500, e.getMessage());
-        }
     }
 }

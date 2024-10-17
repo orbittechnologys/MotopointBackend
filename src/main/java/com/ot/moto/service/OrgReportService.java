@@ -997,7 +997,9 @@ public class OrgReportService {
             LocalDateTime startDateTime = startDate.atStartOfDay(); // Start of the day
             LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX); // End of the day
 
-            List<OrgReports> orgReportsList = orgReportsRepository.findByDispatchTimeBetweenAndDriverId(startDateTime, endDateTime, driverId);
+            Driver driver = driverDao.getById(driverId);
+
+            List<OrgReports> orgReportsList = orgReportsRepository.findByDispatchTimeBetweenAndDriverId(startDateTime, endDateTime, driver.getJahezId());
             if (orgReportsList.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
@@ -1082,8 +1084,10 @@ public class OrgReportService {
             // Create PageRequest with sorting
             PageRequest pageRequest = PageRequest.of(page, size, Sort.by(field));
 
+            Driver driver = driverDao.getById(driverId);
+
             // Fetch the reports for the specified driver
-            Page<OrgReports> orgReports = orgReportsRepository.findByDispatchTimeBetweenAndDriverId(startDateTime, endDateTime, driverId, pageRequest);
+            Page<OrgReports> orgReports = orgReportsRepository.findByDispatchTimeBetweenAndDriverId(startDateTime, endDateTime, driver.getJahezId(), pageRequest);
 
             if (orgReports.isEmpty()) {
                 logger.warn("No reports found for driver ID " + driverId + " between the specified dates.");
