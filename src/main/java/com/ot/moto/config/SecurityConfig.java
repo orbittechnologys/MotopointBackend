@@ -274,7 +274,12 @@ public class SecurityConfig {
             "/report/getDriverAnalysisSum",
             "/driver/getAllDriverNames",
             "/report/getOrgReports-BetweenDates",
-            "/report/getOrgReports-ForDriver-BetweenDates"
+            "/report/getOrgReports-ForDriver-BetweenDates",
+            "/order/findTotalOrderOfYesterday",
+            "/order/findTotalOrderOfToday",
+            "/salary/findTotalPayableOfDriver",
+            "/report/getTotalPaymentByDriver",
+            "/tam/getTotalTamByDriver"
     };
 
     private static final String[] ADMIN_WHITELIST = {};

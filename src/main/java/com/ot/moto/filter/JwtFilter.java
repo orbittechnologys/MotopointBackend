@@ -270,7 +270,12 @@ public class JwtFilter extends OncePerRequestFilter {
             "/report/getOrgReports-BetweenDates",
             "/report/getOrgReports-ForDriver-BetweenDates",
             "/report/download-OrgReport-for-driver",
-            "/report/download-OrgReport-date-between-for-particular-driver"
+            "/report/download-OrgReport-date-between-for-particular-driver",
+            "/order/findTotalOrderOfYesterday",
+            "/order/findTotalOrderOfToday",
+            "/salary/findTotalPayableOfDriver",
+            "/report/getTotalPaymentByDriver",
+            "/tam/getTotalTamByDriver"
     );
 
     @Override
