@@ -1,5 +1,6 @@
 package com.ot.moto.dao;
 
+import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Payment;
 import com.ot.moto.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,5 +61,10 @@ public class PaymentDao {
     public Double findTotalBenefitAmount(){
         Double amount = paymentRepository.findTotalAmount();
         return Objects.isNull(amount) ? 0 : amount ;
+    }
+
+    public Payment findByDriverAndDate(Driver driver, LocalDate date){
+        Optional<Payment> paymentOptional = paymentRepository.findByDriverAndDate(driver,date);
+        return paymentOptional.orElse(null);
     }
 }

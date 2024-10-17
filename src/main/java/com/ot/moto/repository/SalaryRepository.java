@@ -44,6 +44,8 @@ public interface SalaryRepository extends JpaRepository<Salary, Long> {
 
     public List<Salary> findByDriverIdAndSalaryCreditDateBetween(Long driverId, LocalDate startDate, LocalDate endDate);
 
+    public List<Salary> findByDriverIdAndStatusAndSalaryCreditDateBetween(Long driverId,String status, LocalDate startDate, LocalDate endDate );
+
     @Query("SELECT SUM(s.payableAmount) FROM Salary s WHERE s.status = 'SETTLED' AND s.salaryCreditDate BETWEEN :startDate AND :endDate")
     public Double getTotalPayableAmountSettledBetweenSalaryCreditDate(LocalDate startDate, LocalDate endDate);
 
@@ -58,5 +60,9 @@ public interface SalaryRepository extends JpaRepository<Salary, Long> {
 
     public List<Salary> findAllByDriverIdAndSalaryCreditDateBetween(Long driverId, LocalDate startDate, LocalDate endDate);
 
+    @Query("SELECT DISTINCT s.driver FROM Salary s WHERE s.salaryCreditDate BETWEEN :startDate AND :endDate AND s.status = 'NOT_SETTLED'")
+    public List<Driver> findUniqueDriversBetweenDatesWithStatusNotSettled(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
 
 }

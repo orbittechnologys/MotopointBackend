@@ -1,5 +1,6 @@
 package com.ot.moto.dao;
 
+import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Tam;
 import com.ot.moto.repository.TamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,5 +37,12 @@ public class TamDao {
     public Double getSumPayInAmountForCurrentMonth(LocalDateTime startDate, LocalDateTime endDate) {
         Double sumMonth = tamRepository.sumPayInAmountForCurrentMonth(startDate, endDate);
         return Objects.isNull(sumMonth) ? 0 : sumMonth ;
+    }
+
+    public  Double getSumByDriverAndDate(Driver driver, LocalDate date){
+        LocalDateTime startOfDay = date.atStartOfDay(); // 00:00:00 of the day
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX); // 23:59:59 of the day
+
+        return tamRepository.getSumOfPayInAmountByDriverAndDate(driver.getId(), startOfDay, endOfDay).orElse(0.0);
     }
 }

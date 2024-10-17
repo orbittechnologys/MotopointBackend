@@ -1,5 +1,6 @@
 package com.ot.moto.repository;
 
+import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Payment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
@@ -56,5 +58,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    public Optional<Payment> findByDriverAndDate(Driver driver, LocalDate date);
 
 }

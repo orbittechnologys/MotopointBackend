@@ -94,6 +94,11 @@ public class OrderDao {
     public List<Orders> findAllAnalysis(LocalDate startDate, LocalDate endDate) {
         return ordersRepository.findAllByDateBetween(startDate, endDate);
     }
+
+    public Orders findByDriverAndDate(Driver driver, LocalDate date){
+        Optional<Orders> ordersOptional = ordersRepository.findByDriverAndDate(driver, date);
+        return  ordersOptional.orElse(null);
+    }
 }
 
   /*public Page<Orders> findAllAnalysis(LocalDate startDate, LocalDate endDate, int offset, int pageSize, String field) {

@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface TamRepository extends JpaRepository<Tam, Long> {
 
@@ -55,4 +56,13 @@ public interface TamRepository extends JpaRepository<Tam, Long> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    @Query("SELECT SUM(t.payInAmount) FROM Tam t WHERE t.driver.id = :driverId " +
+            "AND t.confTrxnDateTime BETWEEN :startOfDay AND :endOfDay")
+    public Optional<Double> getSumOfPayInAmountByDriverAndDate(
+            @Param("driverId") Long driverId,
+            @Param("startOfDay") LocalDateTime startOfDay,
+            @Param("endOfDay") LocalDateTime endOfDay);
+
+
 }

@@ -21,37 +21,39 @@ public class Settlement {
     @JsonManagedReference("settlement")
     private Driver driver;
 
-    private double totalEarnings;
+    private double totalEarnings = 0.0;
 
-    private double totalCod;
+    private double totalCod = 0.0;
 
-    private long totalS1;
+    private long totalS1 = 0;
 
-    private long totalS2;
+    private long totalS2 = 0;
 
-    private long totalS3;
+    private long totalS3 = 0;
 
-    private long totalS4;
+    private long totalS4 = 0;
 
-    private long totalS5;
+    private long totalS5 = 0;
 
-    private long totalOrders;
+    private long totalOrders = 0;
 
-    private double totalCashCollected;
+    private double totalCashCollected = 0.0;
 
-    private double totalBenefit;
+    private double totalBenefit = 0.0;
 
-    private double totalTam;
+    private double totalTam = 0.0;
 
-    private long noOfDaysNotSettled;
+    private long noOfDaysNotSettled = 0;
 
-    private double totalVisaDeductions;
+    private double totalVisaDeductions = 0.0;
 
-    private double totalBikeRentDeductions;
+    private double totalBikeRentDeductions = 0.0;
 
-    private double totalDeductions;
+    private double totalOtherDeductions = 0.0;
 
-    private double settledAmount;
+    private double totalDeductions = 0.0;
+
+    private double settledAmount = 0.0;
 
     @ElementCollection // Stores the list without requiring a separate entity
     private List<OdDeductions> odDeductionsList;
@@ -59,11 +61,11 @@ public class Settlement {
     @Embeddable // No separate table for OdDeductions
     @Data
     public static class OdDeductions {
-        private double deductionsTotal;
+        private double deductionsTotal = 0.0;
 
-        private long noOfDays;
+        private long noOfDays = 0;
 
-        private double deductionsPerDay;
+        private double deductionsPerDay = 0.0;
     }
 
     private LocalDate startDate;
