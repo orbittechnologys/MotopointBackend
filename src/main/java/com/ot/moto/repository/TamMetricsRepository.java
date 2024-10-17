@@ -11,5 +11,4 @@ public interface TamMetricsRepository extends JpaRepository<TamMetrics,Long> {
 
     public Page<TamMetrics> findAllByDateTimeBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-    public Page<TamMetrics> findAllByDateTimeBetween(Pageable pageable);
 }

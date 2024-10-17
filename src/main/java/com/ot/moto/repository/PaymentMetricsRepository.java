@@ -11,5 +11,4 @@ public interface PaymentMetricsRepository extends JpaRepository<PaymentMetrics,L
 
     public Page<PaymentMetrics> findAllByDateTimeBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-    public Page<PaymentMetrics> findAllByDateTimeBetween(Pageable pageable);
 }

@@ -227,6 +227,8 @@ public class JwtFilter extends OncePerRequestFilter {
             "/staff/update",
             "/fleet/count-assigned-four-wheeler",
             "/fleet/count-assigned-two-wheeler",
+            "/report/getAllOrgReports-betweenDates",
+            "/report/getAllOrgReports-forDriver-betweenDates",
 
             "/fleetHistory/getByFleetIdAndDriverId",
             "/fleetHistory/getByDriverId/{driverId}",

@@ -104,6 +104,8 @@ public class SecurityConfig {
             "/tam/download-tam-date-between",
             "/tam/getAllTam-ForDriver-BetweenDates",
             "/tam/getAllTam-BetweenDates",
+            "/report/getAllOrgReports-betweenDates",
+            "/report/getAllOrgReports-forDriver-betweenDates",
 
 
 

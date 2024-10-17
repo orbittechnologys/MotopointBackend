@@ -12,5 +12,4 @@ public interface OrgMetricsRepository extends JpaRepository<OrgMetrics,Long> {
 
     public Page<OrgMetrics> findAllByDateTimeBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-    public Page<OrgMetrics> findAllByDateTimeBetween(Pageable pageable);
 }
