@@ -93,6 +93,12 @@ public class JwtFilter extends OncePerRequestFilter {
             "/metrics/findAllPaymentMetricsByDateTimeBetween",
 
 
+            "/settlement/findAllSettlementByDriverId",
+            "/settlement/findAll",
+            "/settlement/findAllBySettleDateTimeBetween",
+            "/settlement/findAllSettlementByDriverIdDateTimeBetween",
+            "/settlement/getById",
+            "/settlement/save",
 
             "/order/findAllDateBetween",
             "/order/findAllDateBetweenParticularDriver",
