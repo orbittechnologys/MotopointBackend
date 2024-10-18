@@ -11,12 +11,8 @@ public class ResetDriverAmountReq {
 
     private List<Long> deductionIds;
 
-    private Double visaAmount;
+    private Boolean visa;
 
-    private Double visaAmountEmi;
-
-    private Double bikeRentAmount;
-
-    private Double bikeRentAmountEmi;
+    private Boolean bike;
 
 }

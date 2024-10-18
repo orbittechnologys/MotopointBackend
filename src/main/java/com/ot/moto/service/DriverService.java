@@ -1133,22 +1133,22 @@ public class DriverService {
             return ResponseStructure.errorResponse(null, 404, "Invalid ID: " + req.getDriverId());
         }
 
-        if (req.getVisaAmount() != null) {
-            driver.setVisaAmount(req.getVisaAmount());
-        }
-        if (req.getVisaAmountEmi() != null) {
-            driver.setVisaAmountEmi(req.getVisaAmountEmi());
-        }
-
-        if (req.getBikeRentAmount() != null) {
-            driver.setBikeRentAmount(req.getBikeRentAmount());
-        }
-        if (req.getBikeRentAmountEmi() != null) {
-            driver.setBikeRentAmountEmi(req.getBikeRentAmountEmi());
+        // Treat null as false for Visa
+        if (Boolean.TRUE.equals(req.getVisa())) {
+            driver.setVisaAmount(0.0);
+            driver.setVisaAmountEmi(0.0);
         }
 
+        // Treat null as false for Bike
+        if (Boolean.TRUE.equals(req.getBike())) {
+            driver.setBikeRentAmount(0.0);
+            driver.setBikeRentAmountEmi(0.0);
+        }
+
+        // Save updated driver data
         driver = driverDao.createDriver(driver);
 
+        // Process deductions if they exist
         if (req.getDeductionIds() != null && !req.getDeductionIds().isEmpty()) {
             List<OtherDeduction> otherDeductions = driver.getOtherDeductions();
             for (OtherDeduction deduction : otherDeductions) {
