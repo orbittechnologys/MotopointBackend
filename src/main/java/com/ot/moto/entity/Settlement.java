@@ -70,6 +70,8 @@ public class Settlement {
         private long noOfDays = 0;
 
         private double deductionsPerDay = 0.0;
+
+        private String deductionReason;
     }
 
     private LocalDate startDate;

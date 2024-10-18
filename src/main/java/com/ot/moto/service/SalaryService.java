@@ -322,8 +322,16 @@ public class SalaryService {
         List<Settlement> settlementList = new ArrayList<>();
 
         for (Driver driver : driverList) {
-            Settlement settlement = settleSalaryForDriverHelper(driver.getId(), request);
-            settlementList.add(settlement);
+            try{
+                Settlement settlement = settleSalaryForDriverHelper(driver.getId(), request);
+                if (Objects.nonNull(settlement)) {
+                    settlementList.add(settlement);
+                }
+            }catch (Exception e){
+                logger.error("Error settling salaries for driver id :"+driver.getId(), e);
+                return ResponseStructure.errorResponse(null, 500, "Error settling salaries for driver id :"+driver.getId() + e.getMessage());
+            }
+
         }
 
         return ResponseStructure.successResponse(settlementList, "All settled suiiiii");
@@ -345,6 +353,9 @@ public class SalaryService {
         double totalBenefit = 0.0;
         double totalTam = 0.0;
         double totalOD = 0.0;
+        double totalDebit = 0.0;
+        double totalCredit = 0.0;
+        double totalDeductions = 0.0;
 
         Driver driver = driverDao.getById(driverId);
 
@@ -377,11 +388,12 @@ public class SalaryService {
             Orders orders = orderDao.findByDriverAndDate(driver, salary.getSalaryCreditDate());
             if (Objects.nonNull(orders)) {
                 totalCod += orders.getCodAmount();
+                totalCredit += orders.getCredit();
+                totalDebit += orders.getDebit();
             }
 
-            double paymentForTheDay = paymentDao.getSumByDriverAndDate(driver, salary.getSalaryCreditDate());
-            totalBenefit += paymentForTheDay;
-
+            double benefitForTheDay = paymentDao.getSumByDriverAndDate(driver, salary.getSalaryCreditDate());
+            totalBenefit += benefitForTheDay;
 
             double tamForTheDay = tamDao.getSumByDriverAndDate(driver, salary.getSalaryCreditDate());
             totalTam += tamForTheDay;
@@ -405,6 +417,7 @@ public class SalaryService {
                         odDeductions.setDeductionsPerDay(otherDeduction.getOtherDeductionAmountEmi());
                         odDeductions.setNoOfDays(odDeductions.getNoOfDays() + 1);
                         odDeductions.setDeductionsTotal(odDeductions.getDeductionsPerDay() * odDeductions.getNoOfDays());
+                        odDeductions.setDeductionReason(otherDeduction.getOtherDeductionDescription());
                     }
                     if (odDeductions.getDeductionsTotal() > 0) {
                         odMap.put(otherDeduction.getId(), odDeductions);
@@ -428,23 +441,31 @@ public class SalaryService {
                 settlement.getTotalS4() * s4Master.getMotoPaid() +
                 settlement.getTotalS5() * s5Master.getMotoPaid();
 
+
         settlement.setTotalEarnings(totalEarnings);
         settlement.setTotalCod(totalCod);
         settlement.setTotalBenefit(totalBenefit);
         settlement.setTotalTam(totalTam);
         settlement.setTotalOtherDeductions(totalOD);
+        settlement.setTotalDebit(totalDebit);
+        settlement.setTotalCredit(totalCredit);
 
-        List<Settlement.OdDeductions> odDeductions = (List<Settlement.OdDeductions>) odMap.values();
+        List<Settlement.OdDeductions> odDeductions = new ArrayList<>(odMap.values());
         if (odDeductions.size() > 0) {
             settlement.setOdDeductionsList(odDeductions);
         }
 
-        long noOfDaysNotSettled = salaryList.size();
 
+        long noOfDaysNotSettled = salaryList.size();
+        settlement.setNoOfDaysNotSettled(noOfDaysNotSettled);
         settlement.setTotalVisaDeductions(driver.getVisaAmountEmi() * noOfDaysNotSettled);
         settlement.setTotalBikeRentDeductions(driver.getBikeRentAmountEmi() * noOfDaysNotSettled);
+
         salaryDao.saveAll(salaryList);
 
+        totalDeductions = totalOD + settlement.getTotalVisaDeductions() + settlement.getTotalBikeRentDeductions();
+        settlement.setTotalDeductions(totalDeductions);
+        settlement.setSettledAmount(totalEarnings - totalDeductions + totalCredit - totalDebit);
         settlement = settlementRepository.save(settlement);
         return settlement;
     }
@@ -532,6 +553,7 @@ public class SalaryService {
                             odDeductions.setDeductionsPerDay(otherDeduction.getOtherDeductionAmountEmi());
                             odDeductions.setNoOfDays(odDeductions.getNoOfDays() + 1);
                             odDeductions.setDeductionsTotal(odDeductions.getDeductionsPerDay() * odDeductions.getNoOfDays());
+                            odDeductions.setDeductionReason(otherDeduction.getOtherDeductionDescription());
                         }
                         if (odDeductions.getDeductionsTotal() > 0) {
                             odMap.put(otherDeduction.getId(), odDeductions);
