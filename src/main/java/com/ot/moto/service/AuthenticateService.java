@@ -14,7 +14,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
 public class AuthenticateService {
@@ -30,33 +29,38 @@ public class AuthenticateService {
     @Autowired
     private CustomUserDetailsService detailsService;
 
-    public ResponseEntity<ResponseStructure<JwtResponse>> authenticate(@RequestBody JwtRequest jwtRequest)
+    public ResponseEntity<ResponseStructure<JwtResponse>> authenticate(JwtRequest jwtRequest)
             throws Exception {
         CustomUserDetails details;
+        try {
+            // Check if email or phone number is provided and authenticate accordingly
+            String identifier = getIdentifier(jwtRequest);
+            authenticate(identifier, jwtRequest.getPassword());
+            details = (CustomUserDetails) detailsService.loadUserByUsername(identifier);
+
+            return buildResponse(details);
+        } catch (BadCredentialsException e) {
+            logger.error("Authentication failed: {}", e.getMessage());
+            throw new Exception("Invalid credentials", e);
+        }
+    }
+
+    private String getIdentifier(JwtRequest jwtRequest) throws Exception {
         if (jwtRequest.getUserEmail() != null && !jwtRequest.getUserEmail().isEmpty()) {
-            // Authenticate by email
-            try {
-                authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(jwtRequest.getUserEmail(), jwtRequest.getPassword()));
-            } catch (BadCredentialsException e) {
-                logger.error(e.getMessage());
-                throw new Exception("Invalid Email or Password", e);
-            }
-            details = (CustomUserDetails) detailsService.loadUserByUsername(jwtRequest.getUserEmail());
+            return jwtRequest.getUserEmail();
         } else if (jwtRequest.getPhoneNumber() != null && !jwtRequest.getPhoneNumber().isEmpty()) {
-            // Authenticate by phone number
-            try {
-                authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(jwtRequest.getPhoneNumber(), jwtRequest.getPassword()));
-            } catch (BadCredentialsException e) {
-                logger.error(e.getMessage());
-                throw new Exception("Invalid Phone Number or Password", e);
-            }
-            details = (CustomUserDetails) detailsService.loadUserByPhoneNumber(jwtRequest.getPhoneNumber());
+            return jwtRequest.getPhoneNumber();
         } else {
             throw new Exception("Email or Phone number is required for authentication");
         }
+    }
 
+    private void authenticate(String identifier, String password) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(identifier, password));
+    }
+
+    private ResponseEntity<ResponseStructure<JwtResponse>> buildResponse(CustomUserDetails details) {
         User user = details.getUser();
         if (!user.isStatus()) {
             ResponseStructure<JwtResponse> responseStructure = new ResponseStructure<>();
@@ -66,11 +70,10 @@ public class AuthenticateService {
         }
 
         final String jwt = jwtTokenUtil.generateToken(details);
-
         ResponseStructure<JwtResponse> responseStructure = new ResponseStructure<>();
         responseStructure.setStatus(HttpStatus.OK.value());
         responseStructure.setMessage("SUCCESS");
-        responseStructure.setData(new JwtResponse(jwt, details.getUser()));
+        responseStructure.setData(new JwtResponse(jwt, user));
         return ResponseEntity.ok(responseStructure);
     }
 }

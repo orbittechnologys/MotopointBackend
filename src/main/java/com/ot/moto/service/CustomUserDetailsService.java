@@ -2,7 +2,6 @@ package com.ot.moto.service;
 
 import com.ot.moto.entity.User;
 import com.ot.moto.repository.UserRepository;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,19 +17,22 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Optional<User> optional = userRepository.findByEmail(email);
-        if (optional.isEmpty()) {
-            throw new UsernameNotFoundException("Invalid user email: " + email);
-        }
-        return new CustomUserDetails(optional.get());
-    }
+    public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
+        Optional<User> optional;
 
-    public UserDetails loadUserByPhoneNumber(String phoneNumber) throws UsernameNotFoundException {
-        Optional<User> optional = userRepository.findByPhone(phoneNumber);
-        if (optional.isEmpty()) {
-            throw new UsernameNotFoundException("Invalid user phone number: " + phoneNumber);
+        // Try to find the user by email first
+        optional = userRepository.findByEmail(identifier);
+        if (optional.isPresent()) {
+            return new CustomUserDetails(optional.get());
         }
-        return new CustomUserDetails(optional.get());
+
+        // If not found by email, try to find by phone number
+        optional = userRepository.findByPhone(identifier);
+        if (optional.isPresent()) {
+            return new CustomUserDetails(optional.get());
+        }
+
+        // If neither found, throw exception
+        throw new UsernameNotFoundException("Invalid email or phone number: " + identifier);
     }
 }

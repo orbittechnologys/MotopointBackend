@@ -279,7 +279,8 @@ public class SecurityConfig {
             "/order/findTotalOrderOfToday",
             "/salary/findTotalPayableOfDriver",
             "/report/getTotalPaymentByDriver",
-            "/tam/getTotalTamByDriver"
+            "/tam/getTotalTamByDriver",
+            "/driver/addMoney"
     };
 
     private static final String[] ADMIN_WHITELIST = {};

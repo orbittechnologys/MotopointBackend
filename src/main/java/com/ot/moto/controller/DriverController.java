@@ -1,12 +1,14 @@
 package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
+import com.ot.moto.dto.request.AddMoneyReq;
 import com.ot.moto.dto.request.CreateDriverReq;
 import com.ot.moto.dto.request.DriverNamesReq;
 import com.ot.moto.dto.request.UpdateDriverReq;
 import com.ot.moto.dto.response.DriverDetails;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.service.DriverService;
+import com.ot.moto.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -27,6 +29,9 @@ public class DriverController {
 
     @Autowired
     private DriverService driverService;
+
+    @Autowired
+    private ReportService reportService;
 
     @Operation(summary = "Save Driver", description = "Input is Create driver Request, returns Driver Object")
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"),
@@ -207,4 +212,15 @@ public class DriverController {
     public ResponseEntity<ResponseStructure<List<DriverNamesReq>>> getAllDriverNames() {
         return driverService.getAllDriverNames();
     }
+
+    @Operation(summary = "Add Money To Driver", description = "Input is Driver-Id, Mode, Amount And Date Request, returns String message as Amount added successfully")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Amount added successfully"),
+            @ApiResponse(responseCode = "404", description = "Did not find Driver with Id"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })
+    @PostMapping("/addMoney")
+    public ResponseEntity<ResponseStructure<Object>> addMoney(@RequestBody AddMoneyReq req) {
+        return reportService.addMoneyToDriver(req);
+    }
+
 }
