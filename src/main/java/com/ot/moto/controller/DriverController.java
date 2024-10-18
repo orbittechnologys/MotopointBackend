@@ -1,10 +1,7 @@
 package com.ot.moto.controller;
 
 import com.ot.moto.dto.ResponseStructure;
-import com.ot.moto.dto.request.AddMoneyReq;
-import com.ot.moto.dto.request.CreateDriverReq;
-import com.ot.moto.dto.request.DriverNamesReq;
-import com.ot.moto.dto.request.UpdateDriverReq;
+import com.ot.moto.dto.request.*;
 import com.ot.moto.dto.response.DriverDetails;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.service.DriverService;
@@ -221,6 +218,17 @@ public class DriverController {
     @PostMapping("/addMoney")
     public ResponseEntity<ResponseStructure<Object>> addMoney(@RequestBody AddMoneyReq req) {
         return reportService.addMoneyToDriver(req);
+    }
+
+    @Operation(summary = "Reset Driver Amounts", description = "Resets visa and bike rent amounts for a driver, and optionally resets other deductions if IDs are provided.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Amounts updated as per request."),
+            @ApiResponse(responseCode = "404", description = "Did not find Driver with the given ID"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })
+    @PostMapping("/resetAmounts")
+    public ResponseEntity<ResponseStructure<Object>> resetDriverAmounts(@RequestBody ResetDriverAmountReq req) {
+        return driverService.resetDriverAmounts(req);
     }
 
 }

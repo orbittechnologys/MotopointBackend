@@ -250,7 +250,7 @@ public class DriverService {
         LocalDate endDate = request.getVisaAmountEndDate();
         Double visaAmount = request.getVisaAmount();
 
-        if ( visaAmount != null) {
+        if (visaAmount != null) {
             long daysBetween = 30;
             if (daysBetween > 0) {
                 double emi = visaAmount / daysBetween;
@@ -495,59 +495,6 @@ public class DriverService {
 
     }
 
-    /*private void updateOtherDeductionsForDriverV2(Driver driver, UpdateDriverReq request) {
-        if (request.getOtherDeduction() != null) {
-            List<OtherDeduction> existingDeductions = otherDeductionDao.findByDriverId(driver.getId());
-            List<OtherDeduction> deductionsToSave = new ArrayList<>();
-
-            // Create a map for quick lookup of existing deductions
-            Map<Long, OtherDeduction> existingDeductionMap = existingDeductions.stream()
-                    .collect(Collectors.toMap(OtherDeduction::getId, Function.identity()));
-
-            for (UpdateOtherDeductionReq updateDeductionReq : request.getOtherDeduction()) {
-                OtherDeduction otherDeduction;
-
-                // If ID is provided, try to find the existing OtherDeduction
-                if (updateDeductionReq.getId() != null) {
-                    otherDeduction = existingDeductionMap.get(updateDeductionReq.getId());
-                    if (otherDeduction == null) {
-                        // If not found, create a new deduction
-                        otherDeduction = new OtherDeduction();
-                    }
-                } else {
-                    otherDeduction = new OtherDeduction(); // Create a new instance if ID is null
-                }
-
-                // Update otherDeduction properties
-                otherDeduction.setOtherDeductionAmount(updateDeductionReq.getOtherDeductionAmount());
-                otherDeduction.setOtherDeductionDescription(updateDeductionReq.getOtherDeductionDescription());
-                otherDeduction.setOtherDeductionAmountStartDate(updateDeductionReq.getOtherDeductionAmountStartDate());
-                otherDeduction.setOtherDeductionAmountEndDate(updateDeductionReq.getOtherDeductionAmountEndDate());
-                otherDeduction.setDriver(driver); // Set the driver for this deduction
-
-                LocalDate startDate = updateDeductionReq.getOtherDeductionAmountStartDate();
-                LocalDate endDate = updateDeductionReq.getOtherDeductionAmountEndDate();
-                Double otherDeductionAmount = updateDeductionReq.getOtherDeductionAmount();
-
-                // Calculate EMI if start and end dates and amount are provided
-                if (startDate != null && endDate != null && otherDeductionAmount != null) {
-                    long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
-                    if (daysBetween > 0) {
-                        double emi = otherDeductionAmount / daysBetween;
-                        otherDeduction.setOtherDeductionAmountEmi(emi);
-                    } else {
-                        throw new RuntimeException("Start date must be before end date.");
-                    }
-                }
-
-                // Add to the list of deductions to save (whether updated or newly created)
-                deductionsToSave.add(otherDeduction);
-            }
-            // Save or update the deductions to the repository
-            otherDeductionRepository.saveAll(deductionsToSave);
-        }
-    }*/
-
     private void updateOtherDeductionsForDriverV2(Driver driver, UpdateDriverReq request) {
         if (request.getOtherDeduction() != null) {
             List<OtherDeduction> deductions = new ArrayList<>();
@@ -617,7 +564,7 @@ public class DriverService {
             } else {
                 throw new RuntimeException("Visa start date must be before end date.");
             }
-        } else if (request.getVisaAmount() == null ) {
+        } else if (request.getVisaAmount() == null) {
             // If any required field is missing, keep the old EMI value
             driver.setVisaAmountEmi(driver.getVisaAmountEmi());
         }
@@ -637,7 +584,7 @@ public class DriverService {
         LocalDate bikeEndDate = request.getBikeRentAmountEndDate();
         Double bikeAmount = request.getBikeRentAmount();
 
-        if ( bikeAmount != null) {
+        if (bikeAmount != null) {
             long bikeDays = 30;
             if (bikeDays > 0) {
                 double emi = bikeAmount / bikeDays;
@@ -645,7 +592,7 @@ public class DriverService {
             } else {
                 throw new RuntimeException("Bike rent start date must be before end date.");
             }
-        } else if (request.getBikeRentAmount() == null ) {
+        } else if (request.getBikeRentAmount() == null) {
             // If any required field is missing, keep the old EMI value
             driver.setBikeRentAmountEmi(driver.getBikeRentAmountEmi());
         }
@@ -1175,4 +1122,45 @@ public class DriverService {
             return new ResponseEntity<>(responseStructure, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Transactional
+    public ResponseEntity<ResponseStructure<Object>> resetDriverAmounts(ResetDriverAmountReq req) {
+
+        Driver driver = fetchDriver(req.getDriverId());
+
+        if (Objects.isNull(driver)) {
+            logger.warn("No Driver found. Invalid ID:" + req.getDriverId());
+            return ResponseStructure.errorResponse(null, 404, "Invalid ID: " + req.getDriverId());
+        }
+
+        if (req.getVisaAmount() != null) {
+            driver.setVisaAmount(req.getVisaAmount());
+        }
+        if (req.getVisaAmountEmi() != null) {
+            driver.setVisaAmountEmi(req.getVisaAmountEmi());
+        }
+
+        if (req.getBikeRentAmount() != null) {
+            driver.setBikeRentAmount(req.getBikeRentAmount());
+        }
+        if (req.getBikeRentAmountEmi() != null) {
+            driver.setBikeRentAmountEmi(req.getBikeRentAmountEmi());
+        }
+
+        driver = driverDao.createDriver(driver);
+
+        if (req.getDeductionIds() != null && !req.getDeductionIds().isEmpty()) {
+            List<OtherDeduction> otherDeductions = driver.getOtherDeductions();
+            for (OtherDeduction deduction : otherDeductions) {
+                if (req.getDeductionIds().contains(deduction.getId())) {
+                    deduction.setOtherDeductionAmount(0.0);
+                    deduction.setOtherDeductionAmountEmi(0.0);
+                }
+            }
+            otherDeductionDao.saveAll(otherDeductions);
+        }
+
+        return ResponseStructure.successResponse(driver, "Amounts updated as per request.");
+    }
+
 }

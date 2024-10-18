@@ -276,7 +276,8 @@ public class JwtFilter extends OncePerRequestFilter {
             "/salary/findTotalPayableOfDriver",
             "/report/getTotalPaymentByDriver",
             "/tam/getTotalTamByDriver",
-            "/driver/addMoney"
+            "/driver/addMoney",
+            "/driver/resetAmounts"
     );
 
     @Override
