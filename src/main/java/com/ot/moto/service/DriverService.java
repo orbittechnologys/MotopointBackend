@@ -1163,4 +1163,39 @@ public class DriverService {
         return ResponseStructure.successResponse(driver, "Amounts updated as per request.");
     }
 
+    @Transactional
+    public ResponseEntity<ResponseStructure<Object>> updateDriverVisaAmountAndBikeAmount(UpdateVisaBikeAmount request) {
+
+        Driver driver = fetchDriver(request.getId());
+
+        if (Objects.isNull(driver)) {
+            logger.warn("No Driver found. Invalid ID: " + request.getId());
+            return ResponseStructure.errorResponse(null, 404, "Invalid Driver ID: " + request.getId());
+        }
+
+        if (request.getVisaAmount() != null) {
+            driver.setVisaAmount(request.getVisaAmount());
+            long daysBetween = 30;
+            double emi = request.getVisaAmount() / daysBetween;
+            driver.setVisaAmountEmi(emi);
+        }
+
+        if (request.getVisaAmount() == null) {
+            driver.setVisaAmountEmi(driver.getVisaAmountEmi());
+        }
+
+        if (request.getBikeRentAmount() != null) {
+            driver.setBikeRentAmount(request.getBikeRentAmount());
+            long bikeDays = 30;
+            double emi = request.getBikeRentAmount() / bikeDays;
+            driver.setBikeRentAmountEmi(emi);
+        }
+
+        if (request.getBikeRentAmount() == null) {
+            driver.setBikeRentAmountEmi(driver.getBikeRentAmountEmi());
+        }
+
+        driver = driverDao.createDriver(driver);
+        return ResponseStructure.successResponse(driver, "Updated Driver Visa Amount and Bike Rent Amount");
+    }
 }

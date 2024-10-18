@@ -109,7 +109,6 @@ public class SecurityConfig {
             "/tam/getAllTam-BetweenDates",
 
 
-
             "/order/findAllDateBetween",
             "/order/findAllDateBetweenParticularDriver",
 
@@ -281,7 +280,8 @@ public class SecurityConfig {
             "/report/getTotalPaymentByDriver",
             "/tam/getTotalTamByDriver",
             "/driver/addMoney",
-            "/driver/resetAmounts"
+            "/driver/resetAmounts",
+            "/driver/updateVisaAndBikeAmounts"
     };
 
     private static final String[] ADMIN_WHITELIST = {};

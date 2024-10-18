@@ -231,4 +231,15 @@ public class DriverController {
         return driverService.resetDriverAmounts(req);
     }
 
+    @Operation(summary = "Update Driver Visa and Bike Rent Amounts", description = "Updates the Visa and Bike Rent amounts for a driver, and calculates their EMI based on 30 days.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Driver Visa and Bike Rent amounts updated successfully."),
+            @ApiResponse(responseCode = "404", description = "Driver with the given ID was not found."),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })
+    @PostMapping("/updateVisaAndBikeAmounts")
+    public ResponseEntity<ResponseStructure<Object>> updateDriverVisaAndBikeAmounts(@RequestBody UpdateVisaBikeAmount request) {
+        return driverService.updateDriverVisaAmountAndBikeAmount(request);
+    }
+
 }
