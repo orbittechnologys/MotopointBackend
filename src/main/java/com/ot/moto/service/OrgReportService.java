@@ -237,6 +237,7 @@ public class OrgReportService {
             OrgMetrics orgMetrics = new OrgMetrics();
             orgMetrics.setNoOfRowsParsed(noOfRowsParsed);
             orgMetrics.setTotalCod(totalCod);
+            orgMetrics.setTotalOrders(totalOrders);
             orgMetrics.setTotalDrivers((long) uniqueDrivers.size());
             orgMetrics.setTotalCredit(totalCredit);
             orgMetrics.setTotalDebit(totalDebit);

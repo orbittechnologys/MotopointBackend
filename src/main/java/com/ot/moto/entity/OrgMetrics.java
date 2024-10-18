@@ -42,6 +42,8 @@ public class OrgMetrics {
 
     private Double totalEarnings;
 
+    private Long totalOrders;
+
     private Double profit;
 
     private LocalDateTime dateTime;
