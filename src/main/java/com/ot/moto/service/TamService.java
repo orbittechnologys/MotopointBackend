@@ -337,11 +337,13 @@ public class TamService {
                                 .mapToDouble(OtherDeduction::getOtherDeductionAmountEmi)
                                 .sum() : 0.0);*/
 
-        Double penaltyAmount = ((driver.getPenalties() != null && !driver.getPenalties().isEmpty()) ?
+        Double penaltyAmount = (driver.getPenalties() != null && !driver.getPenalties().isEmpty()) ?
                 driver.getPenalties().stream()
+                        .filter(Objects::nonNull)  // Skip null penalties
                         .filter(penalty -> penalty.getStatus() == Penalty.PenaltyStatus.NOT_SETTLED)
-                        .mapToDouble(Penalty::getAmount)
-                        .sum() : 0.0);
+                        .mapToDouble(penalty -> penalty.getAmount() != null ? penalty.getAmount() : 0.0)  // Handle null amount
+                        .sum()
+                : 0.0;
 
         double totalEmi = updateDriverEmiAmounts(driver);
 

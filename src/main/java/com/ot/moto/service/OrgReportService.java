@@ -500,11 +500,13 @@ public class OrgReportService {
             salary.setSalaryCreditDate(orders.getDate());
             Double jahezAmount = s1Master.getJahezPaid() * salary.getNoOfS1() + s2Master.getJahezPaid() * salary.getNoOfS2() + s3Master.getJahezPaid() * salary.getNoOfS3() + s4Master.getJahezPaid() * salary.getNoOfS4() + s5Master.getJahezPaid() * salary.getNoOfS5();
             salary.setProfit(Optional.ofNullable(salary.getProfit()).orElse(0.0) + jahezAmount - salary.getTotalEarnings());
-            Double penaltyAmount = ((driver.getPenalties() != null && !driver.getPenalties().isEmpty()) ?
+            Double penaltyAmount = (driver.getPenalties() != null && !driver.getPenalties().isEmpty()) ?
                     driver.getPenalties().stream()
+                            .filter(Objects::nonNull)  // Skip null penalties
                             .filter(penalty -> penalty.getStatus() == Penalty.PenaltyStatus.NOT_SETTLED)
-                            .mapToDouble(Penalty::getAmount)
-                            .sum() : 0.0);
+                            .mapToDouble(penalty -> penalty.getAmount() != null ? penalty.getAmount() : 0.0)  // Handle null amount
+                            .sum()
+                    : 0.0;
             salary.setFleetPenalty(penaltyAmount);
             if(penaltyAmount > 0){
                 settlePenalties(driver);
