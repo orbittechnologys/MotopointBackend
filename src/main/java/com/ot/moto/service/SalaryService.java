@@ -556,7 +556,7 @@ public class SalaryService {
             settlement.setTotalTam(totalTam);
             settlement.setTotalOtherDeductions(totalOD);
 
-            List<Settlement.OdDeductions> odDeductions = (List<Settlement.OdDeductions>) odMap.values();
+            List<Settlement.OdDeductions> odDeductions =  new ArrayList<>(odMap.values());
             if(odDeductions.size() > 0){
                 settlement.setOdDeductionsList(odDeductions);
             }
