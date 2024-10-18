@@ -104,7 +104,7 @@ public class ReportService {
             int rowStart = 1;
             int rowEnd = sheet.getLastRowNum();
             for (int i = rowStart; i <= rowEnd; i++) {
-                noOfRowsParsed++;
+
                 Row row = sheet.getRow(i);
 
                 if (row == null) {
