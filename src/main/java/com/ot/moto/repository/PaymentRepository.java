@@ -61,4 +61,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     public Optional<Payment> findByDriverAndDate(Driver driver, LocalDate date);
 
+    @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.driver.id = :driverId " +
+            "AND p.date = :date")
+    public Optional<Double> getSumOfAmountByDriverAndDate(
+            @Param("driverId") Long driverId,
+            @Param("date") LocalDate date);
 }
