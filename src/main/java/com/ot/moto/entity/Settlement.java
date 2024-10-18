@@ -55,6 +55,10 @@ public class Settlement {
 
     private double settledAmount = 0.0;
 
+    private double totalCredit = 0.0;
+
+    private double totalDebit = 0.0;
+
     @ElementCollection // Stores the list without requiring a separate entity
     private List<OdDeductions> odDeductionsList;
 

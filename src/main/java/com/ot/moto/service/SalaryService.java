@@ -53,7 +53,7 @@ public class SalaryService {
     private PaymentDao paymentDao;
 
     @Autowired
-    private  TamDao tamDao;
+    private TamDao tamDao;
 
     @Autowired
     private SettlementRepository settlementRepository;
@@ -317,11 +317,11 @@ public class SalaryService {
         LocalDate startDate = request.getStartDate();
         LocalDate endDate = request.getEndDate();
 
-        List<Driver> driverList = salaryRepository.findUniqueDriversBetweenDatesWithStatusNotSettled(startDate,endDate);
+        List<Driver> driverList = salaryRepository.findUniqueDriversBetweenDatesWithStatusNotSettled(startDate, endDate);
 
         List<Settlement> settlementList = new ArrayList<>();
 
-        for(Driver driver : driverList){
+        for (Driver driver : driverList) {
             Settlement settlement = settleSalaryForDriverHelper(driver.getId(), request);
             settlementList.add(settlement);
         }
@@ -329,7 +329,7 @@ public class SalaryService {
         return ResponseStructure.successResponse(settlementList, "All settled suiiiii");
     }
 
-    public Settlement settleSalaryForDriverHelper(Long driverId, SettleSalV2 request){
+    public Settlement settleSalaryForDriverHelper(Long driverId, SettleSalV2 request) {
         LocalDate startDate = request.getStartDate();
         LocalDate endDate = request.getEndDate();
 
@@ -350,7 +350,7 @@ public class SalaryService {
 
         settlement.setDriver(driver);
 
-        List<Salary> salaryList = salaryRepository.findByDriverIdAndStatusAndSalaryCreditDateBetween(driverId,"NOT_SETTLED",startDate,endDate);
+        List<Salary> salaryList = salaryRepository.findByDriverIdAndStatusAndSalaryCreditDateBetween(driverId, "NOT_SETTLED", startDate, endDate);
 
         if (salaryList.isEmpty()) {
             return null;
@@ -373,30 +373,30 @@ public class SalaryService {
                 driver = driverDao.createDriver(driver);  // Save updated driver details
 
             }
-            settlement = incrementSettlement(settlement,salary);
-            Orders orders = orderDao.findByDriverAndDate(driver,salary.getSalaryCreditDate());
-            if(Objects.nonNull(orders)){
-                totalCod +=orders.getCodAmount();
+            settlement = incrementSettlement(settlement, salary);
+            Orders orders = orderDao.findByDriverAndDate(driver, salary.getSalaryCreditDate());
+            if (Objects.nonNull(orders)) {
+                totalCod += orders.getCodAmount();
             }
 
-            double paymentForTheDay = paymentDao.getSumByDriverAndDate(driver,salary.getSalaryCreditDate());
-            totalBenefit+=paymentForTheDay;
+            double paymentForTheDay = paymentDao.getSumByDriverAndDate(driver, salary.getSalaryCreditDate());
+            totalBenefit += paymentForTheDay;
 
 
-            double tamForTheDay = tamDao.getSumByDriverAndDate(driver,salary.getSalaryCreditDate());
-            totalTam+=tamForTheDay;
+            double tamForTheDay = tamDao.getSumByDriverAndDate(driver, salary.getSalaryCreditDate());
+            totalTam += tamForTheDay;
 
             LocalDate salaryCreditDate = salary.getSalaryCreditDate();
 
-            if(otherDeductionList.size() > 0 ){
-                for(OtherDeduction otherDeduction : otherDeductionList){
+            if (otherDeductionList.size() > 0) {
+                for (OtherDeduction otherDeduction : otherDeductionList) {
                     LocalDate deductionStartDate = otherDeduction.getOtherDeductionAmountStartDate();
                     LocalDate deductionEndDate = otherDeduction.getOtherDeductionAmountEndDate();
                     Settlement.OdDeductions odDeductions = null;
-                    if(odMap.containsKey(otherDeduction.getId())){
+                    if (odMap.containsKey(otherDeduction.getId())) {
                         odDeductions = odMap.get(otherDeduction.getId());
-                    }else{
-                        odDeductions  = new Settlement.OdDeductions();
+                    } else {
+                        odDeductions = new Settlement.OdDeductions();
                     }
 
                     if ((salaryCreditDate.isAfter(deductionStartDate) || salaryCreditDate.isEqual(deductionStartDate))
@@ -406,8 +406,8 @@ public class SalaryService {
                         odDeductions.setNoOfDays(odDeductions.getNoOfDays() + 1);
                         odDeductions.setDeductionsTotal(odDeductions.getDeductionsPerDay() * odDeductions.getNoOfDays());
                     }
-                    if(odDeductions.getDeductionsTotal() > 0 ){
-                        odMap.put(otherDeduction.getId(),odDeductions);
+                    if (odDeductions.getDeductionsTotal() > 0) {
+                        odMap.put(otherDeduction.getId(), odDeductions);
                     }
                 }
             }
@@ -426,7 +426,7 @@ public class SalaryService {
                 settlement.getTotalS2() * s2Master.getMotoPaid() +
                 settlement.getTotalS3() * s3Master.getMotoPaid() +
                 settlement.getTotalS4() * s4Master.getMotoPaid() +
-                settlement.getTotalS5() * s5Master.getMotoPaid() ;
+                settlement.getTotalS5() * s5Master.getMotoPaid();
 
         settlement.setTotalEarnings(totalEarnings);
         settlement.setTotalCod(totalCod);
@@ -435,7 +435,7 @@ public class SalaryService {
         settlement.setTotalOtherDeductions(totalOD);
 
         List<Settlement.OdDeductions> odDeductions = (List<Settlement.OdDeductions>) odMap.values();
-        if(odDeductions.size() > 0){
+        if (odDeductions.size() > 0) {
             settlement.setOdDeductionsList(odDeductions);
         }
 
@@ -452,7 +452,7 @@ public class SalaryService {
     @Transactional
     public ResponseEntity<ResponseStructure<Object>> settleSalaryForDriver(Long driverId, SettleSalV2 request) {
 
-        try{
+        try {
             LocalDate startDate = request.getStartDate();
             LocalDate endDate = request.getEndDate();
 
@@ -468,12 +468,15 @@ public class SalaryService {
             double totalBenefit = 0.0;
             double totalTam = 0.0;
             double totalOD = 0.0;
+            double totalDebit = 0.0;
+            double totalCredit = 0.0;
+            double totalDeductions = 0.0;
 
             Driver driver = driverDao.getById(driverId);
 
             settlement.setDriver(driver);
 
-            List<Salary> salaryList = salaryRepository.findByDriverIdAndStatusAndSalaryCreditDateBetween(driverId,"NOT_SETTLED",startDate,endDate);
+            List<Salary> salaryList = salaryRepository.findByDriverIdAndStatusAndSalaryCreditDateBetween(driverId, "NOT_SETTLED", startDate, endDate);
 
             if (salaryList.isEmpty()) {
                 return ResponseStructure.errorResponse(null, 404, "No salaries found for the driver between " + startDate + " and " + endDate);
@@ -496,29 +499,31 @@ public class SalaryService {
                     driver = driverDao.createDriver(driver);  // Save updated driver details
 
                 }
-                settlement = incrementSettlement(settlement,salary);
-                Orders orders = orderDao.findByDriverAndDate(driver,salary.getSalaryCreditDate());
-                if(Objects.nonNull(orders)){
-                    totalCod +=orders.getCodAmount();
+                settlement = incrementSettlement(settlement, salary);
+                Orders orders = orderDao.findByDriverAndDate(driver, salary.getSalaryCreditDate());
+                if (Objects.nonNull(orders)) {
+                    totalCod += orders.getCodAmount();
+                    totalCredit += orders.getCredit();
+                    totalDebit += orders.getDebit();
                 }
 
-                double benefitForTheDay = paymentDao.getSumByDriverAndDate(driver,salary.getSalaryCreditDate());
+                double benefitForTheDay = paymentDao.getSumByDriverAndDate(driver, salary.getSalaryCreditDate());
                 totalBenefit += benefitForTheDay;
 
-                double tamForTheDay = tamDao.getSumByDriverAndDate(driver,salary.getSalaryCreditDate());
-                totalTam+=tamForTheDay;
+                double tamForTheDay = tamDao.getSumByDriverAndDate(driver, salary.getSalaryCreditDate());
+                totalTam += tamForTheDay;
 
                 LocalDate salaryCreditDate = salary.getSalaryCreditDate();
 
-                if(otherDeductionList.size() > 0 ){
-                    for(OtherDeduction otherDeduction : otherDeductionList){
+                if (otherDeductionList.size() > 0) {
+                    for (OtherDeduction otherDeduction : otherDeductionList) {
                         LocalDate deductionStartDate = otherDeduction.getOtherDeductionAmountStartDate();
                         LocalDate deductionEndDate = otherDeduction.getOtherDeductionAmountEndDate();
                         Settlement.OdDeductions odDeductions = null;
-                        if(odMap.containsKey(otherDeduction.getId())){
+                        if (odMap.containsKey(otherDeduction.getId())) {
                             odDeductions = odMap.get(otherDeduction.getId());
-                        }else{
-                            odDeductions  = new Settlement.OdDeductions();
+                        } else {
+                            odDeductions = new Settlement.OdDeductions();
                         }
 
                         if ((salaryCreditDate.isAfter(deductionStartDate) || salaryCreditDate.isEqual(deductionStartDate))
@@ -528,8 +533,8 @@ public class SalaryService {
                             odDeductions.setNoOfDays(odDeductions.getNoOfDays() + 1);
                             odDeductions.setDeductionsTotal(odDeductions.getDeductionsPerDay() * odDeductions.getNoOfDays());
                         }
-                        if(odDeductions.getDeductionsTotal() > 0 ){
-                            odMap.put(otherDeduction.getId(),odDeductions);
+                        if (odDeductions.getDeductionsTotal() > 0) {
+                            odMap.put(otherDeduction.getId(), odDeductions);
                         }
                     }
                 }
@@ -548,35 +553,43 @@ public class SalaryService {
                     settlement.getTotalS2() * s2Master.getMotoPaid() +
                     settlement.getTotalS3() * s3Master.getMotoPaid() +
                     settlement.getTotalS4() * s4Master.getMotoPaid() +
-                    settlement.getTotalS5() * s5Master.getMotoPaid() ;
+                    settlement.getTotalS5() * s5Master.getMotoPaid();
+
 
             settlement.setTotalEarnings(totalEarnings);
             settlement.setTotalCod(totalCod);
             settlement.setTotalBenefit(totalBenefit);
             settlement.setTotalTam(totalTam);
             settlement.setTotalOtherDeductions(totalOD);
+            settlement.setTotalDebit(totalDebit);
+            settlement.setTotalCredit(totalCredit);
 
-            List<Settlement.OdDeductions> odDeductions =  new ArrayList<>(odMap.values());
-            if(odDeductions.size() > 0){
+            List<Settlement.OdDeductions> odDeductions = new ArrayList<>(odMap.values());
+            if (odDeductions.size() > 0) {
                 settlement.setOdDeductionsList(odDeductions);
             }
 
-            long noOfDaysNotSettled = salaryList.size();
 
+            long noOfDaysNotSettled = salaryList.size();
+            settlement.setNoOfDaysNotSettled(noOfDaysNotSettled);
             settlement.setTotalVisaDeductions(driver.getVisaAmountEmi() * noOfDaysNotSettled);
             settlement.setTotalBikeRentDeductions(driver.getBikeRentAmountEmi() * noOfDaysNotSettled);
+
             salaryDao.saveAll(salaryList);
 
+            totalDeductions = totalOD + settlement.getTotalVisaDeductions() + settlement.getTotalBikeRentDeductions();
+            settlement.setTotalDeductions(totalDeductions);
+            settlement.setSettledAmount(totalEarnings - totalDeductions + totalCredit - totalDebit);
             settlement = settlementRepository.save(settlement);
 
             return ResponseStructure.successResponse(settlement, "Salary settled successfully for the driver.");
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("Error settling salaries", e);
             return ResponseStructure.errorResponse(null, 500, "Error settling salaries" + e.getMessage());
         }
     }
 
-    public Settlement incrementSettlement(Settlement settlement, Salary salary){
+    public Settlement incrementSettlement(Settlement settlement, Salary salary) {
 
         settlement.setTotalS1(settlement.getTotalS1() + salary.getNoOfS1());
         settlement.setTotalS2(settlement.getTotalS2() + salary.getNoOfS2());
