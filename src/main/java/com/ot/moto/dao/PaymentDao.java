@@ -67,4 +67,8 @@ public class PaymentDao {
         Optional<Payment> paymentOptional = paymentRepository.findByDriverAndDate(driver,date);
         return paymentOptional.orElse(null);
     }
+
+    public  Double getSumByDriverAndDate(Driver driver, LocalDate date){
+        return paymentRepository.getSumOfAmountByDriverAndDate(driver.getId(), date).orElse(0.0);
+    }
 }
