@@ -108,6 +108,13 @@ public class SecurityConfig {
             "/tam/getAllTam-ForDriver-BetweenDates",
             "/tam/getAllTam-BetweenDates",
 
+            "/settlement/findAllSettlementByDriverId",
+            "/settlement/findAll",
+            "/settlement/findAllBySettleDateTimeBetween",
+            "/settlement/findAllSettlementByDriverIdDateTimeBetween",
+            "/settlement/getById",
+            "/settlement/save",
+
 
 
             "/order/findAllDateBetween",
