@@ -601,7 +601,7 @@ public class SalaryService {
 
             totalDeductions = totalOD + settlement.getTotalVisaDeductions() + settlement.getTotalBikeRentDeductions();
             settlement.setTotalDeductions(totalDeductions);
-            settlement.setSettledAmount(totalEarnings - totalDeductions + totalCredit - totalDebit);
+            settlement.setSettledAmount(totalEarnings - totalDeductions + totalCredit - totalDebit - totalCod + totalTam + totalBenefit);
             settlement = settlementRepository.save(settlement);
 
             return ResponseStructure.successResponse(settlement, "Salary settled successfully for the driver.");
