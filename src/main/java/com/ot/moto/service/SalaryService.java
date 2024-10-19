@@ -847,6 +847,7 @@ public class SalaryService {
                     .map(salary -> {
                         Map<String, Object> salaryDetails = new HashMap<>();
                         salaryDetails.put("date", salary.getSalaryCreditDate());
+                        salaryDetails.put("totalOrders",salary.getTotalOrders());
                         salaryDetails.put("bonus", salary.getBonus());
                         salaryDetails.put("incentives", salary.getIncentives());
                         salaryDetails.put("emiPerDay", salary.getEmiPerDay());
