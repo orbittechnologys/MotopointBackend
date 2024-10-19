@@ -11,6 +11,7 @@ import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/settlement")
+@CrossOrigin(origins = "*")
 public class SettlementController {
 
     @Autowired
