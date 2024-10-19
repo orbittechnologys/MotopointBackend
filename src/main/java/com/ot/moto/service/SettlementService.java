@@ -30,7 +30,7 @@ public class SettlementService {
             Settlement existingSettlement = settlementDao.findById(settlement.getId());
             if (Objects.isNull(existingSettlement)) {
                 settlementDao.save(settlement);
-                return ResponseStructure.successResponse(200, "Settlement saved successfully" + settlement);
+                return ResponseStructure.successResponse(settlement, "Settlement saved successfully");
             }
             return ResponseStructure.errorResponse(null, 404, "Settlement already exists");
         } catch (Exception e) {
@@ -42,7 +42,7 @@ public class SettlementService {
         try {
             Settlement settlement = settlementDao.findById(id);
             if (settlement != null) {
-                return ResponseStructure.successResponse(200, "Settlement found" + settlement);
+                return ResponseStructure.successResponse(settlement, "Settlement found");
             }
             return ResponseStructure.errorResponse(null, 404, "Settlement not found");
         } catch (Exception e) {
@@ -55,7 +55,7 @@ public class SettlementService {
         try {
             Page<Settlement> settlements = settlementDao.findAll(page, size, field);
             if (settlements != null ) {
-                return ResponseStructure.successResponse(200, "Settlements found" + settlements);
+                return ResponseStructure.successResponse(settlements, "Settlements found");
             }
             return ResponseStructure.errorResponse(null, 404, "No settlements found");
         } catch (Exception e) {
@@ -70,7 +70,7 @@ public class SettlementService {
 
             Page<Settlement> settlements = settlementDao.findAllBySettleDateTimeBetween(startDateTime, endDateTime, page, size, field);
             if (settlements != null) {
-                return ResponseStructure.successResponse(200, "Settlements found within the date range" + settlements);
+                return ResponseStructure.successResponse(settlements, "Settlements found within the date range");
             }
             return ResponseStructure.errorResponse(null, 404, "No settlements found within the date range");
         } catch (Exception e) {
@@ -82,7 +82,7 @@ public class SettlementService {
         try {
             Page<Settlement> settlements = settlementDao.findAllSettlementByDriverId(driverId, page, size, field);
             if (settlements != null) {
-                return ResponseStructure.successResponse(200, "Settlements found for the driver" + settlements);
+                return ResponseStructure.successResponse(settlements, "Settlements found for the driver");
             }
             return ResponseStructure.errorResponse(null, 404, "No settlements found for the driver");
         } catch (Exception e) {
@@ -97,7 +97,7 @@ public class SettlementService {
 
             Page<Settlement> settlements = settlementDao.findAllSettlementByDriverIdDateTimeBetween(driverId, startdDateTime, endDateTime, page, size, field);
             if (settlements != null) {
-                return ResponseStructure.successResponse(200, "Settlements found for the driver within the date range" + settlements);
+                return ResponseStructure.successResponse(settlements, "Settlements found for the driver within the date range" );
             }
             return ResponseStructure.errorResponse(null, 404, "No settlements found for the driver within the date range");
         } catch (Exception e) {
