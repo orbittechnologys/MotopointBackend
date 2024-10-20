@@ -506,7 +506,7 @@ public class SalaryService {
             HashMap<Long, Integer> driverCountMap = new HashMap<>();
 
             List<OtherDeduction> otherDeductionList = driver.getOtherDeductions();
-
+            logger.info("Number of other deductions found:" + otherDeductionList.size());
 
             for (Salary salary : salaryList) {
 
@@ -587,6 +587,7 @@ public class SalaryService {
             settlement.setTotalCredit(totalCredit);
 
             List<Settlement.OdDeductions> odDeductions = new ArrayList<>(odMap.values());
+            logger.warn("Size of OD deductions:" + odDeductions.size());
             if (odDeductions.size() > 0) {
                 settlement.setOdDeductionsList(odDeductions);
             }
