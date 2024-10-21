@@ -291,7 +291,8 @@ public class SecurityConfig {
             "/driver/updateVisaAndBikeAmounts",
             "/driver/updateOtherDeduction",
             "/driver/addOtherDeduction",
-            "/driver/findOtherDeductionById"
+            "/driver/findOtherDeductionById",
+            "/driver/driverOrgReports"
     };
 
     private static final String[] ADMIN_WHITELIST = {};

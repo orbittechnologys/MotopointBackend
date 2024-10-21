@@ -287,7 +287,8 @@ public class JwtFilter extends OncePerRequestFilter {
             "/driver/updateVisaAndBikeAmounts",
             "/driver/updateOtherDeduction",
             "/driver/addOtherDeduction",
-            "/driver/findOtherDeductionById"
+            "/driver/findOtherDeductionById",
+            "/driver/driverOrgReports"
     );
 
     @Override
