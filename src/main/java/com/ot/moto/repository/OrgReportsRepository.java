@@ -1,5 +1,6 @@
 package com.ot.moto.repository;
 
+import com.ot.moto.dto.DriverReportDTO;
 import com.ot.moto.entity.OrgReports;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -48,4 +49,23 @@ public interface OrgReportsRepository extends JpaRepository<OrgReports, Long> {
             LocalDateTime endDate,
             Long driverId
     );
+
+    @Query("SELECT new com.ot.moto.dto.DriverReportDTO( "
+            + "o.driverId AS jahezId, "
+            + "SUM(o.amount) AS totalCod, "
+            + "d.address, "
+            + "d.amountPending, "
+            + "d.amountReceived, "
+            + "d.bankAccountName, "
+            + "d.bankAccountNumber, "
+            + "d.nationality, "
+            + "d.salaryAmount, "
+            + "u.username "
+            + ") "
+            + "FROM OrgReports o "
+            + "JOIN Driver d ON o.driverId = d.jahezId "
+            + "JOIN User u ON d.id = u.id "
+            + "GROUP BY o.driverId, d.address, d.amountPending, d.amountReceived, "
+            + "d.bankAccountName, d.bankAccountNumber, d.nationality, d.salaryAmount, u.username")
+    public List<DriverReportDTO> getDriverReports();
 }

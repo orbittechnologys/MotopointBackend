@@ -2,6 +2,7 @@ package com.ot.moto.service;
 
 import com.opencsv.CSVWriter;
 import com.ot.moto.dao.*;
+import com.ot.moto.dto.DriverReportDTO;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.*;
 import com.ot.moto.dto.response.DriverAnalysisSum;
@@ -85,6 +86,9 @@ public class DriverService {
 
     @Autowired
     private FleetHistoryDao fleetHistoryDao;
+
+    @Autowired
+    private OrgReportsRepository orgReportsRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(DriverService.class);
 
@@ -1246,4 +1250,8 @@ public class DriverService {
         return ResponseStructure.successResponse(otherDeduction, "Other Deduction Get By Id");
     }
 
+    public ResponseEntity<ResponseStructure<Object>> getDriverReports() {
+        List<DriverReportDTO> res = orgReportsRepository.getDriverReports();
+        return ResponseStructure.successResponse(res,"Fetched Driver Reports");
+    }
 }

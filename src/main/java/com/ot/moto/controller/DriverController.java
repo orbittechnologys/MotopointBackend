@@ -285,4 +285,13 @@ public class DriverController {
     }
 
 
+    @Operation(summary = "Fetch Driver Reports ", description = "response is sum of all data ")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "sum Found"),
+            @ApiResponse(responseCode = "404", description = "sum Not Found")})
+    @GetMapping("/driverOrgReports")
+    public ResponseEntity<ResponseStructure<Object>> getDriverOrgReports()
+    {
+        return driverService.getDriverReports();
+    }
+
 }
