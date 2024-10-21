@@ -51,8 +51,8 @@ public interface OrgReportsRepository extends JpaRepository<OrgReports, Long> {
     );
 
     @Query("SELECT new com.ot.moto.dto.DriverReportDTO( "
-            + "o.driverId AS jahezId, "
-            + "SUM(o.amount) AS totalCod, "
+            + "o.driverId, "
+            + "SUM(o.amount), "
             + "d.address, "
             + "d.amountPending, "
             + "d.amountReceived, "
