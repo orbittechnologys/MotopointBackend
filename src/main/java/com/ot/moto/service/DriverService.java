@@ -1198,4 +1198,52 @@ public class DriverService {
         driver = driverDao.createDriver(driver);
         return ResponseStructure.successResponse(driver, "Updated Driver Visa Amount and Bike Rent Amount");
     }
+
+    public ResponseEntity<ResponseStructure<Object>> addOtherDeduction(AddOtherDedution request) {
+        Driver driver = fetchDriver(request.getDriverId());
+        if (Objects.isNull(driver)) {
+            logger.warn("No Driver found. Invalid ID: " + request.getDriverId());
+            return ResponseStructure.errorResponse(null, 404, "Invalid Driver ID: " + request.getDriverId());
+        }
+        OtherDeduction otherDeduction = new OtherDeduction();
+        otherDeduction.setOtherDeductionAmount(request.getOtherDeductionAmount());
+        otherDeduction.setOtherDeductionDescription(request.getOtherDeductionDescription());
+        otherDeduction.setOtherDeductionAmountStartDate(request.getOtherDeductionAmountStartDate());
+        otherDeduction.setOtherDeductionAmountEndDate(request.getOtherDeductionAmountEndDate());
+        otherDeduction.setOtherDeductionAmountEmi(request.getOtherDeductionAmountEmi());
+        otherDeduction.setDriver(driver);
+        otherDeduction = otherDeductionRepository.save(otherDeduction);
+        return ResponseStructure.successResponse(otherDeduction, "Other Deduction Added Successfully");
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> updateOtherDeduction(UpdateOtherDedution request) {
+
+        OtherDeduction otherDeduction = otherDeductionDao.findById(request.getId());
+
+        if (Objects.isNull(otherDeduction)) {
+            logger.warn("No Other Deduction found. Invalid ID: " + request.getId());
+            return ResponseStructure.errorResponse(null, 404, "Invalid Other Deduction ID: " + request.getId());
+        }
+
+        otherDeduction.setOtherDeductionAmount(request.getOtherDeductionAmount());
+        otherDeduction.setOtherDeductionDescription(request.getOtherDeductionDescription());
+        otherDeduction.setOtherDeductionAmountStartDate(request.getOtherDeductionAmountStartDate());
+        otherDeduction.setOtherDeductionAmountEndDate(request.getOtherDeductionAmountEndDate());
+        otherDeduction.setOtherDeductionAmountEmi(request.getOtherDeductionAmountEmi());
+        otherDeduction.setDriver(otherDeduction.getDriver());
+        otherDeduction = otherDeductionRepository.save(otherDeduction);
+        return ResponseStructure.successResponse(otherDeduction, "Other Deduction Updated Successfully");
+    }
+
+    public ResponseEntity<ResponseStructure<Object>> findByIdOtherDeduction(Long id) {
+        OtherDeduction otherDeduction = otherDeductionDao.findById(id);
+
+        if (Objects.isNull(otherDeduction)) {
+            logger.warn("No Other Deduction found. Invalid ID: " + id);
+            return ResponseStructure.errorResponse(null, 404, "Invalid Other Deduction ID: " + id);
+        }
+
+        return ResponseStructure.successResponse(otherDeduction, "Other Deduction Get By Id");
+    }
+
 }

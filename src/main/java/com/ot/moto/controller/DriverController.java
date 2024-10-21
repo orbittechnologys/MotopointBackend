@@ -242,4 +242,47 @@ public class DriverController {
         return driverService.updateDriverVisaAmountAndBikeAmount(request);
     }
 
+    @Operation(
+            summary = "Add Other Deduction",
+            description = "Adds a new other deduction for a driver."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Other deduction added successfully."),
+            @ApiResponse(responseCode = "404", description = "Driver with the given ID was not found."),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })
+    @PostMapping("/addOtherDeduction")
+    public ResponseEntity<ResponseStructure<Object>> addOtherDeduction(@RequestBody AddOtherDedution request) {
+        return driverService.addOtherDeduction(request);
+    }
+
+    @Operation(
+            summary = "Update Other Deduction",
+            description = "Updates an existing other deduction for a driver."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Other deduction updated successfully."),
+            @ApiResponse(responseCode = "404", description = "Other deduction with the given ID was not found."),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })
+    @PostMapping("/updateOtherDeduction")
+    public ResponseEntity<ResponseStructure<Object>> updateOtherDeduction(@RequestBody UpdateOtherDedution request) {
+        return driverService.updateOtherDeduction(request);
+    }
+
+    @Operation(
+            summary = "Find Other Deduction by ID",
+            description = "Finds and retrieves an existing other deduction by its ID."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Other deduction found successfully."),
+            @ApiResponse(responseCode = "404", description = "Other deduction with the given ID was not found."),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })
+    @GetMapping("/findOtherDeductionById")
+    public ResponseEntity<ResponseStructure<Object>> findByIdOtherDeduction(@RequestParam Long id) {
+        return driverService.findByIdOtherDeduction(id);
+    }
+
+
 }

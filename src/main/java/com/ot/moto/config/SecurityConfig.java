@@ -288,7 +288,10 @@ public class SecurityConfig {
             "/tam/getTotalTamByDriver",
             "/driver/addMoney",
             "/driver/resetAmounts",
-            "/driver/updateVisaAndBikeAmounts"
+            "/driver/updateVisaAndBikeAmounts",
+            "/driver/updateOtherDeduction",
+            "/driver/addOtherDeduction",
+            "/driver/findOtherDeductionById"
     };
 
     private static final String[] ADMIN_WHITELIST = {};

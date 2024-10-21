@@ -284,7 +284,10 @@ public class JwtFilter extends OncePerRequestFilter {
             "/tam/getTotalTamByDriver",
             "/driver/addMoney",
             "/driver/resetAmounts",
-            "/driver/updateVisaAndBikeAmounts"
+            "/driver/updateVisaAndBikeAmounts",
+            "/driver/updateOtherDeduction",
+            "/driver/addOtherDeduction",
+            "/driver/findOtherDeductionById"
     );
 
     @Override
