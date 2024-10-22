@@ -77,4 +77,8 @@ public class PaymentDao {
         return paymentRepository.getPaymentReportsByDriver(startDate, endDate, driverId);
     }
 
+    public List<PaymentReportDTO> getPaymentReports(LocalDate startDate,LocalDate endDate){
+        return paymentRepository.getPaymentReports(startDate, endDate);
+    }
+
 }

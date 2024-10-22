@@ -1264,8 +1264,39 @@ public class DriverService {
     }
 
     public ResponseEntity<ResponseStructure<Object>> getDriverReports(LocalDate startDate, LocalDate endDate) {
+
+        HashMap<Long,SummaryResponse> driverSummaryMap = new HashMap<>();
+
         List<DriverReportDTO> reportDTOS = orgReportsDao.getDriverReports(startDate,endDate);
-        return ResponseStructure.successResponse(reportDTOS,"Fetched Drivers Org Reports Details");
+
+        List<PaymentReportDTO> paymentReportDTOS = paymentDao.getPaymentReports(startDate, endDate);
+        List<TamReportDTO> tamReportDTOS = tamDao.getTamReports(startDate,endDate);
+
+        for(PaymentReportDTO paymentReportDTO : paymentReportDTOS){
+            SummaryResponse summaryResponse = null;
+            if(driverSummaryMap.containsKey(paymentReportDTO.getDriverId())){
+                summaryResponse = driverSummaryMap.get(paymentReportDTO.getDriverId());
+            }else {
+                summaryResponse = new SummaryResponse();
+            }
+            summaryResponse.setPaymentReport(paymentReportDTO);
+
+            driverSummaryMap.put(paymentReportDTO.getDriverId(),summaryResponse);
+        }
+
+        for(TamReportDTO tamReportDTO : tamReportDTOS){
+            SummaryResponse summaryResponse = null;
+            if(driverSummaryMap.containsKey(tamReportDTO.getDriverId())){
+                summaryResponse = driverSummaryMap.get(tamReportDTO.getDriverId());
+            }else {
+                summaryResponse = new SummaryResponse();
+            }
+            summaryResponse.setTamReport(tamReportDTO);
+
+            driverSummaryMap.put(tamReportDTO.getDriverId(),summaryResponse);
+        }
+
+        return ResponseStructure.successResponse(driverSummaryMap,"Fetched Drivers Org Reports Details");
     }
 
     public ResponseEntity<ResponseStructure<Object>> getDriverReportsByDriver(LocalDate startDate, LocalDate endDate, Long driverId){

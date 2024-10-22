@@ -53,4 +53,11 @@ public class TamDao {
 
         return tamRepository.getTamReportsForDriver(startDateTime,endDateTime,driverId);
     }
+
+    public List<TamReportDTO> getTamReports(LocalDate startDate, LocalDate endDate){
+        LocalDateTime startDateTime = startDate.atStartOfDay(); // 00:00:00 of the day
+        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+
+        return tamRepository.getTamReports(startDateTime,endDateTime);
+    }
 }
