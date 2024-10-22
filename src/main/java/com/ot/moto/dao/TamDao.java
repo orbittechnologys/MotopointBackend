@@ -1,5 +1,6 @@
 package com.ot.moto.dao;
 
+import com.ot.moto.dto.TamReportDTO;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Tam;
 import com.ot.moto.repository.TamRepository;
@@ -44,5 +45,12 @@ public class TamDao {
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX); // 23:59:59 of the day
 
         return tamRepository.getSumOfPayInAmountByDriverAndDate(driver.getId(), startOfDay, endOfDay).orElse(0.0);
+    }
+
+    public TamReportDTO getTamReportsByDriver(Long driverId, LocalDate startDate, LocalDate endDate){
+        LocalDateTime startDateTime = startDate.atStartOfDay(); // 00:00:00 of the day
+        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+
+        return tamRepository.getTamReportsForDriver(startDateTime,endDateTime,driverId);
     }
 }

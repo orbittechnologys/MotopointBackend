@@ -3,10 +3,13 @@ package com.ot.moto.service;
 import com.opencsv.CSVWriter;
 import com.ot.moto.dao.*;
 import com.ot.moto.dto.DriverReportDTO;
+import com.ot.moto.dto.PaymentReportDTO;
 import com.ot.moto.dto.ResponseStructure;
+import com.ot.moto.dto.TamReportDTO;
 import com.ot.moto.dto.request.*;
 import com.ot.moto.dto.response.DriverAnalysisSum;
 import com.ot.moto.dto.response.DriverDetails;
+import com.ot.moto.dto.response.SummaryResponse;
 import com.ot.moto.dto.response.TopDrivers;
 import com.ot.moto.entity.*;
 import com.ot.moto.repository.*;
@@ -93,6 +96,12 @@ public class DriverService {
 
     @Autowired
     private OrgReportsDao orgReportsDao;
+
+    @Autowired
+    private TamDao tamDao;
+
+    @Autowired
+    private PaymentDao paymentDao;
 
     private static final Logger logger = LoggerFactory.getLogger(DriverService.class);
 
@@ -1260,7 +1269,27 @@ public class DriverService {
     }
 
     public ResponseEntity<ResponseStructure<Object>> getDriverReportsByDriver(LocalDate startDate, LocalDate endDate, Long driverId){
-        DriverReportDTO reportDTO = orgReportsDao.getDriverReportsByDriver(driverId, startDate, endDate);
-        return ResponseStructure.successResponse(reportDTO,"Fetched Driver Reports for Driver "+driverId);
+
+        try{
+            Driver driver = driverDao.getById(driverId);
+
+            SummaryResponse response = fetchReportsForDriver(startDate,endDate,driver);
+
+            return ResponseStructure.successResponse(response,"Fetched Driver Reports for Driver "+driverId);
+
+        }catch (Exception e){
+            return ResponseStructure.errorResponse(null,500,"Error while fetching reports for driver:"+driverId);
+        }
+    }
+
+
+    public SummaryResponse fetchReportsForDriver(LocalDate startDate, LocalDate endDate, Driver driver) {
+
+        DriverReportDTO reportDTO = orgReportsDao.getDriverReportsByDriver(driver.getId(), startDate, endDate);
+        TamReportDTO tamReportDTO = tamDao.getTamReportsByDriver(driver.getId(),startDate,endDate);
+        PaymentReportDTO paymentReportDTO = paymentDao.getPaymentReportsByDriver(driver.getId(),startDate,endDate);
+
+        return new SummaryResponse(driver,reportDTO,tamReportDTO,paymentReportDTO);
+
     }
 }

@@ -1,5 +1,6 @@
 package com.ot.moto.dao;
 
+import com.ot.moto.dto.PaymentReportDTO;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Payment;
 import com.ot.moto.repository.PaymentRepository;
@@ -71,4 +72,9 @@ public class PaymentDao {
     public  Double getSumByDriverAndDate(Driver driver, LocalDate date){
         return paymentRepository.getSumOfAmountByDriverAndDate(driver.getId(), date).orElse(0.0);
     }
+
+    public PaymentReportDTO getPaymentReportsByDriver(Long driverId, LocalDate startDate, LocalDate endDate){
+        return paymentRepository.getPaymentReportsByDriver(startDate, endDate, driverId);
+    }
+
 }

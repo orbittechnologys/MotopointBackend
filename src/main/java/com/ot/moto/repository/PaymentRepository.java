@@ -1,5 +1,7 @@
 package com.ot.moto.repository;
 
+import com.ot.moto.dto.PaymentReportDTO;
+import com.ot.moto.dto.TamReportDTO;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Payment;
 import org.springframework.data.domain.Page;
@@ -66,4 +68,35 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     public Optional<Double> getSumOfAmountByDriverAndDate(
             @Param("driverId") Long driverId,
             @Param("date") LocalDate date);
+
+
+    @Query("SELECT new com.ot.moto.dto.PaymentReportDTO( "
+            + "u.username, "
+            + "SUM(p.amount), "
+            + "p.driverId "
+            + ") "
+            + "FROM Payment p "
+            + "JOIN Driver d ON p.driverId = d.id "
+            + "JOIN User u ON d.id = u.id "
+            + "WHERE p.date BETWEEN :startDate AND :endDate"
+            + "GROUP BY p.driverId, u.username")
+    public List<PaymentReportDTO> getPaymentReports(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+
+
+    @Query("SELECT new com.ot.moto.dto.PaymentReportDTO( "
+            + "u.username, "
+            + "SUM(p.amount), "
+            + "p.driverId "
+            + ") "
+            + "FROM Payment p "
+            + "JOIN Driver d ON p.driverId = d.id "
+            + "JOIN User u ON d.id = u.id "
+            + "WHERE p.date BETWEEN :startDate AND :endDate AND p.driverId= :driverId"
+            + "GROUP BY p.driverId, u.username")
+    public PaymentReportDTO getPaymentReportsByDriver(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("driverId") Long driverId);
 }
