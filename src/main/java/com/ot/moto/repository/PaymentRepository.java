@@ -78,7 +78,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             + "FROM Payment p "
             + "JOIN Driver d ON p.driverId = d.id "
             + "JOIN User u ON d.id = u.id "
-            + "WHERE p.date BETWEEN :startDate AND :endDate"
+            + "WHERE p.date BETWEEN :startDate AND :endDate "
             + "GROUP BY p.driverId, u.username")
     public List<PaymentReportDTO> getPaymentReports(
             @Param("startDate") LocalDate startDate,
@@ -93,7 +93,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             + "FROM Payment p "
             + "JOIN Driver d ON p.driverId = d.id "
             + "JOIN User u ON d.id = u.id "
-            + "WHERE p.date BETWEEN :startDate AND :endDate AND p.driverId= :driverId"
+            + "WHERE p.date BETWEEN :startDate AND :endDate AND p.driverId= :driverId "
             + "GROUP BY p.driverId, u.username")
     public PaymentReportDTO getPaymentReportsByDriver(
             @Param("startDate") LocalDate startDate,
