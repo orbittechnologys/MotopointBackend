@@ -136,6 +136,12 @@ public class ReportService {
 
                 Driver driver = driverDao.findByPhoneNumber(phoneNumber);
 
+                // Check if the driver's status is false, if so skip processing the report
+                if (driver != null && !driver.isStatus()) {
+                    logger.warn("Driver with has status 'false', skipping...");
+                    continue;
+                }
+
                 if (Objects.nonNull(driver)) {
 
                     if (!uniqueDrivers.contains(driver.getId())) {

@@ -126,6 +126,12 @@ public class OrgReportService {
                 Long jahezId = orgReport.getDriverId();
                 Driver driver = driverDao.findByJahezId(jahezId);
 
+                // Check if the driver's status is false, if so skip processing the report
+                if (driver != null && !driver.isStatus()) {
+                    logger.warn("Driver with jahezId {} has status 'false', skipping...", jahezId);
+                    continue;
+                }
+
                 if (driver != null) {
                     if(!uniqueDrivers.contains(driver.getId())){
                         uniqueDrivers.add(driver.getId());

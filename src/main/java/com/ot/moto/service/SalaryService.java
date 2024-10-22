@@ -322,14 +322,14 @@ public class SalaryService {
         List<Settlement> settlementList = new ArrayList<>();
 
         for (Driver driver : driverList) {
-            try{
+            try {
                 Settlement settlement = settleSalaryForDriverHelper(driver.getId(), request);
                 if (Objects.nonNull(settlement)) {
                     settlementList.add(settlement);
                 }
-            }catch (Exception e){
-                logger.error("Error settling salaries for driver id :"+driver.getId(), e);
-                return ResponseStructure.errorResponse(null, 500, "Error settling salaries for driver id :"+driver.getId() + e.getMessage());
+            } catch (Exception e) {
+                logger.error("Error settling salaries for driver id :" + driver.getId(), e);
+                return ResponseStructure.errorResponse(null, 500, "Error settling salaries for driver id :" + driver.getId() + e.getMessage());
             }
 
         }
@@ -380,7 +380,6 @@ public class SalaryService {
                 salary.setPayableAmount(salary.getPayableAmount() + request.getBonus() + request.getIncentive());
 
                 driver.setBonus(Optional.ofNullable(driver.getBonus()).orElse(0.0) + request.getBonus());
-                //            driver.setAmountPending(0.0);  // Assuming we set amount pending to zero after settlement
                 driver = driverDao.createDriver(driver);  // Save updated driver details
 
             }
@@ -467,6 +466,11 @@ public class SalaryService {
         settlement.setTotalDeductions(totalDeductions);
         settlement.setSettledAmount(totalEarnings - totalDeductions + totalCredit - totalDebit);
         settlement = settlementRepository.save(settlement);
+
+        double balancePending = totalCod - totalTam - totalBenefit;
+
+        driver.setAmountPending(balancePending < 0 ? driver.getAmountPending() : driver.getAmountPending() - (totalCod - totalTam - totalBenefit));
+        driverDao.createDriver(driver);
         return settlement;
     }
 
@@ -516,9 +520,7 @@ public class SalaryService {
                     salary.setPayableAmount(salary.getPayableAmount() + request.getBonus() + request.getIncentive());
 
                     driver.setBonus(Optional.ofNullable(driver.getBonus()).orElse(0.0) + request.getBonus());
-                    //            driver.setAmountPending(0.0);  // Assuming we set amount pending to zero after settlement
                     driver = driverDao.createDriver(driver);  // Save updated driver details
-
                 }
                 settlement = incrementSettlement(settlement, salary);
                 Orders orders = orderDao.findByDriverAndDate(driver, salary.getSalaryCreditDate());
@@ -604,6 +606,11 @@ public class SalaryService {
             settlement.setTotalDeductions(totalDeductions);
             settlement.setSettledAmount(totalEarnings - totalDeductions + totalCredit - totalDebit - totalCod + totalTam + totalBenefit);
             settlement = settlementRepository.save(settlement);
+
+            double balancePending = totalCod - totalTam - totalBenefit;
+
+            driver.setAmountPending(balancePending < 0 ? driver.getAmountPending() : driver.getAmountPending() - (totalCod - totalTam - totalBenefit));
+            driverDao.createDriver(driver);
 
             return ResponseStructure.successResponse(settlement, "Salary settled successfully for the driver.");
         } catch (Exception e) {
@@ -848,7 +855,7 @@ public class SalaryService {
                     .map(salary -> {
                         Map<String, Object> salaryDetails = new HashMap<>();
                         salaryDetails.put("date", salary.getSalaryCreditDate());
-                        salaryDetails.put("totalOrders",salary.getTotalOrders());
+                        salaryDetails.put("totalOrders", salary.getTotalOrders());
                         salaryDetails.put("bonus", salary.getBonus());
                         salaryDetails.put("incentives", salary.getIncentives());
                         salaryDetails.put("emiPerDay", salary.getEmiPerDay());

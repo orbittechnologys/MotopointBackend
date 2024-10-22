@@ -94,19 +94,24 @@ public class TamService {
                         logger.info("Duplicate entry for Key Session Id: " + tam.getKeySessionId() + " at datetime: " + tam.getDateTime());
                         continue;
                     }
-
                     logger.info("Saving Tam record: " + tam.getDriverName() + " at time: " + tam.getDateTime());
-                    deductAmountPending(tam.getMobileNumber(), tam.getPayInAmount());
                     tamList.add(tam);
                     amountReceived += tam.getPayInAmount();
 
                     Driver driver = driverRepository.findByPhone(String.valueOf(tam.getMobileNumber()));
+
+                    // Check if the driver's status is false, if so skip processing the report
+                    if (driver != null && !driver.isStatus()) {
+                        logger.warn("Driver with jahezId {} has status 'false', skipping...");
+                        continue;
+                    }
 
                     if (driver != null) {
                         if (!uniqueDrivers.contains(driver.getId())) {
                             uniqueDrivers.add(driver.getId());
                         }
                     }
+                    deductAmountPending(tam.getMobileNumber(), tam.getPayInAmount());
                     updateSalary(driver, tam.getConfTrxnDateTime().toLocalDate(), tam.getPayInAmount());
                     noOfRowsParsed++;
 
@@ -393,19 +398,19 @@ public class TamService {
 
     public double updateDriverEmiAmounts(Driver driver) {
         double totalEmi = 0.0;
-        if(driver.getVisaAmountEmi() != null){
+        if (driver.getVisaAmountEmi() != null) {
             driver.setVisaAmountReceived(driver.getVisaAmountReceived() + driver.getVisaAmountEmi());
             totalEmi += driver.getVisaAmountEmi();
         }
 
-        if(driver.getBikeRentAmountEmi() != null){
+        if (driver.getBikeRentAmountEmi() != null) {
             driver.setBikeRentAmountReceived(driver.getBikeRentAmountReceived() + driver.getBikeRentAmountEmi());
             totalEmi += driver.getBikeRentAmountEmi();
         }
 
         List<OtherDeduction> otherDeductionList = driver.getOtherDeductions();
-        for(OtherDeduction otherDeduction : otherDeductionList){
-            if(otherDeduction.getOtherDeductionReceived() < otherDeduction.getOtherDeductionAmount()){
+        for (OtherDeduction otherDeduction : otherDeductionList) {
+            if (otherDeduction.getOtherDeductionReceived() < otherDeduction.getOtherDeductionAmount()) {
                 otherDeduction.setOtherDeductionReceived(otherDeduction.getOtherDeductionReceived() + otherDeduction.getOtherDeductionAmountEmi());
                 totalEmi += otherDeduction.getOtherDeductionAmountEmi();
             }
