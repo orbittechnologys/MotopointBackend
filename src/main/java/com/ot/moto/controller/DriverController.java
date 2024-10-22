@@ -298,7 +298,7 @@ public class DriverController {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "sum Found"),
             @ApiResponse(responseCode = "404", description = "sum Not Found")})
     @GetMapping("/driverOrgReportsByDriver")
-    public ResponseEntity<ResponseStructure<Object>> getDriverOrgReportsByDriver(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate, @RequestParam String driverId) {
+    public ResponseEntity<ResponseStructure<Object>> getDriverOrgReportsByDriver(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate, @RequestParam Long driverId) {
         return driverService.getDriverReportsByDriver(startDate,endDate,driverId);
     }
 

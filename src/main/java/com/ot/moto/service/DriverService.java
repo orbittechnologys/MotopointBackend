@@ -1259,7 +1259,7 @@ public class DriverService {
         return ResponseStructure.successResponse(reportDTOS,"Fetched Drivers Org Reports Details");
     }
 
-    public ResponseEntity<ResponseStructure<Object>> getDriverReportsByDriver(LocalDate startDate, LocalDate endDate, String driverId){
+    public ResponseEntity<ResponseStructure<Object>> getDriverReportsByDriver(LocalDate startDate, LocalDate endDate, Long driverId){
         DriverReportDTO reportDTO = orgReportsDao.getDriverReportsByDriver(driverId, startDate, endDate);
         return ResponseStructure.successResponse(reportDTO,"Fetched Driver Reports for Driver "+driverId);
     }

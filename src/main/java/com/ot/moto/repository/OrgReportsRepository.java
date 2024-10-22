@@ -78,6 +78,6 @@ public interface OrgReportsRepository extends JpaRepository<OrgReports, Long> {
     public DriverReportDTO getDriverReportsForDriver(
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("endDateTime") LocalDateTime endDateTime,
-            @Param("driverId") String driverId);
+            @Param("driverId") Long driverId);
 
 }
