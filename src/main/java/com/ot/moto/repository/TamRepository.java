@@ -1,6 +1,7 @@
 package com.ot.moto.repository;
 
 import com.ot.moto.dto.DriverReportDTO;
+import com.ot.moto.dto.PaymentReportDTO;
 import com.ot.moto.dto.TamReportDTO;
 import com.ot.moto.entity.Driver;
 import com.ot.moto.entity.Tam;
@@ -70,13 +71,13 @@ public interface TamRepository extends JpaRepository<Tam, Long> {
     @Query("SELECT new com.ot.moto.dto.TamReportDTO( "
             + "u.username, "
             + "SUM(t.payInAmount), "
-            + "t.driverId "
+            + "d.id "  // Accessing driverId through the Driver entity
             + ") "
             + "FROM Tam t "
-            + "JOIN Driver d ON t.driverId = d.id "
+            + "JOIN t.driver d "  // Use p.driver instead of p.driverId
             + "JOIN User u ON d.id = u.id "
-            + "WHERE t.confTrxnDateTime BETWEEN :startDateTime AND :endDateTime"
-            + "GROUP BY t.driverId, u.username")
+            + "WHERE t.confTrxnDateTime BETWEEN :startDateTime AND :endDateTime "
+            + "GROUP BY d.id, u.username")
     public List<TamReportDTO> getTamReports(
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("endDateTime") LocalDateTime endDateTime);
@@ -85,16 +86,17 @@ public interface TamRepository extends JpaRepository<Tam, Long> {
     @Query("SELECT new com.ot.moto.dto.TamReportDTO( "
             + "u.username, "
             + "SUM(t.payInAmount), "
-            + "t.driverId "
+            + "d.id "  // Accessing driverId through the Driver entity
             + ") "
             + "FROM Tam t "
-            + "JOIN Driver d ON t.driverId = d.id "
+            + "JOIN t.driver d "  // Use p.driver instead of p.driverId
             + "JOIN User u ON d.id = u.id "
-            + "WHERE t.confTrxnDateTime BETWEEN :startDateTime AND :endDateTime AND t.driverId= :driverId"
-            + "GROUP BY t.driverId, u.username")
+            + "WHERE t.confTrxnDateTime BETWEEN :startDateTime AND :endDateTime AND d.id = :driverId "
+            + "GROUP BY d.id, u.username")
     public TamReportDTO getTamReportsForDriver(
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("endDateTime") LocalDateTime endDateTime,
             @Param("driverId") Long driverId);
+
 
 }
