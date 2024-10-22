@@ -713,7 +713,7 @@ public class DriverService {
             CSVWriter csvWriter = new CSVWriter(writer);
 
             String[] header = {
-                    "Driver ID", "Amount Pending", "Amount Received", "Total Orders", "Current Orders", "Jahez ID",
+                    "Driver ID", "Driver Name","Amount Pending", "Amount Received", "Total Orders", "Current Orders", "Jahez ID",
                     "Visa Expiry Date", "Salary Amount", "Address", "Reference Location", "Nationality", "Passport Number",
                     "CPR Number", "Vehicle Type", "DL Type", "DL Expiry Date", "DL Front Photo URL", "DL Back Photo URL",
                     "RC Front Photo URL", "RC Back Photo URL", "Bank Account Name", "Bank Name", "Bank Account Number",
@@ -770,6 +770,7 @@ public class DriverService {
 
                 String[] data = {
                         String.valueOf(driver.getId()),
+                        String.valueOf(driver.getUsername()),
                         String.valueOf(driver.getAmountPending()),
                         String.valueOf(driver.getAmountReceived()),
                         String.valueOf(driver.getTotalOrders()),
