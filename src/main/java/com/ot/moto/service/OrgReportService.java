@@ -1043,7 +1043,14 @@ public class OrgReportService {
             LocalDateTime startDateTime = startDate.atStartOfDay(); // Start of the day
             LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX); // End of the day
 
-            List<OrgReports> orgReportsList = orgReportsRepository.findByDispatchTimeBetweenAndDriverId(startDateTime, endDateTime, driverId);
+            Driver driver = driverDao.getById(driverId);
+
+            if (Objects.isNull(driver)) {
+                logger.warn("Could not find driver by Id {}", driverId);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+
+            List<OrgReports> orgReportsList = orgReportsRepository.findByDispatchTimeBetweenAndDriverId(startDateTime, endDateTime, driver.getJahezId());
             if (orgReportsList.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }

@@ -2,6 +2,7 @@
 
     <!-- Console Appender for logging to the console -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <file>/home/MotopointBackend/src/main/resources/logs/app.log</file>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss} - %msg%n</pattern>
         </encoder>
