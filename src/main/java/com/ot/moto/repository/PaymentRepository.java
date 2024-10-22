@@ -73,28 +73,29 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("SELECT new com.ot.moto.dto.PaymentReportDTO( "
             + "u.username, "
             + "SUM(p.amount), "
-            + "p.driverId "
+            + "d.id "  // Accessing driverId through the Driver entity
             + ") "
             + "FROM Payment p "
-            + "JOIN Driver d ON p.driverId = d.id "
+            + "JOIN p.driver d "  // Use p.driver instead of p.driverId
             + "JOIN User u ON d.id = u.id "
             + "WHERE p.date BETWEEN :startDate AND :endDate "
-            + "GROUP BY p.driverId, u.username")
+            + "GROUP BY d.id, u.username")
     public List<PaymentReportDTO> getPaymentReports(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate);
 
 
+
     @Query("SELECT new com.ot.moto.dto.PaymentReportDTO( "
             + "u.username, "
             + "SUM(p.amount), "
-            + "p.driverId "
+            + "d.id "  // Accessing driverId through the Driver entity
             + ") "
             + "FROM Payment p "
-            + "JOIN Driver d ON p.driverId = d.id "
+            + "JOIN p.driver d "  // Use p.driver instead of p.driverId
             + "JOIN User u ON d.id = u.id "
-            + "WHERE p.date BETWEEN :startDate AND :endDate AND p.driverId= :driverId "
-            + "GROUP BY p.driverId, u.username")
+            + "WHERE p.date BETWEEN :startDate AND :endDate AND d.id = :driverId "
+            + "GROUP BY d.id, u.username")
     public PaymentReportDTO getPaymentReportsByDriver(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
