@@ -53,13 +53,14 @@ public interface OrgReportsRepository extends JpaRepository<OrgReports, Long> {
     @Query("SELECT new com.ot.moto.dto.DriverReportDTO( "
             + "o.driverId, "
             + "SUM(o.amount), "
-            + "u.username "
+            + "u.username, "
+            + "d.id "
             + ") "
             + "FROM OrgReports o "
             + "JOIN Driver d ON o.driverId = d.jahezId "
             + "JOIN User u ON d.id = u.id "
             + "WHERE o.dispatchTime BETWEEN :startDateTime AND :endDateTime "
-            + "GROUP BY o.driverId, u.username")
+            + "GROUP BY o.driverId, u.username, d.id")
     public List<DriverReportDTO> getDriverReports(
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("endDateTime") LocalDateTime endDateTime);
@@ -68,13 +69,14 @@ public interface OrgReportsRepository extends JpaRepository<OrgReports, Long> {
     @Query("SELECT new com.ot.moto.dto.DriverReportDTO( "
             + "o.driverId, "
             + "SUM(o.amount), "
-            + "u.username "
+            + "u.username, "
+            + "d.id "
             + ") "
             + "FROM OrgReports o "
             + "JOIN Driver d ON o.driverId = d.jahezId "
             + "JOIN User u ON d.id = u.id "
-            + "WHERE o.dispatchTime BETWEEN :startDateTime AND :endDateTime AND d.id= :driverId "
-            + "GROUP BY o.driverId, u.username")
+            + "WHERE o.dispatchTime BETWEEN :startDateTime AND :endDateTime AND d.id = :driverId "
+            + "GROUP BY o.driverId, u.username, d.id")
     public DriverReportDTO getDriverReportsForDriver(
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("endDateTime") LocalDateTime endDateTime,

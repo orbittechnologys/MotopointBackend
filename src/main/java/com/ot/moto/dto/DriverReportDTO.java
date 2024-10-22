@@ -9,4 +9,5 @@ public class DriverReportDTO {
     private Long jahezId;
     private Double totalCod;
     private String username;
+    private Long driverId;
 }
