@@ -58,7 +58,10 @@ public interface OrgReportsRepository extends JpaRepository<OrgReports, Long> {
             + "FROM OrgReports o "
             + "JOIN Driver d ON o.driverId = d.jahezId "
             + "JOIN User u ON d.id = u.id "
-            + "GROUP BY o.driverId "
-            + ", u.username")
-    public List<DriverReportDTO> getDriverReports();
+            + "WHERE o.dispatchTime BETWEEN :startDateTime AND :endDateTime "
+            + "GROUP BY o.driverId, u.username")
+    public List<DriverReportDTO> getDriverReports(
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime);
+
 }

@@ -28,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
@@ -89,6 +90,9 @@ public class DriverService {
 
     @Autowired
     private OrgReportsRepository orgReportsRepository;
+
+    @Autowired
+    private OrgReportsDao orgReportsDao;
 
     private static final Logger logger = LoggerFactory.getLogger(DriverService.class);
 
@@ -1250,8 +1254,8 @@ public class DriverService {
         return ResponseStructure.successResponse(otherDeduction, "Other Deduction Get By Id");
     }
 
-    public ResponseEntity<ResponseStructure<Object>> getDriverReports() {
-        List<DriverReportDTO> res = orgReportsRepository.getDriverReports();
-        return ResponseStructure.successResponse(res,"Fetched Driver Reports");
+    public ResponseEntity<ResponseStructure<Object>> getDriverReports(LocalDate startDate, LocalDate endDate) {
+        List<DriverReportDTO> reportDTOS = orgReportsDao.getDriverReports(startDate,endDate);
+        return ResponseStructure.successResponse(reportDTOS,"Fetched Drivers Org Reports Details");
     }
 }

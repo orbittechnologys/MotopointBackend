@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -289,8 +290,8 @@ public class DriverController {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "sum Found"),
             @ApiResponse(responseCode = "404", description = "sum Not Found")})
     @GetMapping("/driverOrgReports")
-    public ResponseEntity<ResponseStructure<Object>> getDriverOrgReports() {
-        return driverService.getDriverReports();
+    public ResponseEntity<ResponseStructure<Object>> getDriverOrgReports(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        return driverService.getDriverReports(startDate,endDate);
     }
 
 }

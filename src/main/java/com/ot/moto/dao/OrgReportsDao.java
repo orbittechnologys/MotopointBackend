@@ -1,12 +1,14 @@
 package com.ot.moto.dao;
 
 
+import com.ot.moto.dto.DriverReportDTO;
 import com.ot.moto.entity.OrgReports;
 import com.ot.moto.repository.OrgReportsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -58,4 +60,10 @@ public class OrgReportsDao {
     public Page<OrgReports> findReportsForDriverBetweenDates(Long driverId, LocalDateTime startDate, LocalDateTime endDate, int page, int size, String field) {
         return orgReportsRepository.findReportsForDriverBetweenDispatchDate(driverId,startDate,endDate,PageRequest.of(page, size).withSort(Sort.by(field).descending()));
     }*/
+
+    public List<DriverReportDTO> getDriverReports(LocalDate startDate, LocalDate endDate) {
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+        return orgReportsRepository.getDriverReports(startDateTime, endDateTime);
+    }
 }
