@@ -1296,6 +1296,18 @@ public class DriverService {
             driverSummaryMap.put(tamReportDTO.getDriverId(),summaryResponse);
         }
 
+        for(DriverReportDTO reportDTO : reportDTOS){
+            SummaryResponse summaryResponse = null;
+            if(driverSummaryMap.containsKey(reportDTO.getDriverId())){
+                summaryResponse = driverSummaryMap.get(reportDTO.getDriverId());
+            }else {
+                summaryResponse = new SummaryResponse();
+            }
+            summaryResponse.setDriverReport(reportDTO);
+
+            driverSummaryMap.put(reportDTO.getDriverId(),summaryResponse);
+        }
+
         return ResponseStructure.successResponse(driverSummaryMap,"Fetched Drivers Org Reports Details");
     }
 
