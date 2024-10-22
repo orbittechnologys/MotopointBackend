@@ -64,4 +64,20 @@ public interface OrgReportsRepository extends JpaRepository<OrgReports, Long> {
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("endDateTime") LocalDateTime endDateTime);
 
+
+    @Query("SELECT new com.ot.moto.dto.DriverReportDTO( "
+            + "o.driverId, "
+            + "SUM(o.amount), "
+            + "u.username "
+            + ") "
+            + "FROM OrgReports o "
+            + "JOIN Driver d ON o.driverId = d.jahezId "
+            + "JOIN User u ON d.id = u.id "
+            + "WHERE o.dispatchTime BETWEEN :startDateTime AND :endDateTime AND d.id= :driverId"
+            + "GROUP BY o.driverId, u.username")
+    public DriverReportDTO getDriverReportsForDriver(
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime,
+            @Param("driverId") String driverId);
+
 }

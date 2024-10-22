@@ -66,4 +66,11 @@ public class OrgReportsDao {
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
         return orgReportsRepository.getDriverReports(startDateTime, endDateTime);
     }
+
+    public DriverReportDTO getDriverReportsByDriver(String driverId, LocalDate startDate, LocalDate endDate){
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+
+        return orgReportsRepository.getDriverReportsForDriver(startDateTime,endDateTime,driverId);
+    }
 }
