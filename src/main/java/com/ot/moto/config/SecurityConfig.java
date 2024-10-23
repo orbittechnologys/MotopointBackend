@@ -114,6 +114,8 @@ public class SecurityConfig {
             "/settlement/findAllSettlementByDriverIdDateTimeBetween",
             "/settlement/getById",
             "/settlement/save",
+            "/salary/download-csv-date-between-for-driver",
+            "/salary/download-all-csv-date-between",
 
 
             "/order/findAllDateBetween",

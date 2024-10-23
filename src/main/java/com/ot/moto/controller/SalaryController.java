@@ -153,18 +153,18 @@ public class SalaryController {
     }
 
     @PostMapping("/v2/settle")
-    public ResponseEntity<ResponseStructure<Object>> settleSalariesV2(@RequestBody SettleSalV2 request){
-        return  salaryService.settleSalariesV2(request);
+    public ResponseEntity<ResponseStructure<Object>> settleSalariesV2(@RequestBody SettleSalV2 request) {
+        return salaryService.settleSalariesV2(request);
     }
 
     @PostMapping("/v2/settleSalaryForDriver")
     public ResponseEntity<ResponseStructure<Object>> settleSalaryForDriver(@RequestParam Long driverId,
-                                                                           @RequestBody SettleSalV2 request){
+                                                                           @RequestBody SettleSalV2 request) {
 
-        return  salaryService.settleSalaryForDriver(driverId,request);
+        return salaryService.settleSalaryForDriver(driverId, request);
     }
 
-    @Operation(summary = "OrgReports", description = "No Input, returns the Excel file for Org Reports")
+    @Operation(summary = "salary report", description = "No Input, returns the Excel file for Org Reports")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "SUCCESS"),
             @ApiResponse(responseCode = "404", description = "Report not found"),
@@ -193,5 +193,48 @@ public class SalaryController {
                                                                                                 @RequestParam LocalDate startDate,
                                                                                                 @RequestParam LocalDate endDate) {
         return salaryService.getTotalPayableAmountByDriverAndDateRange(driverId, startDate, endDate);
+    }
+
+    @Operation(summary = "salary csv", description = "No Input, returns the Excel file for Org Reports")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SUCCESS"),
+            @ApiResponse(responseCode = "404", description = "Report not found"),
+            @ApiResponse(responseCode = "500", description = "Failure occurred")
+    })
+    @GetMapping("/download-csv-date-between-for-driver")
+    public ResponseEntity<InputStreamResource> generateCsvForSalariesByDriverAndDateRange(@RequestParam Long driverId,
+                                                                                          @RequestParam LocalDate startDate,
+                                                                                          @RequestParam LocalDate endDate) {
+        try {
+            ResponseEntity<InputStreamResource> responseEntity = salaryService.generateCsvForSalariesByDriverAndDateRange(driverId, startDate, endDate);
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                return responseEntity;
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Operation(summary = "salary csv", description = "No Input, returns the Excel file for Org Reports")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SUCCESS"),
+            @ApiResponse(responseCode = "404", description = "Report not found"),
+            @ApiResponse(responseCode = "500", description = "Failure occurred")
+    })
+    @GetMapping("/download-all-csv-date-between")
+    public ResponseEntity<InputStreamResource> generateCsvForAllSalariesByDateRange(@RequestParam LocalDate startDate,
+                                                                                    @RequestParam LocalDate endDate) {
+        try {
+            ResponseEntity<InputStreamResource> responseEntity = salaryService.generateCsvForAllSalariesByDateRange(startDate, endDate);
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                return responseEntity;
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
