@@ -91,6 +91,8 @@ public class JwtFilter extends OncePerRequestFilter {
             "/metrics/findAllOrgMetricsByDateTimeBetween",
             "/metrics/findAllTamMetricsByDateTimeBetween",
             "/metrics/findAllPaymentMetricsByDateTimeBetween",
+            "/salary/download-csv-date-between-for-driver",
+            "/salary/download-all-csv-date-between",
 
 
             "/settlement/findAllSettlementByDriverId",

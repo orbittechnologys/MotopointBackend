@@ -1,5 +1,6 @@
 package com.ot.moto.service;
 
+import com.opencsv.CSVWriter;
 import com.ot.moto.dao.*;
 import com.ot.moto.dto.ResponseStructure;
 import com.ot.moto.dto.request.SettleSalV2;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -879,4 +882,172 @@ public class SalaryService {
         }
     }
 
+    public ResponseEntity<InputStreamResource> generateCsvForSalariesByDriverAndDateRange(Long driverId, LocalDate startDate, LocalDate endDate) {
+        try {
+            // Fetch the driver by ID
+            Driver driver = driverDao.getById(driverId);
+            if (driver == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Return if the driver is not found
+            }
+
+            // Fetch salaries for the driver within the date range with status "NOT_SETTLED"
+            List<Salary> salaryList = salaryRepository.findByDriverIdAndSalaryCreditDateBetweenAndStatus(
+                    driverId, startDate, endDate, Salary.status.NOT_SETTLED.name());
+
+            if (salaryList.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Return if no salaries are found
+            }
+
+            // Create StringWriter and CSVWriter
+            StringWriter writer = new StringWriter();
+            CSVWriter csvWriter = new CSVWriter(writer);
+
+            // CSV header based on Salary entity fields
+            String[] header = {
+                    "Driver Name",
+                    "Salary ID", "Month", "Year", "No of S1", "No of S2", "No of S3", "No of S4", "No of S5", "Total Orders",
+                    "S1 Earnings", "S2 Earnings", "S3 Earnings", "S4 Earnings", "S5 Earnings", "Total Earnings",
+                    "Total Deductions", "Bonus", "Incentives", "Status", "Profit", "EMI Per Day", "Fleet Penalty",
+                    "Salary Credit Date", "Salary Settle Date", "No of Days Salary Settled", "Payable Amount", "COD Collected"
+            };
+            csvWriter.writeNext(header);
+
+            // Write data for each salary
+            for (Salary salary : salaryList) {
+                String[] data = {
+                        driver.getUsername(), // Driver name from the driver entity
+                        String.valueOf(salary.getId()),
+                        String.valueOf(salary.getMonth()),
+                        String.valueOf(salary.getYear()),
+                        String.valueOf(salary.getNoOfS1()),
+                        String.valueOf(salary.getNoOfS2()),
+                        String.valueOf(salary.getNoOfS3()),
+                        String.valueOf(salary.getNoOfS4()),
+                        String.valueOf(salary.getNoOfS5()),
+                        String.valueOf(salary.getTotalOrders()),
+                        String.valueOf(salary.getS1Earnings()),
+                        String.valueOf(salary.getS2Earnings()),
+                        String.valueOf(salary.getS3Earnings()),
+                        String.valueOf(salary.getS4Earnings()),
+                        String.valueOf(salary.getS5Earnings()),
+                        String.valueOf(salary.getTotalEarnings()),
+                        String.valueOf(salary.getTotalDeductions()),
+                        String.valueOf(salary.getBonus()),
+                        String.valueOf(salary.getIncentives()),
+                        salary.getStatus(),
+                        String.valueOf(salary.getProfit()),
+                        String.valueOf(salary.getEmiPerDay()),
+                        String.valueOf(salary.getFleetPenalty()),
+                        salary.getSalaryCreditDate() != null ? salary.getSalaryCreditDate().toString() : "",
+                        salary.getSalarySettleDate() != null ? salary.getSalarySettleDate().toString() : "",
+                        String.valueOf(salary.getNumberOfDaysSalarySettled()),
+                        String.valueOf(salary.getPayableAmount()),
+                        String.valueOf(salary.getCodCollected())
+                };
+                csvWriter.writeNext(data);
+            }
+
+            // Close writer and prepare the CSV content
+            csvWriter.close();
+            String csvContent = writer.toString();
+
+            // Prepare the CSV file as an InputStreamResource for downloading
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(csvContent.getBytes());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=driver_salaries.csv");
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(csvContent.getBytes().length)
+                    .contentType(MediaType.parseMediaType("application/csv"))
+                    .body(resource);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<InputStreamResource> generateCsvForAllSalariesByDateRange(LocalDate startDate, LocalDate endDate) {
+        try {
+            // Fetch salaries for all drivers within the date range with status "NOT_SETTLED"
+            List<Salary> salaryList = salaryRepository.findBySalaryCreditDateBetweenAndStatus(startDate, endDate, Salary.status.NOT_SETTLED.name());
+
+            if (salaryList.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Return if no salaries are found
+            }
+
+            // Create StringWriter and CSVWriter
+            StringWriter writer = new StringWriter();
+            CSVWriter csvWriter = new CSVWriter(writer);
+
+            // CSV header based on Salary entity fields
+            String[] header = {
+                    "Driver Name",
+                    "Salary ID", "Month", "Year", "No of S1", "No of S2", "No of S3", "No of S4", "No of S5", "Total Orders",
+                    "S1 Earnings", "S2 Earnings", "S3 Earnings", "S4 Earnings", "S5 Earnings", "Total Earnings",
+                    "Total Deductions", "Bonus", "Incentives", "Status", "Profit", "EMI Per Day", "Fleet Penalty",
+                    "Salary Credit Date", "Salary Settle Date", "No of Days Salary Settled", "Payable Amount", "COD Collected"
+            };
+            csvWriter.writeNext(header);
+
+            // Write data for each salary
+            for (Salary salary : salaryList) {
+                String[] data = {
+                        salary.getDriver() != null ? salary.getDriver().getUsername() : "N/A", // Driver name
+                        String.valueOf(salary.getId()),
+                        String.valueOf(salary.getMonth()),
+                        String.valueOf(salary.getYear()),
+                        String.valueOf(salary.getNoOfS1()),
+                        String.valueOf(salary.getNoOfS2()),
+                        String.valueOf(salary.getNoOfS3()),
+                        String.valueOf(salary.getNoOfS4()),
+                        String.valueOf(salary.getNoOfS5()),
+                        String.valueOf(salary.getTotalOrders()),
+                        String.valueOf(salary.getS1Earnings()),
+                        String.valueOf(salary.getS2Earnings()),
+                        String.valueOf(salary.getS3Earnings()),
+                        String.valueOf(salary.getS4Earnings()),
+                        String.valueOf(salary.getS5Earnings()),
+                        String.valueOf(salary.getTotalEarnings()),
+                        String.valueOf(salary.getTotalDeductions()),
+                        String.valueOf(salary.getBonus()),
+                        String.valueOf(salary.getIncentives()),
+                        salary.getStatus(),
+                        String.valueOf(salary.getProfit()),
+                        String.valueOf(salary.getEmiPerDay()),
+                        String.valueOf(salary.getFleetPenalty()),
+                        salary.getSalaryCreditDate() != null ? salary.getSalaryCreditDate().toString() : "",
+                        salary.getSalarySettleDate() != null ? salary.getSalarySettleDate().toString() : "",
+                        String.valueOf(salary.getNumberOfDaysSalarySettled()),
+                        String.valueOf(salary.getPayableAmount()),
+                        String.valueOf(salary.getCodCollected())
+                };
+                csvWriter.writeNext(data);
+            }
+
+            // Close writer and prepare the CSV content
+            csvWriter.close();
+            String csvContent = writer.toString();
+
+            // Prepare the CSV file as an InputStreamResource for downloading
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(csvContent.getBytes());
+            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=all_salaries.csv");
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(csvContent.getBytes().length)
+                    .contentType(MediaType.parseMediaType("application/csv"))
+                    .body(resource);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
