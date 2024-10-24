@@ -42,7 +42,6 @@ public class Fleet {
 
     private String image;
 
-
     private LocalDateTime fleetAssignDateTime;
 
     private LocalDateTime fleetUnAssignDateTime;
