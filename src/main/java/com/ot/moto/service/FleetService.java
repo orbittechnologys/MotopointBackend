@@ -218,13 +218,9 @@ public class FleetService {
                 fleetHistoryRepository.save(lastHistory);
             }
 
-            LocalDateTime assignDateTime = assignFleet.getFleetAssignDateTime() != null ?
-                    assignFleet.getFleetAssignDateTime()
-                    : LocalDateTime.now();
-
             // Assign fleet to the new driver
             fleet.setDriver(newDriver);
-            fleet.setFleetAssignDateTime(assignDateTime);  // Set assign date and time
+            fleet.setFleetAssignDateTime(assignFleet.getFleetAssignDateTime());  // Set assign date and time
 
             // Save the updated fleet
             fleetDao.createFleet(fleet);
@@ -233,7 +229,7 @@ public class FleetService {
             FleetHistory newHistory = new FleetHistory();
             newHistory.setFleet(fleet);
             newHistory.setDriver(newDriver);
-            newHistory.setFleetAssignDateTime(assignDateTime);  // Record the assignment date and time
+            newHistory.setFleetAssignDateTime(assignFleet.getFleetAssignDateTime());  // Record the assignment date and time
             newHistory.setProfit(0.0);  // Profit can be calculated based on your logic
             fleetHistoryRepository.save(newHistory);
 
