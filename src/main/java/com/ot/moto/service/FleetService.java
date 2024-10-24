@@ -263,8 +263,8 @@ public class FleetService {
             fleet.setDriver(null);  // Remove the driver from the fleet
             fleet.setFleetUnAssignDateTime(LocalDateTime.now());  // Set the unassign date and time
 
-            long rentedDays = ChronoUnit.DAYS.between(fleet.getFleetAssignDateTime().toLocalDate(), LocalDateTime.now().toLocalDate());
-            double profit = currentDriver.getBikeRentAmountEmi() * rentedDays;
+            long rentedDays = ChronoUnit.DAYS.between(fleet.getFleetAssignDateTime().toLocalDate(), LocalDateTime.now().toLocalDate())+ 1;
+            double profit = (currentDriver.getBikeRentAmountEmi() != null) ? currentDriver.getBikeRentAmountEmi() * rentedDays : 0.0;
 
             if (fleet.getFinalProfit() == null) {
                 fleet.setFinalProfit(0.0);
@@ -291,7 +291,6 @@ public class FleetService {
             return ResponseStructure.errorResponse(null, 500, "Error unassigning fleet: " + e.getMessage());
         }
     }
-
 
 
     public ResponseEntity<ResponseStructure<List<Fleet>>> searchFleetByVehicleNumber(String vehicleNumberSubstring) {
