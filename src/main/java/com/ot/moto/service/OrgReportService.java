@@ -568,23 +568,39 @@ public class OrgReportService {
 
     public double updateDriverEmiAmounts(Driver driver) {
         double totalEmi = 0.0;
-        if(driver.getVisaAmountEmi() != null){
-            driver.setVisaAmountReceived(driver.getVisaAmountReceived() + driver.getVisaAmountEmi());
+
+        // Update visa amount received
+        if (Optional.ofNullable(driver.getVisaAmountEmi()).isPresent()) {
+            driver.setVisaAmountReceived(
+                    Optional.ofNullable(driver.getVisaAmountReceived()).orElse(0.0)
+                            + driver.getVisaAmountEmi()
+            );
             totalEmi += driver.getVisaAmountEmi();
         }
 
-        if(driver.getBikeRentAmountEmi() != null){
-            driver.setBikeRentAmountReceived(driver.getBikeRentAmountReceived() + driver.getBikeRentAmountEmi());
+        // Update bike rent amount received
+        if (Optional.ofNullable(driver.getBikeRentAmountEmi()).isPresent()) {
+            driver.setBikeRentAmountReceived(
+                    Optional.ofNullable(driver.getBikeRentAmountReceived()).orElse(0.0)
+                            + driver.getBikeRentAmountEmi()
+            );
             totalEmi += driver.getBikeRentAmountEmi();
         }
 
-        List<OtherDeduction> otherDeductionList = driver.getOtherDeductions();
-        for(OtherDeduction otherDeduction : otherDeductionList){
-            if(otherDeduction.getOtherDeductionReceived() < otherDeduction.getOtherDeductionAmount()){
-                otherDeduction.setOtherDeductionReceived(otherDeduction.getOtherDeductionReceived() + otherDeduction.getOtherDeductionAmountEmi());
-                totalEmi += otherDeduction.getOtherDeductionAmountEmi();
+        // Handle other deductions, with enhanced null handling
+        List<OtherDeduction> otherDeductionList = Optional.ofNullable(driver.getOtherDeductions()).orElse(Collections.emptyList());
+        for (OtherDeduction otherDeduction : otherDeductionList) {
+            double received = Optional.ofNullable(otherDeduction.getOtherDeductionReceived()).orElse(0.0);
+            double totalAmount = Optional.ofNullable(otherDeduction.getOtherDeductionAmount()).orElse(0.0);
+            double emiAmount = Optional.ofNullable(otherDeduction.getOtherDeductionAmountEmi()).orElse(0.0);
+
+            // Only update if received is less than total amount
+            if (received < totalAmount) {
+                otherDeduction.setOtherDeductionReceived(received + emiAmount);
+                totalEmi += emiAmount;
             }
         }
+
         otherDeductionDao.saveAll(otherDeductionList);
         driverDao.createDriver(driver);
         return totalEmi;

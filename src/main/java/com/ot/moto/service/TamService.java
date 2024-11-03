@@ -396,25 +396,65 @@ public class TamService {
         }
     }
 
-    public double updateDriverEmiAmounts(Driver driver) {
+    /*public double updateDriverEmiAmounts(Driver driver) {
         double totalEmi = 0.0;
         if (driver.getVisaAmountEmi() != null) {
-            driver.setVisaAmountReceived(driver.getVisaAmountReceived() + driver.getVisaAmountEmi());
-            totalEmi += driver.getVisaAmountEmi();
+            driver.setVisaAmountReceived(Optional.ofNullable(driver.getVisaAmountReceived()).orElse(0.0) + Optional.ofNullable(driver.getVisaAmountEmi()).orElse(0.0));
+            totalEmi += Optional.ofNullable(driver.getVisaAmountEmi()).orElse(0.0);
         }
 
         if (driver.getBikeRentAmountEmi() != null) {
-            driver.setBikeRentAmountReceived(driver.getBikeRentAmountReceived() + driver.getBikeRentAmountEmi());
-            totalEmi += driver.getBikeRentAmountEmi();
+            driver.setBikeRentAmountReceived(Optional.ofNullable(driver.getBikeRentAmountReceived()).orElse(0.0) + Optional.ofNullable(driver.getBikeRentAmountEmi()).orElse(0.0));
+            totalEmi += Optional.ofNullable(driver.getBikeRentAmountEmi()).orElse(0.0);
         }
 
         List<OtherDeduction> otherDeductionList = driver.getOtherDeductions();
         for (OtherDeduction otherDeduction : otherDeductionList) {
-            if (otherDeduction.getOtherDeductionReceived() < otherDeduction.getOtherDeductionAmount()) {
-                otherDeduction.setOtherDeductionReceived(otherDeduction.getOtherDeductionReceived() + otherDeduction.getOtherDeductionAmountEmi());
-                totalEmi += otherDeduction.getOtherDeductionAmountEmi();
+            if (Optional.ofNullable(otherDeduction.getOtherDeductionReceived()).orElse(0.0) < Optional.ofNullable(otherDeduction.getOtherDeductionAmount()).orElse(0.0)) {
+                otherDeduction.setOtherDeductionReceived(Optional.ofNullable(otherDeduction.getOtherDeductionReceived()).orElse(0.0) + Optional.ofNullable(otherDeduction.getOtherDeductionAmountEmi()).orElse(0.0));
+                totalEmi += Optional.ofNullable(otherDeduction.getOtherDeductionAmountEmi()).orElse(0.0);
             }
         }
+        otherDeductionDao.saveAll(otherDeductionList);
+        driverDao.createDriver(driver);
+        return totalEmi;
+    }*/
+
+    public double updateDriverEmiAmounts(Driver driver) {
+        double totalEmi = 0.0;
+
+        // Update visa amount received
+        if (Optional.ofNullable(driver.getVisaAmountEmi()).isPresent()) {
+            driver.setVisaAmountReceived(
+                    Optional.ofNullable(driver.getVisaAmountReceived()).orElse(0.0)
+                            + driver.getVisaAmountEmi()
+            );
+            totalEmi += driver.getVisaAmountEmi();
+        }
+
+        // Update bike rent amount received
+        if (Optional.ofNullable(driver.getBikeRentAmountEmi()).isPresent()) {
+            driver.setBikeRentAmountReceived(
+                    Optional.ofNullable(driver.getBikeRentAmountReceived()).orElse(0.0)
+                            + driver.getBikeRentAmountEmi()
+            );
+            totalEmi += driver.getBikeRentAmountEmi();
+        }
+
+        // Handle other deductions, with enhanced null handling
+        List<OtherDeduction> otherDeductionList = Optional.ofNullable(driver.getOtherDeductions()).orElse(Collections.emptyList());
+        for (OtherDeduction otherDeduction : otherDeductionList) {
+            double received = Optional.ofNullable(otherDeduction.getOtherDeductionReceived()).orElse(0.0);
+            double totalAmount = Optional.ofNullable(otherDeduction.getOtherDeductionAmount()).orElse(0.0);
+            double emiAmount = Optional.ofNullable(otherDeduction.getOtherDeductionAmountEmi()).orElse(0.0);
+
+            // Only update if received is less than total amount
+            if (received < totalAmount) {
+                otherDeduction.setOtherDeductionReceived(received + emiAmount);
+                totalEmi += emiAmount;
+            }
+        }
+
         otherDeductionDao.saveAll(otherDeductionList);
         driverDao.createDriver(driver);
         return totalEmi;

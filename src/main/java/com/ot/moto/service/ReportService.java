@@ -90,8 +90,9 @@ public class ReportService {
 
     private static final Logger logger = LoggerFactory.getLogger(ReportService.class);
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
+    /*DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");*/
 
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public ResponseEntity<ResponseStructure<Object>> uploadBankStatement(Sheet sheet, String fileName) {
         try {
@@ -292,23 +293,39 @@ public class ReportService {
 
     public double updateDriverEmiAmounts(Driver driver) {
         double totalEmi = 0.0;
-        if (driver.getVisaAmountEmi() != null) {
-            driver.setVisaAmountReceived(driver.getVisaAmountReceived() + driver.getVisaAmountEmi());
+
+        // Update visa amount received
+        if (Optional.ofNullable(driver.getVisaAmountEmi()).isPresent()) {
+            driver.setVisaAmountReceived(
+                    Optional.ofNullable(driver.getVisaAmountReceived()).orElse(0.0)
+                            + driver.getVisaAmountEmi()
+            );
             totalEmi += driver.getVisaAmountEmi();
         }
 
-        if (driver.getBikeRentAmountEmi() != null) {
-            driver.setBikeRentAmountReceived(driver.getBikeRentAmountReceived() + driver.getBikeRentAmountEmi());
+        // Update bike rent amount received
+        if (Optional.ofNullable(driver.getBikeRentAmountEmi()).isPresent()) {
+            driver.setBikeRentAmountReceived(
+                    Optional.ofNullable(driver.getBikeRentAmountReceived()).orElse(0.0)
+                            + driver.getBikeRentAmountEmi()
+            );
             totalEmi += driver.getBikeRentAmountEmi();
         }
 
-        List<OtherDeduction> otherDeductionList = driver.getOtherDeductions();
+        // Handle other deductions, with enhanced null handling
+        List<OtherDeduction> otherDeductionList = Optional.ofNullable(driver.getOtherDeductions()).orElse(Collections.emptyList());
         for (OtherDeduction otherDeduction : otherDeductionList) {
-            if (otherDeduction.getOtherDeductionReceived() < otherDeduction.getOtherDeductionAmount()) {
-                otherDeduction.setOtherDeductionReceived(otherDeduction.getOtherDeductionReceived() + otherDeduction.getOtherDeductionAmountEmi());
-                totalEmi += otherDeduction.getOtherDeductionAmountEmi();
+            double received = Optional.ofNullable(otherDeduction.getOtherDeductionReceived()).orElse(0.0);
+            double totalAmount = Optional.ofNullable(otherDeduction.getOtherDeductionAmount()).orElse(0.0);
+            double emiAmount = Optional.ofNullable(otherDeduction.getOtherDeductionAmountEmi()).orElse(0.0);
+
+            // Only update if received is less than total amount
+            if (received < totalAmount) {
+                otherDeduction.setOtherDeductionReceived(received + emiAmount);
+                totalEmi += emiAmount;
             }
         }
+
         otherDeductionDao.saveAll(otherDeductionList);
         driverDao.createDriver(driver);
         return totalEmi;
@@ -782,7 +799,6 @@ public class ReportService {
         }
     }
 
-
     public ResponseEntity<InputStreamResource> generateCsvForPaymentsByDriverAndDateRange(Long driverId, LocalDate startDate, LocalDate endDate) {
         try {
             // Fetch the driver by ID
@@ -842,7 +858,6 @@ public class ReportService {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     public ResponseEntity<InputStreamResource> generateExcelForPaymentsDateBetween(LocalDate startDate, LocalDate endDate) {
         try {
